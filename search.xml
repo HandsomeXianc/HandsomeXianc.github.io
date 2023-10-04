@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>测试文章</title>
+    <url>/2023/10/01/hello-world/</url>
+    <content><![CDATA[<h1 id="测试文章"><a href="#测试文章" class="headerlink" title="测试文章"></a>测试文章</h1><h2 id="文章篇头编辑简介"><a href="#文章篇头编辑简介" class="headerlink" title="文章篇头编辑简介"></a>文章篇头编辑简介</h2><p>使用 <code>cover</code>标签添加图片的链接即可作为文章的首页展示图</p>
+<p>使用 <code>tags</code>给文章添加标签</p>
+<p>使用 <code>categories</code> 来个文章归类</p>
+<p>使用 <code>title</code> 给文章添加标题</p>
+<p>使用 <code>expert</code> 来鬼文章添加首页简要</p>
+<p>使用 <code>date</code> 标注文章发布时间</p>
+]]></content>
+      <categories>
+        <category>测试标签1</category>
+        <category>2标签测试</category>
+      </categories>
+      <tags>
+        <tag>Tag1</tag>
+        <tag>标签2</tag>
+      </tags>
+  </entry>
+</search>
