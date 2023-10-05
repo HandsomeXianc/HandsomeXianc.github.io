@@ -2,7 +2,7 @@
 <search>
   <entry>
     <title>测试文章</title>
-    <url>/2023/10/01/hello-world/</url>
+    <url>/HandsomeXianc/2023/10/01/hello-world/</url>
     <content><![CDATA[<h1 id="测试文章"><a href="#测试文章" class="headerlink" title="测试文章"></a>测试文章</h1><h2 id="文章篇头编辑简介"><a href="#文章篇头编辑简介" class="headerlink" title="文章篇头编辑简介"></a>文章篇头编辑简介</h2><p>使用 <code>cover</code>标签添加图片的链接即可作为文章的首页展示图</p>
 <p>使用 <code>tags</code>给文章添加标签</p>
 <p>使用 <code>categories</code> 来个文章归类</p>
