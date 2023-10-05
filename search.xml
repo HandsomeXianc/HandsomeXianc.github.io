@@ -1,6 +1,732 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Spring技术AOP基础</title>
+    <url>/HandsomeXianc/2023/10/03/AOP%E5%9F%BA%E7%A1%80/</url>
+    <content><![CDATA[<h1 id="AOP基础"><a href="#AOP基础" class="headerlink" title="AOP基础"></a>AOP基础</h1><h2 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h2><ul>
+<li><b style="color:red">AOP：</b><span style="color:red">A</span>spect <span style="color:red">O</span>riented <span style="color:red">P</span>rogramming（<span style="color:red">面向切面编程，面向方面编程</span>），其实就是面向特定的方法编程。</li>
+<li><strong>动态代理</strong>是面向切面编程最主流的实现。而SpringAOP是Spring框架的高级技术，旨在管理bean对象的过程中，主要通过底层的动态代理机制，对特定的方法进行编程。</li>
+<li><strong>使用场景</strong>：记录操作日志、权限控制、事务管理…</li>
+<li><strong>优势</strong>：代码无侵入、减少重复代码、提高开发效率、维护方便</li>
+</ul>
+<h2 id="二、SpringAOP快速入门"><a href="#二、SpringAOP快速入门" class="headerlink" title="二、SpringAOP快速入门"></a>二、SpringAOP快速入门</h2><p><strong>问题：统计各个业务层方法的执行耗时</strong></p>
+<ol>
+<li><p>导入依赖</p>
+<div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-aop<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p>编写AOP程序：针对特定的方法根据业务需要进行编程</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span>              <span class="comment">//日志打印</span></span><br><span class="line"><span class="meta">@Component</span>          <span class="comment">//交给IOC管理</span></span><br><span class="line"><span class="meta">@Aspect</span>             <span class="comment">//告知Spring这是一个AOP</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TimeAspect</span> &#123;</span><br><span class="line">    <span class="meta">@Around(&quot;execution(* com.mystudy.service.*.*(..))&quot;)</span>     <span class="comment">//说明该切面作用在那些方法上</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">recordTime</span><span class="params">(ProceedingJoinPoint joinPoint)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        <span class="comment">//1. 记录开始时间</span></span><br><span class="line">        <span class="type">long</span> <span class="variable">begin</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">        <span class="comment">//2. 调用原始方法执行</span></span><br><span class="line">        <span class="type">Object</span> <span class="variable">result</span> <span class="operator">=</span> joinPoint.proceed();    <span class="comment">//result是原始方法执行之后的返回值</span></span><br><span class="line">        <span class="comment">//3. 记录结束时间，计算方法执行耗时</span></span><br><span class="line">        <span class="type">long</span> <span class="variable">end</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">        log.info(joinPoint.getSignature()+<span class="string">&quot;执行耗时:&#123;&#125;ms&quot;</span>,end - begin);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p>此时，访问各个接口可以看到结果，说明实现成功…</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309251852023.png"
+                      alt="image-20230925185240803"
+                ></p>
+</li>
+</ol>
+<h2 id="三、核心概念"><a href="#三、核心概念" class="headerlink" title="三、核心概念"></a>三、核心概念</h2><ul>
+<li><strong>连接点</strong>：JoinPoint，可以被AOP控制的方法（暗含方法执行时的相关信息）</li>
+<li><strong>通知</strong>：Advice，指哪些重复的逻辑，也就是共性功能（最终体现为一个方法）</li>
+<li><strong>切入点</strong>：PointCut，匹配连接点的条件，通知仅会在切入点方法执行时被应用</li>
+<li><strong>切面</strong>：Aspect，描述通知与切入点的对应关系（通知 + 切入点）</li>
+<li><strong>目标对象</strong>：Target，通知所应用的对象</li>
+</ul>
+<h2 id="四、通知类型"><a href="#四、通知类型" class="headerlink" title="四、通知类型"></a>四、通知类型</h2><ol>
+<li><code>Around</code>：环绕通知，此注解标注的通知方法在目标方法前、后被执行</li>
+<li><code>Before</code>：前置通知，此注解标注的通知方法在目标方法前被执行</li>
+<li><code>After</code>：后置通知，此注解标注的通知方法在目标方法后被执行，无论是否有异常都会被执行</li>
+<li><code>AfterReturning</code>：返回后通知，此注解标注的通知方法在目标方法后被执行，有异常不会执行</li>
+<li><code>@AfterThrowing</code>：异常后通知，次注解标注的通知方法发生异常后执行</li>
+</ol>
+<blockquote>
+<p><b style="color:red">注意事项</b></p>
+<ul>
+<li><code>@Aroudn</code>环绕通知需要自己调用 **ProceedingJoinPoint.proceed( )**来让原始方法执行，其他通知不需要考虑目标方法执行。</li>
+<li><code>@Around</code>环绕通知方法的返回值，必须指定为Object，来接收原始方法的返回值。</li>
+</ul>
+</blockquote>
+<hr>
+
+<p><strong>测试代码展示</strong></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span>              <span class="comment">//日志打印</span></span><br><span class="line"><span class="meta">@Component</span>          <span class="comment">//交给IOC管理</span></span><br><span class="line"><span class="meta">@Aspect</span>             <span class="comment">//告知Spring这是一个AOP</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TimeAspect</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Before(&quot;execution(* com.mystudy.service.impl.UserServiceImpl.*(..))&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">before</span><span class="params">()</span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;前置通知：before..&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Around(&quot;execution(* com.mystudy.service.impl.UserServiceImpl.*(..))&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">around</span><span class="params">(ProceedingJoinPoint joinPoint)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        log.info(<span class="string">&quot;环绕通知...前&quot;</span>);</span><br><span class="line">        <span class="type">Object</span> <span class="variable">obj</span> <span class="operator">=</span> joinPoint.proceed();</span><br><span class="line">        log.info(<span class="string">&quot;环绕通知...后&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> obj;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@After(&quot;execution(* com.mystudy.service.impl.UserServiceImpl.*(..))&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">after</span><span class="params">()</span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;后置通知：after..&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p>运行之后，查看结果。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309251940219.png"
+                      alt="image-20230925194011078"
+                ></p>
+<p><strong>回过头来看看我们编辑的代码，每一个切入点都包含一个重复的切入点表达式，这样会显得代码繁琐，因此可以使用注解<code>@Pointcut</code>简化</strong></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span>              <span class="comment">//日志打印</span></span><br><span class="line"><span class="meta">@Component</span>          <span class="comment">//交给IOC管理</span></span><br><span class="line"><span class="meta">@Aspect</span>             <span class="comment">//告知Spring这是一个AOP</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TimeAspect</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Pointcut(&quot;execution(* com.mystudy.service.impl.UserServiceImpl.*(..))&quot;)</span>	<span class="comment">//定义切入点</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">pt</span><span class="params">()</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Before(&quot;pt()&quot;)</span>			<span class="comment">//使用切入点</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">before</span><span class="params">()</span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;前置通知：before..&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Around(&quot;pt()&quot;)</span>			<span class="comment">//使用切入点</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">around</span><span class="params">(ProceedingJoinPoint joinPoint)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        log.info(<span class="string">&quot;环绕通知...前&quot;</span>);</span><br><span class="line">        <span class="type">Object</span> <span class="variable">obj</span> <span class="operator">=</span> joinPoint.proceed();</span><br><span class="line">        log.info(<span class="string">&quot;环绕通知...后&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> obj;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@After(&quot;pt()&quot;)</span>			<span class="comment">//使用切入点</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">after</span><span class="params">()</span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;后置通知：after..&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<hr>
+
+<p><strong>不同切面类之间定义的<span style="color:blue">切入点</span>是可以<span style="color:red">共享</span>的</strong></p>
+<ol>
+<li><p>首先在<code>TimeAspect</code>类中定义一个切入点</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309251951765.png"
+                      alt="image-20230925195156608"
+                ></p>
+</li>
+<li><p>在<code>MyAspect</code>类中使用<code>TimeAspect</code>的切入点</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309251952910.png"
+                      alt="image-20230925195226775"
+                ></p>
+</li>
+<li><p>启动项目查看运行结果：MyAspect的切入成功实现即可说明切入点可以共享</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309251953999.png"
+                      alt="image-20230925195329895"
+                ></p>
+</li>
+</ol>
+<hr>
+
+
+
+<h2 id="五、通知顺序"><a href="#五、通知顺序" class="headerlink" title="五、通知顺序"></a>五、通知顺序</h2><ul>
+<li><strong>场景：当有多个切面的切入点都匹配到了目标方法，目标方法运行时，多个通知方法都会被执行</strong></li>
+</ul>
+<p>这里我定义了三个切面类并且实现了对应的<code>@Before</code>和<code>@After</code></p>
+<center class="half">    
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309252017184.png"
+                      width="310"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309252017013.png"
+                      width="310"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309252017835.png"
+                      width="310"
+                >
+</center>
+
+<p>运行程序之后，发送一个请求，查看切面的运行结果为下图所示：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309252021087.png"
+                      alt="image-20230925202156024"
+                ></p>
+<p>发现规律：与<b style="color:red">切面类的类名</b>相关</p>
+<ul>
+<li>不同切面类中，默认按照切面类的<b style="color:red">类名字母排序</b><ol>
+<li>在原始方法运行<b style="color:blue">之前</b>的通知：类名排名越靠前<b style="color:green">越先执行</b></li>
+<li>在原始方法运行<b style="color:blue">之后</b>的通知：类名排名越靠前<b style="color:green">越后执行</b></li>
+</ol>
+</li>
+<li>使用<code>@Order(数字)</code>加在切面类上来控制顺序<ol>
+<li>在原始方法运行<b style="color:blue">之前</b>的通知：数字小的<b style="color:green">越先执行</b></li>
+<li>在原始方法运行<b style="color:blue">之后</b>的通知：数字小的<b style="color:green">越后执行</b></li>
+</ol>
+</li>
+</ul>
+<p><strong>例子：使用@Order来指定先让Aop_2的前置通知先执行，然后是Aop_3最后执行Aop_1</strong></p>
+<ul>
+<li>首先在对应的Aop类上加上注解@Order注解因为先执行Aop_2所以它的 数字最小</li>
+</ul>
+<center class="half">    
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309252044370.png"
+                      width="310"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309252045483.png"
+                      width="310"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309252045653.png"
+                      width="310"
+                >
+</center>
+
+<ul>
+<li>启动程序，发送请求，查看结果。结果与注解@Order相对应</li>
+</ul>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309252051599.png"
+                     
+                >
+
+<hr>
+
+<h2 id="六、切入点表达式"><a href="#六、切入点表达式" class="headerlink" title="六、切入点表达式"></a>六、切入点表达式</h2><ul>
+<li><p><strong>切入点表达式</strong>：描述切入点方法的一种表达式</p>
+</li>
+<li><p><strong>作用</strong>：主要用来决定项目中的哪些方法需要加入通知</p>
+</li>
+<li><p><strong>常见形式</strong>：</p>
+<ol>
+<li><code>execution(...)</code>：根据方法的签名来匹配</li>
+<li><code>@annotation(...)</code>：根据注解匹配</li>
+</ol>
+</li>
+</ul>
+<h4>第一类：execution</h4>
+
+<p>execution 主要根据方法的返回值、包名、类名、方法名、方法参数等信息来匹配，语法为：</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line">execution(访问修饰符? 返回值 包名.类名.?方法名(方法参数) <span class="keyword">throws</span> 异常?)</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li>其中带 <b style="color:red">?</b> 表示可以省略的部分<ul>
+<li>访问修饰符：可省略（比如：public、protected）</li>
+<li>包名.类名：可省略</li>
+<li>throws 异常：可省略（注意是方法上声明抛出的异常，不是实际抛出的异常）</li>
+</ul>
+</li>
+</ul>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Before(&quot;execution(public void com.mystudy.service.impl.UserServiceImpl.delete(java.lang.Integer))&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">before</span><span class="params">(JointPoint joinPoint)</span>&#123;&#125;</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li><p>可以使用通配符描述切入点</p>
+<ol>
+<li><p><code>*</code>：<strong>单个独立</strong>的任意符号，可以通配任意返回值、包名、类名、方法名、任意类型的一个参数，也可以通配包、类方法名的一部分</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line">execution(* com.*.service.*.update*(*))</span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p><code>..</code>：<strong>多个连续</strong>的任意符号，可以通配任意层级的包、或任意类型、任意个数的参数</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line">execution(* com.itheima..DeptService.*(..))</span><br></pre></td></tr></table></figure></div></li>
+</ol>
+</li>
+</ul>
+<blockquote>
+<p><strong>注意事项：</strong></p>
+<ul>
+<li>根据业务需要，可以使用 且(&amp;&amp;)、或(||)、非(!)来组合比较复杂的切入点表达式</li>
+</ul>
+<p><strong>书写建议：</strong></p>
+<ul>
+<li>所有业务<span style="color:red">方法名</span>在<span style="color:red">命名</span>时尽量<span style="color:red">规范</span>，方便切入点表达式的快速匹配。如：查询类方法都是find开头，更新类方法都是update开头</li>
+<li>描述切入点方法通常是<span style="color:red">基于接口描述</span>，而不是直接描述实现类，<span style="color:red">增强拓展性</span></li>
+<li>在满足业务需要的前提下，<span style="color:red">尽量缩小切入点的匹配范围</span>。如：包名匹配尽量不使用<code>..</code>，使用<code>*</code>匹配单个包</li>
+</ul>
+</blockquote>
+<hr>
+
+<h4>第二类：@annotation【基于注解开发】</h4>
+
+<p><strong>首先定义一个注解</strong></p>
+<ul>
+<li>**<code>@Retention</code>**：该注解用来说明自定义注解在什么时候生效</li>
+<li>**<code>@Target</code>**：用于描述注解在哪里生效</li>
+</ul>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309260932197.png"
+                      alt="image-20230926093159391"
+                ></p>
+<p><strong>然后，修改<code>MyAspect</code>的内容将注解<code>@Around</code>中的内容更换成<code>@annotation(&quot;自定义注解所在的包&quot;)</code></strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309260933011.png"
+                      alt="image-20230926093347797"
+                ></p>
+<p><strong>在需要使用到MyAspect切面的地方添加上自定义注解<code>@MyAnnotation</code>【此处我在Login上添加注解】然后启动项目，测试结果</strong></p>
+<center class="half">    
+        <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309260938941.png"
+                      width="300" style="height:150px"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309260938534.png"
+                      width="630" style="height:150px"
+                >
+</center>
+
+<p><strong>可以看到在执行<code>Login</code>的时候切面类<code>MyAspect</code>确实也执行了说明基于自定义注解<code>@annotation</code>成功实现</strong></p>
+<hr>
+
+
+
+<h2 id="七、连接点"><a href="#七、连接点" class="headerlink" title="七、连接点"></a>七、连接点</h2><ul>
+<li>在Spring中用JoinPoint抽象了连接点，用它可以获得方法执行时的相关信息，如<strong>目标类名、方法名、方法参数等</strong><ul>
+<li>对于<code>@Around</code>通知，获取连接点信息只能使用 <code>ProceedingJoinPoint</code></li>
+<li>对于其它四种通知，获取连接点信息只能使用<code>JoinPoint</code>，它是<code>ProceedingJoinPoint</code>的父类型</li>
+</ul>
+</li>
+</ul>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyAspect</span> &#123;</span><br><span class="line">    <span class="meta">@Pointcut(&quot;execution(* com.mystudy.service.*.*(..))&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">pt</span><span class="params">()</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Around(&quot;pt()&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">aroundAdvice</span><span class="params">(ProceedingJoinPoint joinPoint)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        <span class="comment">//1. 获取目标的类名</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> joinPoint.getTarget().getClass().getName();</span><br><span class="line">        log.info(<span class="string">&quot;目标类名:&#123;&#125;&quot;</span>,name);</span><br><span class="line">        <span class="comment">//2. 获取目标方法的签名</span></span><br><span class="line">        <span class="type">Signature</span> <span class="variable">signature</span> <span class="operator">=</span> joinPoint.getSignature();</span><br><span class="line">        log.info(<span class="string">&quot;目标方法签名:&#123;&#125;&quot;</span>,signature);</span><br><span class="line">        <span class="comment">//3. 获取目标的方法名</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">sname</span> <span class="operator">=</span> joinPoint.getSignature().getName();</span><br><span class="line">        log.info(<span class="string">&quot;目标方法名：&#123;&#125;&quot;</span>,sname);</span><br><span class="line">        <span class="comment">//4. 获取目标方法运行参数</span></span><br><span class="line">        Object[] args = joinPoint.getArgs();</span><br><span class="line">        log.info(<span class="string">&quot;运行参数:&#123;&#125;&quot;</span>,args);</span><br><span class="line">        <span class="comment">//5. 执行原始方法，获取返回值(环绕通知)</span></span><br><span class="line">        <span class="type">Object</span> <span class="variable">result</span> <span class="operator">=</span> joinPoint.proceed();</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
+
+
+
+
+
+
+
+<h2 id="八、操作例子"><a href="#八、操作例子" class="headerlink" title="八、操作例子"></a>八、操作例子</h2><p><strong>下面给出一个具体业务实际的操作例子来巩固AOP操作，具体场景如下：</strong>在实际开发中常常会遇到对数据库的修改以及添加操作，在某些时刻每一次添加以及修改的操作的时候需要记录下操作人以及操作时间，因此在很多方法上会有冗余的代码【即：记录操作人以及修改时间】，此类问题称为公共字段填充。</p>
+<p><strong>实现思路</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">序号</th>
+<th align="center">字段名</th>
+<th align="center">含义</th>
+<th align="center">数据类型</th>
+<th align="center">操作类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">1</td>
+<td align="center">create_time</td>
+<td align="center">创建时间</td>
+<td align="center">datetime</td>
+<td align="center">insert</td>
+</tr>
+<tr>
+<td align="center">2</td>
+<td align="center">create_user</td>
+<td align="center">创建人id</td>
+<td align="center">bigint</td>
+<td align="center">insert</td>
+</tr>
+<tr>
+<td align="center">3</td>
+<td align="center">update_time</td>
+<td align="center">修改时间</td>
+<td align="center">datetime</td>
+<td align="center">insert、update</td>
+</tr>
+<tr>
+<td align="center">4</td>
+<td align="center">update_user</td>
+<td align="center">修改人id</td>
+<td align="center">bigint</td>
+<td align="center">insert、update</td>
+</tr>
+</tbody></table>
+<ul>
+<li>自定义注解AutoFill，用于标识需要进行公共字段自动填充的方法</li>
+<li>自定义切面类AutoFillAspect，统一拦截加入AutoFill注解的方法，通过反射为公共字段赋值</li>
+<li>在Mapper的方法上加入AutoFill注解</li>
+</ul>
+<blockquote>
+<p>技术点：枚举、注解、AOP、反射</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>常见技术问题</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>后端</tag>
+        <tag>spring全家桶</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>简述PageHelper的原理及使用</title>
+    <url>/HandsomeXianc/2023/10/03/PageHelper%E5%8E%9F%E7%90%86%E4%BD%BF%E7%94%A8%E5%8F%8A/</url>
+    <content><![CDATA[<h1 id="简述PageHelper的原理及使用"><a href="#简述PageHelper的原理及使用" class="headerlink" title="简述PageHelper的原理及使用"></a>简述PageHelper的原理及使用</h1><h2 id="PageHelper原理"><a href="#PageHelper原理" class="headerlink" title="PageHelper原理"></a>PageHelper原理</h2><p><strong>PageHelper</strong>是<strong>MyBatis</strong>的通用分页插件，通过<strong>mybatis</strong>的<b style="color:red">拦截器</b>实现分页功能，<b style="color:blue">拦截sql查询请求，添加分页语句，最终实现分页查询功能。</b></p>
+<p>在调用dao的Service的方法中设置分页参数：PageHelper.startPage(page,size)，分页参数会设置在<u><strong><code>ThreadLocal</code></strong></u>中然后PageHelper会在mybatis执行SQL时进行拦截，从<u><b style="color:red">ThreadLocal</b></u>取出分页参数，修改当前执行的SQL语句，添加分页SQL，最后执行添加了分页sql的sql语句实现分页查询。</p>
+<h2 id="PageHelper使用"><a href="#PageHelper使用" class="headerlink" title="PageHelper使用"></a>PageHelper使用</h2><h3 id="导入pom坐标"><a href="#导入pom坐标" class="headerlink" title="导入pom坐标"></a>导入pom坐标</h3><div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.github.pagehelper<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>pagehelper-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>版本自行选择<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<h3 id="接口设计"><a href="#接口设计" class="headerlink" title="接口设计"></a>接口设计</h3><p><strong>基本信息：</strong></p>
+<p><strong>Path：</strong><code>/admin/employee/page</code></p>
+<p><strong>Method：</strong><code>Get</code></p>
+<h3 id="接口描述"><a href="#接口描述" class="headerlink" title="接口描述"></a>接口描述</h3><p><strong>Query</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">参数名称</th>
+<th align="center">是否必须</th>
+<th align="center">示例</th>
+<th align="center">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">name</td>
+<td align="center">否</td>
+<td align="center">张三</td>
+<td align="center">姓名</td>
+</tr>
+<tr>
+<td align="center">page</td>
+<td align="center">是</td>
+<td align="center">1</td>
+<td align="center">页码</td>
+</tr>
+<tr>
+<td align="center">pageSize</td>
+<td align="center">是</td>
+<td align="center">10</td>
+<td align="center">每页记录数</td>
+</tr>
+</tbody></table>
+<h3 id="创建DTO封装接口参数"><a href="#创建DTO封装接口参数" class="headerlink" title="创建DTO封装接口参数"></a>创建DTO封装接口参数</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//该类用来封装前端传递过来的参数</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">EmployeePageQueryDTO</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="comment">//员工姓名</span></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//页码</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> page;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//每页显示记录数</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> pageSize;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>将所有分页查询的结果统一封装成PageResult对象。为什么？方便返回给前端</strong></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *	封装分页查询的结果</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PageResult</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">long</span> total;		<span class="comment">//总记录数</span></span><br><span class="line">    <span class="keyword">private</span> List records;	<span class="comment">//当前页数据集合</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="Controller层代码实现"><a href="#Controller层代码实现" class="headerlink" title="Controller层代码实现"></a>Controller层代码实现</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@GetMapping(&quot;/page&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result&lt;PageResult&gt; <span class="title function_">page</span><span class="params">(EmployeePageQueryDTO employeePageQueryDTO)</span> &#123;</span><br><span class="line">	log.info(<span class="string">&quot;获取分页查询的数据:&#123;&#125;&quot;</span>,employeePageQueryDTO);</span><br><span class="line">	<span class="type">PageResult</span> <span class="variable">pageResult</span> <span class="operator">=</span> employeeService.pageQuery(employeePageQueryDTO);</span><br><span class="line">	<span class="keyword">return</span> Result.success(pageResult);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="Service层代码实现"><a href="#Service层代码实现" class="headerlink" title="Service层代码实现"></a>Service层代码实现</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> PageResult <span class="title function_">pageQuery</span><span class="params">(EmployeePageQueryDTO employeePageQueryDTO)</span> &#123;</span><br><span class="line">	<span class="comment">//开始分页查询，将分页参数传递到ThreadLocal中</span></span><br><span class="line">	PageHelper.startPage(employeePageQueryDTO.getPage(),employeePageQueryDTO.getPageSize());</span><br><span class="line">    <span class="comment">//将Mapper层查询到的数据封装在Page中，Page本质上也是一个List</span></span><br><span class="line">	Page&lt;Employee&gt; page = employeeMapper.pageQuery(employeePageQueryDTO);</span><br><span class="line">    <span class="comment">//获取总记录数和查询的记录</span></span><br><span class="line">	<span class="type">long</span> <span class="variable">total</span> <span class="operator">=</span> page.getTotal();	<span class="comment">//获取记录总数</span></span><br><span class="line">	List&lt;Employee&gt; result = page.getResult();	<span class="comment">//获取所有记录</span></span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">PageResult</span>(total,result);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="DAO层代码实现"><a href="#DAO层代码实现" class="headerlink" title="DAO层代码实现"></a>DAO层代码实现</h3><p><strong>因为涉及到模糊查询所以dao层的sql语句写在xml文件中会更加灵活</strong></p>
+<p><strong>在EmployeeMapper.java文件中代码实现如下：</strong></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line">Page&lt;Employee&gt; <span class="title function_">pageQuery</span><span class="params">(EmployeeP；ageQueryDTO employeePageQueryDTO)</span>;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>在EmployeeMapper.xml文件中代码实现如下：</strong></p>
+<div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;pageQuery&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;com.sky.entity.Employee&quot;</span>&gt;</span></span><br><span class="line">	select * from employee</span><br><span class="line">	<span class="tag">&lt;<span class="name">where</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;name != null and name != &#x27;&#x27; &quot;</span>&gt;</span></span><br><span class="line">			and name like concat(&#x27;%&#x27;,#&#123;name&#125;,&#x27;%&#x27;)</span><br><span class="line">		<span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">where</span>&gt;</span></span><br><span class="line">	order by create_time desc</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<h3 id="测试结果"><a href="#测试结果" class="headerlink" title="测试结果"></a>测试结果</h3><p><strong>首先看到初始的数据表中有如下记录</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031558189.png"
+                      alt="image-20231003140210891"
+                ></p>
+<p><strong>在不添加name的查询条件的时候，测试接口确实成功实现查询到了正确的数据，但是可以看到返回结果中时间类型的数据返回格式是不适合前端展示的</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031559077.png"
+                      alt="image-20231003140635158"
+                ></p>
+<h4>解决方式：</h4>
+
+<ul>
+<li><p><strong>方式一</strong>：在属性上加入注解，对日期进行格式化</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@JsonFormat(pattern = &quot;yyyy-MM-dd HH:mm:ss&quot;)</span></span><br><span class="line"><span class="keyword">private</span> LocalDateTime updateTime;</span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p><strong>方式二</strong>：在WebMvcConfiguration 中拓展 SpringMVC 的消息转换器，统一对日期类型进行格式化处理</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 扩展mvc框架的消息转换器</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> converters</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">extendMessageConverters</span><span class="params">(List&lt;HttpMessageConverter&lt;?&gt;&gt; converters)</span> &#123;</span><br><span class="line">	log.info(<span class="string">&quot;扩展消息转换器...&quot;</span>);</span><br><span class="line">	<span class="comment">//创建一个消息转换器对象</span></span><br><span class="line">	<span class="type">MappingJackson2HttpMessageConverter</span> <span class="variable">messageConverter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MappingJackson2HttpMessageConverter</span>();</span><br><span class="line">	<span class="comment">//需要为消息转换器，创建一个对象转换器，对象转换器可以将Java对象序列化为JSON数据</span></span><br><span class="line">	messageConverter.setObjectMapper(<span class="keyword">new</span> <span class="title class_">JacksonObjectMapper</span>());</span><br><span class="line">	<span class="comment">//将自己的消息转换器加入到容器中</span></span><br><span class="line">	converters.add(<span class="number">0</span>,messageConverter);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
+</ul>
+<p><strong>根据上述的两种方式选择自己喜欢的方式即可，不过大多数情况下建议使用第二种方式，但是使用第二种方式的时候对象转换器又是什么呢？下面给出一个Jackson的对象转换器作为参考</strong></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 对象映射器:基于jackson将Java对象转为json，或者将json转为Java对象</span></span><br><span class="line"><span class="comment"> * 将JSON解析为Java对象的过程称为 [从JSON反序列化Java对象]</span></span><br><span class="line"><span class="comment"> * 从Java对象生成JSON的过程称为 [序列化Java对象到JSON]</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JacksonObjectMapper</span> <span class="keyword">extends</span> <span class="title class_">ObjectMapper</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DEFAULT_DATE_FORMAT</span> <span class="operator">=</span> <span class="string">&quot;yyyy-MM-dd&quot;</span>;</span><br><span class="line">    <span class="comment">//public static final String DEFAULT_DATE_TIME_FORMAT = &quot;yyyy-MM-dd HH:mm:ss&quot;;</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DEFAULT_DATE_TIME_FORMAT</span> <span class="operator">=</span> <span class="string">&quot;yyyy-MM-dd HH:mm&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DEFAULT_TIME_FORMAT</span> <span class="operator">=</span> <span class="string">&quot;HH:mm:ss&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">JacksonObjectMapper</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>();</span><br><span class="line">        <span class="comment">//收到未知属性时不报异常</span></span><br><span class="line">        <span class="built_in">this</span>.configure(FAIL_ON_UNKNOWN_PROPERTIES, <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//反序列化时，属性不存在的兼容处理</span></span><br><span class="line">        <span class="built_in">this</span>.getDeserializationConfig().withoutFeatures(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);</span><br><span class="line"></span><br><span class="line">        <span class="type">SimpleModule</span> <span class="variable">simpleModule</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SimpleModule</span>()</span><br><span class="line">                .addDeserializer(LocalDateTime.class, <span class="keyword">new</span> <span class="title class_">LocalDateTimeDeserializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_FORMAT)))</span><br><span class="line">                .addDeserializer(LocalDate.class, <span class="keyword">new</span> <span class="title class_">LocalDateDeserializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_FORMAT)))</span><br><span class="line">                .addDeserializer(LocalTime.class, <span class="keyword">new</span> <span class="title class_">LocalTimeDeserializer</span>(DateTimeFormatter.ofPattern(DEFAULT_TIME_FORMAT)))</span><br><span class="line">                .addSerializer(LocalDateTime.class, <span class="keyword">new</span> <span class="title class_">LocalDateTimeSerializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_FORMAT)))</span><br><span class="line">                .addSerializer(LocalDate.class, <span class="keyword">new</span> <span class="title class_">LocalDateSerializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_FORMAT)))</span><br><span class="line">                .addSerializer(LocalTime.class, <span class="keyword">new</span> <span class="title class_">LocalTimeSerializer</span>(DateTimeFormatter.ofPattern(DEFAULT_TIME_FORMAT)));</span><br><span class="line"></span><br><span class="line">        <span class="comment">//注册功能模块 例如，可以添加自定义序列化器和反序列化器</span></span><br><span class="line">        <span class="built_in">this</span>.registerModule(simpleModule);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
+
+<p><strong>有了上述的知识基础，创建一个消息转换器并使用</strong>，然后重新启动服务进行测试</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031559762.png"
+                      alt="image-20231003141157673"
+                ></p>
+<p>可以看到此时前端接收到的数据就是比较适合使用的时间格式</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031559367.png"
+                      alt="image-20231003141616468"
+                ></p>
+]]></content>
+      <categories>
+        <category>常见技术问题</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>后端</tag>
+        <tag>Mybatis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>文件上传下载</title>
+    <url>/HandsomeXianc/2023/10/04/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B8%8B%E8%BD%BD/</url>
+    <content><![CDATA[<h1 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h1><h2 id="一、文件上传介绍"><a href="#一、文件上传介绍" class="headerlink" title="一、文件上传介绍"></a><span style="color:purple">一、文件上传介绍</span></h2><p>文件上传，也称为upload，是将本地图片、视频、音频等文件上传到服务器，供其他用户浏览或者下载的过程</p>
+<p>文件上传时，对页面的form表单有如下要求：</p>
+<ul>
+<li><code>method=&quot;post&quot;</code> 							        采用post方式提交数据</li>
+<li><code>enctype=&quot;multipart/form-data&quot; </code>   采用multipart格式上传文件</li>
+<li><code>type=&quot;file&quot;</code>                                       使用input的file控件上传</li>
+</ul>
+<p><strong>举例</strong></p>
+<div class="highlight-container" data-rel="Html"><figure class="iseeu highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">method</span>=<span class="string">&quot;post&quot;</span> <span class="attr">action</span>=<span class="string">&quot;/common/upload&quot;</span> <span class="attr">enctype</span>=<span class="string">&quot;multipart/form-data&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">&quot;myFile&quot;</span> <span class="attr">type</span>=<span class="string">&quot;file&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span> <span class="attr">value</span>=<span class="string">&quot;提交&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>服务端要接收客户端页面上传的文件，通常会使用Apache的两个插件</p>
+<ul>
+<li><code>commons-fileupload</code></li>
+<li><code>commons-io</code></li>
+</ul>
+<p>Spring框架在spring-web包中对文件上传进行了封装，大大简化了服务端代码，我们只需要在Controller的方法中声明一个<code>MultipartFile</code>类型的参数即可接收上传的文件，例如：</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 文件上传</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span> file</span></span><br><span class="line"><span class="comment">* <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">@PostMapping(&quot;/upload&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload</span><span class="params">(MultipartFile file)</span>&#123;</span><br><span class="line">	System.out.println(file);</span><br><span class="line">	<span class="keyword">return</span> Result.success(<span class="literal">null</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="二、文件下载介绍"><a href="#二、文件下载介绍" class="headerlink" title="二、文件下载介绍"></a><span style="color:green">二、文件下载介绍</span></h2><p>文件下载，也称为download，是指将文件从服务器传输到本地计算机的过程</p>
+<p>通过浏览器进行文件下载，通常有两种表现形式：</p>
+<ul>
+<li>以附件形式下载，弹出保存对话框，将文件保存到指定磁盘目录</li>
+<li>直接在浏览器中打开</li>
+</ul>
+<p>通过浏览器进行文件下载，本质上就是服务端将文件以流的形式写回浏览器的过程</p>
+<h2 id="三、文件上传接收代码实现"><a href="#三、文件上传接收代码实现" class="headerlink" title="三、文件上传接收代码实现"></a><span style="color:red">三、文件上传接收代码实现</span></h2><h3 id="前端数据方法代码"><a href="#前端数据方法代码" class="headerlink" title="前端数据方法代码"></a>前端数据方法代码</h3><ul>
+<li>此处调用axios向接口：<code>http://localhost:3000/common/upload</code>发送了表单数据设置表头header为<code>Content-type:multipar/form-data</code>，数据包含：<ol>
+<li><code>username</code>：字符串类型</li>
+<li><code>gender</code>：字符串类型</li>
+<li><code>introduction</code>：字符串类型</li>
+<li><code>avatar</code>：字符串类型</li>
+<li><code>file</code>：文件类型</li>
+</ol>
+</li>
+</ul>
+<center class="half">    
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309150932591.png"
+                      alt="image-20230913170017182" width="330" height="270px"  style="border:solid 2px orange"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309150933147.png"
+                      alt="image-20230913170130306" width="600" height="270px"  style="border:solid 2px orange"
+                >
+</center>
+
+
+<ul>
+<li>打开调试工具查看发送的表单数据，观察发送数据的<code>name</code></li>
+</ul>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309150933419.png"
+                      width="500px" style="border:solid 2px blue"
+                >
+
+<h3 id="后端接口代码实现"><a href="#后端接口代码实现" class="headerlink" title="后端接口代码实现"></a>后端接口代码实现</h3><ul>
+<li><strong><span style="color:blue">第一种写法：</span></strong></li>
+</ul>
+<p>接口的参数对应表单数据的各项name，文件类型使用<code>MultipartFile</code>接收，若接口参数名与前端发送数据的name一致的时候可以不使用注解<code>@RequestParam</code>对应</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span>						<span class="comment">//打印日志</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/common&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CommonController</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/upload&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload</span><span class="params">( <span class="meta">@RequestParam(&quot;username&quot;)</span> String username,</span></span><br><span class="line"><span class="params">                                  <span class="meta">@RequestParam(&quot;gender&quot;)</span> Integer gender,</span></span><br><span class="line"><span class="params">                                  <span class="meta">@RequestParam(&quot;introduction&quot;)</span> String introduction,</span></span><br><span class="line"><span class="params">                                  <span class="meta">@RequestParam(&quot;avatar&quot;)</span> String avatar,</span></span><br><span class="line"><span class="params">                                  <span class="meta">@RequestParam(&quot;file&quot;)</span>MultipartFile file)</span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;更新用户名:&#123;&#125;&quot;</span>,username);</span><br><span class="line">        log.info(<span class="string">&quot;更新性别:&#123;&#125;&quot;</span>,gender == <span class="number">1</span>?<span class="string">&#x27;男&#x27;</span>:gender==<span class="number">0</span>?<span class="string">&quot;女&quot;</span>:<span class="string">&quot;保密&quot;</span>);</span><br><span class="line">        log.info(<span class="string">&quot;用户简介:&#123;&#125;&quot;</span>,introduction);</span><br><span class="line">        log.info(<span class="string">&quot;头像地址:&#123;&#125;&quot;</span>,avatar);</span><br><span class="line">        log.info(<span class="string">&quot;接收到文件:&#123;&#125;&quot;</span>,file.toString());</span><br><span class="line">        <span class="keyword">return</span> Result.success(<span class="string">&quot;接收到上传的数据&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li><strong><span style="color:blue">第二种写法：</span></strong></li>
+</ul>
+<p>考虑到需要接收的表单数据比较到，直接将所有参数写在接口上会显得代码比较繁琐，因此创建一个DTO来封装数据</p>
+<ol>
+<li><p>创建UploadDTO类</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Data</span>					<span class="comment">//对所有的数据创建getter和setter</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span>		<span class="comment">//无参构造函数</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span>		<span class="comment">//有参构造函数</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UploadDTO</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String username;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> gender;</span><br><span class="line">    <span class="keyword">private</span> String introduction;</span><br><span class="line">    <span class="keyword">private</span> String avatar;</span><br><span class="line">    <span class="keyword">private</span> MultipartFile file;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p>使用DTO接收参数</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@PostMapping(&quot;/upload&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload</span><span class="params">(UploadDTO user)</span>&#123;</span><br><span class="line">	log.info(user.getFile().toString());</span><br><span class="line">	<span class="keyword">return</span> Result.success(<span class="string">&quot;接收到上传的数据&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
+</ol>
+<h2 id="四、将上传的文件保存在本地"><a href="#四、将上传的文件保存在本地" class="headerlink" title="四、将上传的文件保存在本地"></a>四、将上传的文件保存在本地</h2><ol>
+<li><p>在配置文件中配置本地的路径，此处我的配置文件为<code>application.yml</code>，设置了基本路径为<code>D:\\Desktop</code></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309151210089.png"
+                      alt="image-20230915121019943"
+                ></p>
+</li>
+<li><p>使用注解<code>@Value</code>接收配置文件的数据，并使用<code>UUID生存随机种子(保证文件名唯一)</code>，将上传文件保存到本地</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/common&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CommonController</span> &#123;</span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;mystudy.basePath&#125;&quot;)</span>		<span class="comment">//@Value接收配置项数据</span></span><br><span class="line">    <span class="keyword">private</span> String basePath;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/upload&quot;)</span>		<span class="comment">//此处DTO对象描述看上文</span></span><br><span class="line">    <span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload</span><span class="params">(UploadDTO user)</span>&#123;</span><br><span class="line">        <span class="comment">//file是一个零时文件，需要转存到指定位置，否则本次请求完成后文件会删除</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//获取源文件的文件名字</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">originalFilename</span> <span class="operator">=</span> user.getFile().getOriginalFilename();</span><br><span class="line">            <span class="comment">//获取源文件的后缀</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">extension</span> <span class="operator">=</span> originalFilename.substring(originalFilename.lastIndexOf(<span class="string">&quot;.&quot;</span>));</span><br><span class="line">            <span class="comment">//根据UUID生成的随机数加上源文件的后缀名生成新的文件名[唯一不重复]</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">newName</span> <span class="operator">=</span> UUID.randomUUID().toString() + extension;</span><br><span class="line">            </span><br><span class="line">			<span class="comment">//创建一个目录对象</span></span><br><span class="line">            <span class="type">File</span> <span class="variable">dir</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(basePath);</span><br><span class="line">            <span class="comment">//判断当前目录是否存在</span></span><br><span class="line">            <span class="keyword">if</span>(!dir.exists()) dir.mkdirs();</span><br><span class="line">            </span><br><span class="line">            <span class="comment">//将临时文件转存到指定位置</span></span><br><span class="line">            user.getFile().transferTo(<span class="keyword">new</span> <span class="title class_">File</span>(basePath+ newName));</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">			log.error(<span class="string">&quot;文件上传失败：&#123;&#125;&quot;</span>,e);</span><br><span class="line">            <span class="keyword">return</span> Result.error(<span class="string">&quot;文件上传失败...&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> Result.success(<span class="string">&quot;成功接收上传数据&quot;</span>);</span><br><span class="line">&#125;&#125;</span><br></pre></td></tr></table></figure></div></li>
+</ol>
+<h2 id="五、配置文件上传选项"><a href="#五、配置文件上传选项" class="headerlink" title="五、配置文件上传选项"></a>五、配置文件上传选项</h2><ul>
+<li>在SpringBoot中，文件上传，默认单个文件允许最大大小为<code>1M</code>.如果需要上传大文件，则进行如下配置</li>
+</ul>
+<div class="highlight-container" data-rel="Yaml"><figure class="iseeu highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 打开application.yml配置文件</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">servlet:</span></span><br><span class="line">    <span class="attr">multipart:</span></span><br><span class="line">      <span class="attr">max-file-size:</span> <span class="string">10MB</span>				<span class="comment">#配置单个文件最大上传大小</span></span><br><span class="line">      <span class="attr">max-request-size:</span> <span class="string">100MB</span>			<span class="comment">#配置单个请求最大上传大小(一次请求可以上传多个文件)</span></span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="六、文件上传阿里云OSS"><a href="#六、文件上传阿里云OSS" class="headerlink" title="六、文件上传阿里云OSS"></a><span style="color:purple">六、文件上传阿里云OSS</span></h2><h3 id="第一步：导入依赖"><a href="#第一步：导入依赖" class="headerlink" title="第一步：导入依赖"></a>第一步：导入依赖</h3><blockquote>
+<p>官方文档地址：<a class="link"   href="https://help.aliyun.com/zh/oss/developer-reference/java-installation?spm=a2c4g.11186623.0.0.13dc3ba3geaLZ3"  style="color:red;font-weight:800">在这里 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
+</blockquote>
+<ul>
+<li>首先导入阿里云的依赖【Java 9版本以上】</li>
+</ul>
+<div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.aliyun.oss<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>aliyun-sdk-oss<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.15.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.xml.bind<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jaxb-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.3.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.activation<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>activation<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.1.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- no more than 2.3.3--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.glassfish.jaxb<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jaxb-runtime<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.3.3<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<h3 id="第二步：创建数据配置类"><a href="#第二步：创建数据配置类" class="headerlink" title="第二步：创建数据配置类"></a>第二步：创建数据配置类</h3><ol>
+<li><p><strong>现在<code>application.yml</code>文件中写入数据</strong></p>
+<div class="highlight-container" data-rel="Yaml"><figure class="iseeu highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">aliyun:</span></span><br><span class="line">  <span class="attr">oss:</span></span><br><span class="line">    <span class="attr">endpoint:</span> <span class="string">桶子归属地域</span></span><br><span class="line">    <span class="attr">bucketName:</span> <span class="string">桶子的名字</span></span><br><span class="line">    <span class="attr">accessKeyId:</span> <span class="string">自己OSS桶子的accessKeyId</span></span><br><span class="line">    <span class="attr">accessKeySecret:</span> <span class="string">自己桶子的accessKeySecret</span></span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p><strong>创建配置类</strong><code>AliOssProperties</code></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Data</span>					<span class="comment">//为类添加getter/setter</span></span><br><span class="line"><span class="meta">@Component</span>				<span class="comment">//交给IOC管理</span></span><br><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;aliyun.oss&quot;)</span>			<span class="comment">//将上述前缀为aliyun.oss配置数据匹配</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AliOssProperties</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String endpoint;</span><br><span class="line">    <span class="keyword">private</span> String bucketName;</span><br><span class="line">    <span class="keyword">private</span> String accessKeyId;</span><br><span class="line">    <span class="keyword">private</span> String accessKeySecret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p><strong>创建实现对象</strong><code>AliOssUtil</code></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AliOssUtil</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String endpoint;</span><br><span class="line">    <span class="keyword">private</span> String accessKeyId;</span><br><span class="line">    <span class="keyword">private</span> String accessKeySecret;</span><br><span class="line">    <span class="keyword">private</span> String bucketName;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">upload</span><span class="params">(<span class="type">byte</span>[] bytes,String objectName)</span> &#123;</span><br><span class="line">        <span class="type">OSS</span> <span class="variable">ossClient</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">OSSClientBuilder</span>().build(endpoint, accessKeyId, accessKeySecret);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">PutObjectRequest</span> <span class="variable">putObjectRequest</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PutObjectRequest</span>(bucketName, objectName, <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(bytes));</span><br><span class="line">            <span class="type">PutObjectResult</span> <span class="variable">putObjectResult</span> <span class="operator">=</span> ossClient.putObject(putObjectRequest);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (OSSException oe) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;Caught an OSSException, which means your request made it to OSS, &quot;</span></span><br><span class="line">                    + <span class="string">&quot;but was rejected with an error response for some reason.&quot;</span>);</span><br><span class="line">            System.out.println(<span class="string">&quot;Error Message:&quot;</span> + oe.getErrorMessage());</span><br><span class="line">            System.out.println(<span class="string">&quot;Error Code:&quot;</span> + oe.getErrorCode());</span><br><span class="line">            System.out.println(<span class="string">&quot;Request ID:&quot;</span> + oe.getRequestId());</span><br><span class="line">            System.out.println(<span class="string">&quot;Host ID:&quot;</span> + oe.getHostId());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ClientException ce) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;Caught an ClientException, which means the client encountered &quot;</span></span><br><span class="line">                    + <span class="string">&quot;a serious internal problem while trying to communicate with OSS, &quot;</span></span><br><span class="line">                    + <span class="string">&quot;such as not being able to access the network.&quot;</span>);</span><br><span class="line">            System.out.println(<span class="string">&quot;Error Message:&quot;</span> + ce.getMessage());</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (ossClient != <span class="literal">null</span>) &#123;</span><br><span class="line">                ossClient.shutdown();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//文件访问路径规则 https://BucketName.Endpoint/ObjectName</span></span><br><span class="line">        <span class="type">StringBuilder</span> <span class="variable">stringBuilder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>(<span class="string">&quot;https://&quot;</span>);</span><br><span class="line">        stringBuilder</span><br><span class="line">                .append(bucketName)</span><br><span class="line">                .append(<span class="string">&quot;.&quot;</span>)</span><br><span class="line">                .append(endpoint)</span><br><span class="line">                .append(<span class="string">&quot;/&quot;</span>)</span><br><span class="line">                .append(objectName);</span><br><span class="line"></span><br><span class="line">        log.info(<span class="string">&quot;文件上传到:&#123;&#125;&quot;</span>, stringBuilder.toString());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> stringBuilder.toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p><strong>创建实现对象的”工厂”</strong><code>OSSConfiguration</code></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OSSConfiguration</span> &#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line">    <span class="keyword">public</span> AliOssUtil <span class="title function_">aliOssUtil</span><span class="params">(AliOssProperties aliOssProperties)</span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;开始创建阿里云上传工具类对象：&#123;&#125;&quot;</span>,aliOssProperties);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">AliOssUtil</span>(aliOssProperties.getEndpoint(),</span><br><span class="line">                aliOssProperties.getAccessKeyId(),</span><br><span class="line">                aliOssProperties.getAccessKeySecret(),</span><br><span class="line">                aliOssProperties.getBucketName());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
+</ol>
+<h3 id="第三步：后端接口代码实现"><a href="#第三步：后端接口代码实现" class="headerlink" title="第三步：后端接口代码实现"></a>第三步：后端接口代码实现</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 进行文件的云上传【阿里云OSS存储】</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/common&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CommonController</span> &#123;</span><br><span class="line">    <span class="meta">@Autowired</span>				<span class="comment">//将OSS配置类导入</span></span><br><span class="line">    <span class="keyword">private</span> AliOssUtil aliOssUtil;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/upload&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload_OSS</span><span class="params">(UploadDTO user)</span>&#123;<span class="comment">//此处DTO看上文，上文封装了</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//原始的文件名字</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">originalFilename</span> <span class="operator">=</span> user.getFile().getOriginalFilename();</span><br><span class="line">            <span class="comment">//截取文件名的后缀</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">extension</span> <span class="operator">=</span> originalFilename.substring(originalFilename.lastIndexOf(<span class="string">&quot;.&quot;</span>));</span><br><span class="line">            <span class="comment">//构造新的文件名称</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">newName</span> <span class="operator">=</span> UUID.randomUUID().toString() + extension;</span><br><span class="line">            <span class="comment">//获取返回的文件请求路径</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">filePath</span> <span class="operator">=</span> aliOssUtil.upload(user.getFile().getBytes(), newName);</span><br><span class="line">            <span class="keyword">return</span> Result.success(filePath);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;文件上传失败：&#123;&#125;&quot;</span>,e);</span><br><span class="line">            <span class="keyword">return</span> Result.error(<span class="string">&quot;上传文件失败...&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></div>
+
+]]></content>
+      <categories>
+        <category>常见技术问题</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>后端</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>开发规范(Swagger) + 接口文档</title>
+    <url>/HandsomeXianc/2023/10/06/%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83(Swagger)/</url>
+    <content><![CDATA[<h1 id="开发规范-Swagger-接口文档"><a href="#开发规范-Swagger-接口文档" class="headerlink" title="开发规范(Swagger) + 接口文档"></a>开发规范(Swagger) + 接口文档</h1><blockquote>
+<p>归去来兮辞:japan::japanese_goblin::ice_cream:</p>
+</blockquote>
+<h2 id="前后端开发流程"><a href="#前后端开发流程" class="headerlink" title="前后端开发流程"></a>前后端开发流程</h2><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309271337049.png"
+                      alt="image-20230927133706958"
+                ></p>
+<hr>
+
+<h2 id="Swagger介绍"><a href="#Swagger介绍" class="headerlink" title="Swagger介绍"></a>Swagger介绍</h2><p>使用Swagger只需要按照它的规范去定义接口以及接口相关的信息，就可以做到生成接口文档，以<span style="color:red">及在线接口调试</span>页面</p>
+<p>官网：<a class="link"   href="https://swagger.io/" >https://swagger.io/ <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
+<p><b style="color:blue">Knife4j</b>是Java MVC框架集成Swagger生成Api文档的增强解决方案</p>
+<hr>
+
+<h2 id="Swagger使用方式"><a href="#Swagger使用方式" class="headerlink" title="Swagger使用方式"></a>Swagger使用方式</h2><p><strong>在这里引入一点小知识</strong></p>
+<p><code>WebMvcConfigurer</code>和<code> WebMvcConfigurationSupport</code> 都是用来配置 <code>Spring MVC</code>的接口，但是它们有一些不同：</p>
+<ol>
+<li><code>WebMvcConfigurer </code>是一个简单的接口，提供了一组回调方法，用于配置 Spring MVC。您可以实现这个接口并覆盖它的回调方法来配置 Spring MVC。</li>
+<li><code>WebMvcConfigurationSupport </code>是一个特殊的抽象类，实现了 WebMvcConfigurer 接口，并且提供了一组默认实现。您可以扩展这个类并覆盖它的方法来配置 Spring MVC。</li>
+</ol>
+<p><strong>总的来说，如果只需要实现一些简单的配置，可以使用 WebMvcConfigurer；如果需要实现更复杂的配置，则可以扩展 WebMvcConfigurationSupport 类。</strong></p>
+<p><strong>下面是我原来的SpringMVC配置类</strong></p>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309271942376.png"
+                      alt="image-20230927194154159" style="zoom: 80%;" 
+                >
+
+<p>因为需要加入Swagger所以将<strong>implements WebMVCConfigurer</strong>转为<strong>extend WebMvcConfigurationSupport</strong>并继续下述操作</p>
+<ol>
+<li><p><strong>导入knife4j 的maven坐标</strong></p>
+<div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line">   <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.github.xiaoymin<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>knife4j-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">   	<span class="tag">&lt;<span class="name">version</span>&gt;</span>4.3.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">2. **在配置类中加入 Knife4j 相关配置**</span><br><span class="line"></span><br><span class="line">   ~~~java</span><br><span class="line">   @Bean</span><br><span class="line">   public Docket docket() &#123;</span><br><span class="line">   	ApiInfo apiInfo = new ApiInfoBuilder()</span><br><span class="line">   		.title(&quot;接口文档标题&quot;)</span><br><span class="line">   		.version(&quot;2.0&quot;)</span><br><span class="line">   		.description(&quot;接口文档描述&quot;)</span><br><span class="line">   		.build();</span><br><span class="line">   	Docket docket = new Docket(DocumentationType.SWAGGER_2)</span><br><span class="line">   		.apiInfo(apiInfo)</span><br><span class="line">   		.select()</span><br><span class="line">           //指定生成接口需要扫描的包</span><br><span class="line">   		.apis(RequestHandlerSelectors.basePackage(&quot;com.sky.controller&quot;))</span><br><span class="line">   		.paths(PathSelectors.any())</span><br><span class="line">   		.build();</span><br><span class="line">   	return docket;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p><strong>设置静态资源映射，否则接口文档页面无法访问</strong></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 设置静态资源映射</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> registry</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">addResourceHandlers</span><span class="params">(ResourceHandlerRegistry registry)</span> &#123;</span><br><span class="line">    <span class="comment">//doc.html就是我们接口文档的访问路径 </span></span><br><span class="line">    registry.addResourceHandler(<span class="string">&quot;/doc.html&quot;</span>).addResourceLocations(<span class="string">&quot;classpath:/META-INF/resources/&quot;</span>);</span><br><span class="line">    registry.addResourceHandler(<span class="string">&quot;/webjars/**&quot;</span>).addResourceLocations(<span class="string">&quot;classpath:/META-INF/resources/webjars/&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
+</ol>
+<hr>
+
+<p><strong>配置完之后的SpringMVC配置类应该是这样子的</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309271947173.png"
+                      alt="image-20230927194748964"
+                ></p>
+<p><strong>启动项目测试是否能打开接口文档</strong>，可以看到接口文档配置成功启动，并且知道SpringBoot项目运行在3000端口</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309272000975.png"
+                      alt="image-20230927200044657"
+                ></p>
+<p>随后打开文档页面，打开浏览器<code>http://localhost:3000/doc.html</code>，可以看到文档页面成功生成啦…</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309272002932.png"
+                      alt="image-20230927200225860"
+                ></p>
+<blockquote>
+<p><strong>注意事项</strong>：</p>
+<p>若是打不开页面，检查是否因为</p>
+<ol>
+<li>过滤器导致页面无法访问</li>
+<li>路由重定向？【可能出现，概率小，几乎不存在】</li>
+<li>knife4j没有配置好</li>
+</ol>
+</blockquote>
+<h2 id="Swagger常用注解"><a href="#Swagger常用注解" class="headerlink" title="Swagger常用注解"></a>Swagger常用注解</h2><ul>
+<li><strong>通过注解可以控制生成的接口文档，使接口文档拥有更好的可读性，常用注解如下：</strong></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center">注解</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><code>@Api</code></td>
+<td align="center">用在类上，例如Controller，表示对类的说明</td>
+</tr>
+<tr>
+<td align="center"><code>@ApiModel</code></td>
+<td align="center">用在类上，例如entity、DTO、VO</td>
+</tr>
+<tr>
+<td align="center"><code>@ApiModelProperty</code></td>
+<td align="center">用在属性上，描述属性信息</td>
+</tr>
+<tr>
+<td align="center"><code>ApiOperation</code></td>
+<td align="center">用在方法上，例如Controller的方法，说明方法的用途、作用</td>
+</tr>
+</tbody></table>
+<p><strong>示例：</strong></p>
+<p><b style="color:blue">我对如下类、方法、数据模型、模型元数据进行了Api注解</b></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309272049294.png"
+                      alt="image-20230927204609455"
+                ></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309272049750.png"
+                      alt="image-20230927204559391"
+                ></p>
+<p><strong>启动项目，查看接口文档的变化，首先查看不添加注释的API文档</strong></p>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309272340913.png"
+                      alt="image-20230927234043798" style="zoom: 50%;" 
+                >
+
+<p><strong>添加注解后的生成的API文档更容易阅读</strong></p>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309272340640.png"
+                      alt="image-20230927234052570" style="zoom:50%;" 
+                >
+]]></content>
+      <categories>
+        <category>常见技术问题</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>后端</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>全局异常处理器</title>
     <url>/HandsomeXianc/2023/10/02/%E5%85%A8%E5%B1%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E5%99%A8/</url>
     <content><![CDATA[<h1 id="全局异常处理器"><a href="#全局异常处理器" class="headerlink" title="全局异常处理器"></a>全局异常处理器</h1><blockquote>
@@ -81,6 +807,523 @@
       <tags>
         <tag>Tag1</tag>
         <tag>标签2</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>解决Vue3跨域问题</title>
+    <url>/HandsomeXianc/2023/09/28/%E8%A7%A3%E5%86%B3Vue3%E8%B7%A8%E5%9F%9F%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<h1 id="解决Vue3跨域问题"><a href="#解决Vue3跨域问题" class="headerlink" title="解决Vue3跨域问题"></a>解决Vue3跨域问题</h1><blockquote>
+<p> 今天敲码发现本地前端向后端发送请求时，发送请求出现跨域问题，联系广大网友发现两种解决跨域的方法</p>
+</blockquote>
+<h2 id="一、前端解决跨域"><a href="#一、前端解决跨域" class="headerlink" title="一、前端解决跨域"></a>一、前端解决跨域</h2><p><strong>前端axios向后端发起请求时，调试报错【跨域：CORS policy】</strong></p>
+<center class="half">    
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131700282.png"
+                      alt="image-20230913170017182" width="465"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131701343.png"
+                      alt="image-20230913170130306" width="465"
+                >
+</center>
+
+<p><strong>后端3000接口接收到请求但是返回值res前端无法接收</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131703011.png"
+                      alt="image-20230913170327960"
+                ></p>
+<h3 id="解决方法【反向代理】"><a href="#解决方法【反向代理】" class="headerlink" title="解决方法【反向代理】"></a>解决方法【反向代理】</h3><ul>
+<li><strong>axios直接发送请求<code>/users</code>经反向代理发送到localhost:3000端口</strong></li>
+<li><strong>找到<code>vue.config.js</code>文件并添加反向代理，将匹配到<code>/user</code>路径的请求<code>转发到3000端口</code></strong></li>
+</ul>
+<center class="half">    
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131708296.png"
+                      alt="image-20230913170017182" width="465"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131711294.png"
+                      alt="image-20230913170130306" width="465"
+                >
+</center>
+
+<h3 id="问题解决成功…"><a href="#问题解决成功…" class="headerlink" title="问题解决成功…"></a>问题解决成功…</h3><ul>
+<li><strong>配置反向代理后前端成功向后端发送请求并接受获取到的参数</strong></li>
+</ul>
+<center class="half">    
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131713186.png"
+                      alt="image-20230913170017182" width="465"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131713943.png"
+                      alt="image-20230913170130306" width="465"
+                >
+</center>
+
+
+
+<h2 id="二、后端解决跨域"><a href="#二、后端解决跨域" class="headerlink" title="二、后端解决跨域"></a>二、后端解决跨域</h2><ul>
+<li>此处选择基于Spring框架配置的后端配置类进行跨域问题的解决</li>
+</ul>
+<h3 id="创建配置类"><a href="#创建配置类" class="headerlink" title="创建配置类"></a>创建配置类</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.mystudy.configuration;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.extern.java.Log;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.config.annotation.CorsRegistry;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.config.annotation.WebMvcConfigurer;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span>          <span class="comment">//日志打印</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CrosConfiguration</span> <span class="keyword">implements</span> <span class="title class_">WebMvcConfigurer</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addCorsMappings</span><span class="params">(CorsRegistry registry)</span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;跨域问题配置类设置成功...&quot;</span>);</span><br><span class="line">        registry.addMapping(<span class="string">&quot;/**&quot;</span>)	<span class="comment">//配置可以被跨域的路径，可以任意配置，可以具体到直接请求路径</span></span><br><span class="line">            <span class="comment">//允许所有的请求域名访问我们的跨域资源，可以固定单条或者多条内容</span></span><br><span class="line">                .allowedOriginPatterns(<span class="string">&quot;*&quot;</span>)</span><br><span class="line">            <span class="comment">//允许所有的请求方法访问该跨域资源服务器</span></span><br><span class="line">                .allowedMethods(<span class="string">&quot;GET&quot;</span>,<span class="string">&quot;HEAD&quot;</span>,<span class="string">&quot;POST&quot;</span>,<span class="string">&quot;PUT&quot;</span>,<span class="string">&quot;DELETE&quot;</span>,<span class="string">&quot;OPTIONS&quot;</span>)</span><br><span class="line">            <span class="comment">//用于告知浏览器当withCredentials属性设置为true时，是否可以显示跨域请求返回的内容</span></span><br><span class="line">                .allowCredentials(<span class="literal">true</span>)</span><br><span class="line">            <span class="comment">//资源过期时间</span></span><br><span class="line">                .maxAge(<span class="number">3600</span>)</span><br><span class="line">                .allowedHeaders(<span class="string">&quot;*&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="问题解决成功…-1"><a href="#问题解决成功…-1" class="headerlink" title="问题解决成功…"></a>问题解决成功…</h3><ul>
+<li><strong>前端照常发起请求，后端启动项目后配置类自动创建</strong></li>
+</ul>
+<center class="half">    
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309141107847.png"
+                      alt="image-20230913170017182" width="470"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309141109801.png"
+                      alt="image-20230913170130306" width="460"
+                >
+</center>
+
+<hr>]]></content>
+      <categories>
+        <category>常见技术问题</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>登录认证《JWT+Filter+Interceptor》</title>
+    <url>/HandsomeXianc/2023/10/05/%E7%99%BB%E5%BD%95%E8%AE%A4%E8%AF%81%E3%80%8AJWT+Filter+Interceptor%E3%80%8B/</url>
+    <content><![CDATA[<h1 id="登录认证《JWT-Filter-Interceptor》"><a href="#登录认证《JWT-Filter-Interceptor》" class="headerlink" title="登录认证《JWT+Filter+Interceptor》"></a>登录认证《JWT+Filter+Interceptor》</h1><blockquote>
+<p><b style="color:green;width:100%;text-align:center" >$\int_{birth}^{death}卷dt &#x3D; life$</b>:1st_place_medal: :hamburger::happy::broken_heart:</p>
+</blockquote>
+<h2 id="一、会话技术"><a href="#一、会话技术" class="headerlink" title="一、会话技术"></a>一、会话技术</h2><ul>
+<li><strong>会话</strong>：用户打开浏览器，访问web服务器的资源，会话建立，直到有一方断开连接，会话结束。在一次会话中可以包含<span style="color:red">多次</span>请求和响应</li>
+<li><strong>会话跟踪</strong>：一种维护浏览器状态的方法，服务器需要识别多次请求是否来自同一浏览器，以便在同一次会话的多次请求间<span style="color:red">共享数据</span></li>
+<li><strong>会话跟踪方案</strong>：<ol>
+<li><strong>客户端会话跟踪技术</strong>：Cookie</li>
+<li><strong>服务端会话跟踪技术</strong>：Session</li>
+<li><strong>令牌技术</strong></li>
+</ol>
+</li>
+</ul>
+<h2 id="二、会话跟踪方案对比"><a href="#二、会话跟踪方案对比" class="headerlink" title="二、会话跟踪方案对比"></a>二、会话跟踪方案对比</h2><h3 id="2-1、方案一：Cookie【传统】"><a href="#2-1、方案一：Cookie【传统】" class="headerlink" title="2.1、方案一：Cookie【传统】"></a>2.1、方案一：Cookie【传统】</h3><p>Cookie是保存在<b style="color:red">浏览器本地</b>的，用户向后端发起登录请求之后，后端服务器会<strong>自动</strong>返回一个Cookie值给浏览器，同时浏览器将该Cookie值保存在浏览器本地中，之后的每一次浏览器请求，都会<strong>自动</strong>带上这个Cookie值，后端根据Cookie值判断该浏览器是否登陆过。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309212132131.png"
+                      alt="image-20230921213226025"
+                ></p>
+<p><strong>优点</strong>：HTTP协议中支持的技术</p>
+<p><strong>缺点：</strong></p>
+<ol>
+<li>移动端APP无法使用Cookie</li>
+<li>不安全，用户可以自己禁用Cookie</li>
+<li>Cookie不能跨域【跨域是什么？自己去了解】</li>
+</ol>
+<h4 id="代码实现：操作Cookie"><a href="#代码实现：操作Cookie" class="headerlink" title="代码实现：操作Cookie"></a>代码实现：操作Cookie</h4><p>下面实现操作Cookie的代码，通过访问：</p>
+<ol>
+<li><code>http://localhost:3000/study/setcookie</code>：访问该地址，服务器会向前端发送一个Cookie</li>
+<li><code>http://localhost:3000/study/getcookie</code>：访问改地址，服务器获取前端传递的Cookie</li>
+</ol>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/study&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">StudyController</span> &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 访问地址：http://localhost:3000/study/setcookie 设置Cookie值在响应response中</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> response</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/setcookie&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Result <span class="title function_">setCookie</span><span class="params">(HttpServletResponse response)</span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;获取设置Cookie的请求&quot;</span>);</span><br><span class="line">        response.addCookie(<span class="keyword">new</span> <span class="title class_">Cookie</span>(<span class="string">&quot;login_username&quot;</span>,<span class="string">&quot;zhangsan&quot;</span>));</span><br><span class="line">        <span class="keyword">return</span> Result.success();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从请求request中获取Cookie值</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> request</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/getcookie&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Result <span class="title function_">getCookie</span><span class="params">(HttpServletRequest request)</span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;获取得到Cookie的请求&quot;</span>);</span><br><span class="line">        Cookie[] cookies = request.getCookies();    <span class="comment">//获取到所有Cookie</span></span><br><span class="line">        <span class="keyword">for</span>(Cookie cookie : cookies)&#123;</span><br><span class="line">            <span class="keyword">if</span>(cookie.getName().equals(<span class="string">&quot;login_username&quot;</span>))&#123; <span class="comment">//输出name为login_username的Cookie</span></span><br><span class="line">                System.out.println(<span class="string">&quot;login_username: &quot;</span> + cookie.getValue());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> Result.success();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h4 id="设置Cookie效果图展示"><a href="#设置Cookie效果图展示" class="headerlink" title="设置Cookie效果图展示"></a>设置Cookie效果图展示</h4><p><strong>首先F12打开浏览器的调试工具点击NetWork选项查看发送的请求信息</strong></p>
+<p>可以看到请求了<code>http://localhost:3000/study/setcookie</code>路径之后，服务器向前端的响应<strong>Response</strong>中包含<strong>Set-Cookie</strong>一项</p>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309212152416.png"
+                      alt="image-20230921215243363" style="zoom:80%;" 
+                >
+
+<p>然后我们继续点击<code>Application</code>一项可以看到我们设置的Cookie值成功保存在浏览器本地存储</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309212157905.png"
+                      alt="image-20230921215746870"
+                ></p>
+<h4 id="获取Cookie效果图展示"><a href="#获取Cookie效果图展示" class="headerlink" title="获取Cookie效果图展示"></a>获取Cookie效果图展示</h4><p>继上述设置Cookie操作之后，继续访问页面<code>http://localhost:3000/study/getcookie</code>，同样的，打开调试工具，并点击NetWork选项查看<strong>请求request</strong>中的Cookie一栏，确实是我们刚才设置的cookie</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309212203416.png"
+                      alt="image-20230921220327371"
+                ></p>
+<p><strong>查看我们的后端的显示，确实得到了前端向后端请求中的cookie值</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309212206687.png"
+                      alt="image-20230921220603439"
+                ></p>
+<h3 id="2-2、方案二：Session【传统】"><a href="#2-2、方案二：Session【传统】" class="headerlink" title="2.2、方案二：Session【传统】"></a>2.2、方案二：Session【传统】</h3><p>Session是保存在服务器中的，Session的底层是基于Cookie来实现的。</p>
+<p>浏览器第一次向服务器发送请求的时候，服务器会自动创建<b style="color:red">会话对象Session</b>，每一个会话对象都有一个ID，称之为Session的ID，接下来服务器向浏览器响应数据的时候会<strong>将Session的ID通过Cookie响应给浏览器</strong>，浏览器接收到这个响应数据之后会自动<strong>将存有SessionId的cookie保存在浏览器本地</strong>，然后后续的请求中，浏览器会<strong>将该Cookie的值携带到服务端</strong>，服务器<strong>拿到这个前端传来的cookie</strong>后，会从全部请求对象中<strong>找到当前请求对应的会话对象</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309212316101.png"
+                      alt="image-20230921231659057"
+                ></p>
+<p><strong>优点：</strong>存储在服务器，安全</p>
+<p><strong>缺点</strong>：</p>
+<ol>
+<li>服务器级群环境下无法直接使用Session</li>
+<li>Cookie的缺点【Session底层实现为Cookie】</li>
+</ol>
+<h4 id="代码实现：操作Session"><a href="#代码实现：操作Session" class="headerlink" title="代码实现：操作Session"></a>代码实现：操作Session</h4><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/study&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">StudyController</span> &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 设置Session对象,hashCode可以理解为SessionId每一个Session对象有唯一的hashCode</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> session</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/setsession&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Result <span class="title function_">setSession</span><span class="params">(HttpSession session)</span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;HttpSession-setSession:&#123;&#125;&quot;</span>,session.hashCode());</span><br><span class="line">        session.setAttribute(<span class="string">&quot;loginUser&quot;</span>,<span class="string">&quot;tom&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> Result.success();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从HttpSession中获取Session，并获取其hashCode</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> request</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/getsession&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Result <span class="title function_">getSession</span><span class="params">(HttpServletRequest request)</span>&#123;</span><br><span class="line">        <span class="type">HttpSession</span> <span class="variable">session</span> <span class="operator">=</span> request.getSession();</span><br><span class="line">        log.info(<span class="string">&quot;HttpSession-getSession:&#123;&#125;&quot;</span>,session.hashCode());</span><br><span class="line">        <span class="type">Object</span> <span class="variable">loginUser</span> <span class="operator">=</span> session.getAttribute(<span class="string">&quot;loginUser&quot;</span>);</span><br><span class="line">        log.info(<span class="string">&quot;loginUser:&#123;&#125;&quot;</span>,loginUser);</span><br><span class="line">        <span class="keyword">return</span> Result.success();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h4 id="设置Session的效果图"><a href="#设置Session的效果图" class="headerlink" title="设置Session的效果图"></a>设置Session的效果图</h4><p><strong>首先F12打开浏览器的调试工具点击NetWork选项查看发送的请求信息</strong></p>
+<p>可以看到请求了<code>http://localhost:3000/study/setsession</code>路径之后，服务器向前端的响应<strong>Response</strong>中包含<strong>Set-Cookie</strong>一项，并且保存的值是Session的ID</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309212304566.png"
+                      alt="image-20230921230445503"
+                ></p>
+<p>然后我们继续点击<code>Application</code>一项可以看到我们设置的session值成功保存在浏览器本地存储</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309212306821.png"
+                      alt="image-20230921230617782"
+                ></p>
+<h4 id="获取Session效果图展示"><a href="#获取Session效果图展示" class="headerlink" title="获取Session效果图展示"></a>获取Session效果图展示</h4><p>继上述设置session操作之后，继续访问页面<code>http://localhost:3000/study/getsession</code>，同样的，打开调试工具，并点击NetWork选项查看<strong>请求request</strong>中的Cookie一栏，确实是我们刚才设置的session</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309212309411.png"
+                      alt="image-20230921230938366"
+                ></p>
+<p><strong>查看我们的后端的显示，看到setsession和getsession两次请求输出的ID值相同，表明确实是同一个Session对象</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309212311778.png"
+                      alt="image-20230921231145486"
+                ></p>
+<h3 id="2-3、方案三：令牌JWT【主流】"><a href="#2-3、方案三：令牌JWT【主流】" class="headerlink" title="2.3、方案三：令牌JWT【主流】"></a>2.3、方案三：令牌JWT【主流】</h3><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309212335252.png"
+                      alt="image-20230921233534209"
+                ></p>
+<p><strong>优点</strong>：</p>
+<ol>
+<li>支持PC端、移动端</li>
+<li>解决集群环境下的认证问题</li>
+<li>减轻服务器端存储压力</li>
+</ol>
+<p><strong>缺点</strong>：需要自己实现</p>
+<h4 id="了解JWT"><a href="#了解JWT" class="headerlink" title="了解JWT"></a>了解JWT</h4><ul>
+<li><strong>全称</strong>：<a href="https://jwt.io/"><b style="color:red">J</b>SON <b style="color:red">W</b>eb <b style="color:red">T</b>oken</a></li>
+<li>定义了一种简洁、自包含的格式，用于在通信双方以JSON数据格式安全的传输信息。由于数字签名的存在，这些信息是可靠的</li>
+<li>组成：<ol>
+<li><strong>第一部分</strong>：<strong>Header</strong>(头)，记录令牌类型、签名算法等。例如：{“alg”:”HS256”,”type”:”JWT”}</li>
+<li><strong>第二部分</strong>：<strong>Payload</strong>(有效载荷)，携带一些自定义信息、默认信息等。例如：{“id”:”1”,”username”:”Tom”}</li>
+<li><strong>第三部分</strong>：<strong>Signature</strong>(签名)，防止Token被串改、确保安全性。将header、payload，并加入指定秘钥，通过指定签名算法计算而来</li>
+</ol>
+</li>
+</ul>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309212345412.png"
+                      alt="image-20230921234520362"
+                ></p>
+<blockquote>
+<p><strong>细节：</strong>JWT组成的前两部分<b style="color:green">[Payload、Signature]</b>是<b style="color:red">JSON数据</b>通过<b style="color:blue">Base64</b>编码组成，第三部分的数字签名<strong>融入前两部分的内容并加入秘钥通过特定算法计算出来</strong>的，所以核心就是第三部分的签名，该签名唯一标识我们的令牌</p>
+<p>【Base64：是一种基于64个可打印字符（A-Z a-z 0-9 + &#x2F;）来表示二进制数据的编码方式】</p>
+</blockquote>
+<h4 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h4><ul>
+<li><strong>典型使用场景</strong>：登录认证。<ol>
+<li>登录成功后，生成令牌【令牌生成：登录成功后生成JWT令牌，并返回给前端】</li>
+<li>后续每个请求，都要携带JWT令牌，系统在每次请求处理之前，先校验令牌，通过后，在处理【在请求到达服务端后，对令牌进行统一拦截，校验】</li>
+</ol>
+</li>
+</ul>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309212350034.png"
+                      alt="image-20230921235042977"
+                ></p>
+<h4 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h4><ul>
+<li>要使用JWT技术，首先导入JWT的依赖</li>
+</ul>
+<div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.jsonwebtoken<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jjwt<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>0.9.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<h4 style="color:blue">生成JWT</h4>
+
+<p><strong>生成JWT需要使用Jwts的三个方法</strong></p>
+<ul>
+<li><code>signWith</code>：设置签名算法以及秘钥【jwt组成三部分的<b style="color:green">第一部分</b>】</li>
+<li><code>setClaims</code>：设置载荷数据【jwt组成三部分的<b style="color:green">第二部分</b>】</li>
+<li><code>setExpiration</code>：设置过期时间$(参数以毫秒为单位)$</li>
+</ul>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">genJwt</span><span class="params">()</span>&#123;</span><br><span class="line">	Map&lt;String, Object&gt; claims = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();		<span class="comment">//载荷部分接收一个Map作为参数</span></span><br><span class="line">	claims.put(<span class="string">&quot;id&quot;</span>,<span class="number">1</span>);</span><br><span class="line">	claims.put(<span class="string">&quot;name&quot;</span>,<span class="string">&quot;tom&quot;</span>);</span><br><span class="line">    </span><br><span class="line">	<span class="type">String</span> <span class="variable">jwt</span> <span class="operator">=</span> Jwts.builder()</span><br><span class="line">		.signWith(SignatureAlgorithm.HS256,<span class="string">&quot;token&quot;</span>)     	<span class="comment">//设置签名算法</span></span><br><span class="line">		.setClaims(claims)                                  <span class="comment">//设置载荷数据</span></span><br><span class="line">		.setExpiration(<span class="keyword">new</span> <span class="title class_">Date</span>(System.currentTimeMillis()+<span class="number">3600</span> * <span class="number">1000</span>)) <span class="comment">//设置令牌的过期时间</span></span><br><span class="line">		.compact();</span><br><span class="line">        System.out.println(jwt);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h4 style="color:blue">解析JWT</h4>
+
+<p><strong>解析JWT使用的方法</strong></p>
+<ul>
+<li><code>setSigningKey</code>：设置解析JWT的秘钥</li>
+<li><code>parseClaimsJws</code>：将JWT作为该方法的参数</li>
+<li><code>getBody</code>：获取到载荷部分的数据</li>
+</ul>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">parseJWT</span><span class="params">()</span>&#123;</span><br><span class="line">	<span class="type">Claims</span> <span class="variable">payload</span> <span class="operator">=</span> Jwts.parser()</span><br><span class="line">		.setSigningKey(<span class="string">&quot;token&quot;</span>)		 <span class="comment">//输入JWT的秘钥</span></span><br><span class="line">        .parseClaimsJws(<span class="string">&quot;生成的JWT&quot;</span>)	<span class="comment">//将JWT放入parseClaimJws</span></span><br><span class="line">		.getBody();</span><br><span class="line">	System.out.println(payload);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<blockquote>
+<p><strong style="color:red">注意事项</strong></p>
+<ul>
+<li>JWT校验时使用的签名秘钥，必须和生成JWT令牌时使用的秘钥是相同的。</li>
+<li>如果JWT令牌解析校验时报错，则说明JWT被篡改或失效了，令牌非法。</li>
+</ul>
+</blockquote>
+<h4 id="编写一个JWT工具类【JwtUtils】"><a href="#编写一个JWT工具类【JwtUtils】" class="headerlink" title="编写一个JWT工具类【JwtUtils】"></a>编写一个JWT工具类【JwtUtils】</h4><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JwtUtil</span> &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 生成jwt</span></span><br><span class="line"><span class="comment">     * 使用Hs256算法, 私匙使用固定秘钥</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> secretKey jwt秘钥               [签名]</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> ttlMillis jwt过期时间(毫秒)     [token的过期时间]</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> claims    设置的信息       [把json数据放进map然后当做参数传递]</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">createJWT</span><span class="params">(String secretKey, <span class="type">long</span> ttlMillis, Map&lt;String, Object&gt; claims)</span> &#123;</span><br><span class="line">        <span class="comment">// 指定签名的时候使用的签名算法，也就是header那部分</span></span><br><span class="line">        <span class="type">SignatureAlgorithm</span> <span class="variable">signatureAlgorithm</span> <span class="operator">=</span> SignatureAlgorithm.HS256;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 生成JWT的时间,设置JWT的过期时间</span></span><br><span class="line">        <span class="type">long</span> <span class="variable">expMillis</span> <span class="operator">=</span> System.currentTimeMillis() + ttlMillis;</span><br><span class="line">        <span class="type">Date</span> <span class="variable">exp</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Date</span>(expMillis);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 设置jwt的body</span></span><br><span class="line">        <span class="type">JwtBuilder</span> <span class="variable">builder</span> <span class="operator">=</span> Jwts.builder()</span><br><span class="line">                <span class="comment">// 如果有私有声明，一定要先设置这个自己创建的私有的声明，这个是给builder的claim赋值，一旦写在标准的声明赋值之后，就是覆盖了那些标准的声明的</span></span><br><span class="line">                .setClaims(claims)</span><br><span class="line">                <span class="comment">// 设置签名使用的签名算法和签名使用的秘钥</span></span><br><span class="line">                .signWith(signatureAlgorithm, secretKey.getBytes(StandardCharsets.UTF_8))</span><br><span class="line">                <span class="comment">// 设置过期时间</span></span><br><span class="line">                .setExpiration(exp);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> builder.compact();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 解析Token</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> secretKey jwt秘钥 此秘钥一定要保留好在服务端, 不能暴露出去, 否则sign就可以被伪造</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> token     加密后的token</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Claims <span class="title function_">parseJWT</span><span class="params">(String secretKey, String token)</span> &#123;</span><br><span class="line">        <span class="comment">// 得到DefaultJwtParser</span></span><br><span class="line">        <span class="type">Claims</span> <span class="variable">claims</span> <span class="operator">=</span> Jwts.parser()</span><br><span class="line">                <span class="comment">// 设置签名的秘钥</span></span><br><span class="line">                .setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8))</span><br><span class="line">                <span class="comment">// 设置需要解析的jwt</span></span><br><span class="line">                .parseClaimsJws(token).getBody();</span><br><span class="line">        <span class="keyword">return</span> claims;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
+
+
+
+
+
+<h2 id="三、过滤器Filter"><a href="#三、过滤器Filter" class="headerlink" title="三、过滤器Filter"></a>三、过滤器Filter</h2><p>这了给出一篇简短高效的文章：<a href="https://segmentfault.com/a/1190000025152370" ><b style="color:blue">有关Filter的使用方法</b></a></p>
+<h3 id="3-1、概述"><a href="#3-1、概述" class="headerlink" title="3.1、概述"></a>3.1、概述</h3><ul>
+<li>概念：<span style="color:red">Filter过滤器</span>，是JavaWeb三大组件（Servlet、Filter、Listener）之一</li>
+<li>过滤器可以把对资源的请求<span style="color:red">拦截</span>下来，从而实现一些特殊功能</li>
+<li>过滤器一般完成一些<span style="color:red">通用</span>操作，比如：登录校验、统一编码处理、敏感字符处理等</li>
+</ul>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309221406046.png"
+                      alt="image-20230922140633954"
+                ></p>
+<hr>
+
+
+
+<h3 id="3-2、快速入门"><a href="#3-2、快速入门" class="headerlink" title="3.2、快速入门"></a>3.2、快速入门</h3><ol>
+<li><p><strong>定义Filter：</strong>定义一个类，实现Filter接口，并重写其所有方法，Filter类上加上<code>@WebFilter</code>注解，配置拦截资源路径。</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@WebFilter(urlPatterns = &quot;/*&quot;)</span>  <span class="comment">//配置拦截路径</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DemoFilter</span> <span class="keyword">implements</span> <span class="title class_">Filter</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span>   <span class="comment">//初始化方法,只调用一次: 通常做环境以及资源的准备工作</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">(FilterConfig filterConfig)</span> <span class="keyword">throws</span> ServletException &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;init 初始化开始了...&quot;</span>);</span><br><span class="line">        Filter.<span class="built_in">super</span>.init(filterConfig);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span>   <span class="comment">//每次拦截到请求之后调用，调用多次</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">doFilter</span><span class="params">(ServletRequest request, ServletResponse response, FilterChain chain)</span> <span class="keyword">throws</span> IOException, ServletException &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;拦截到了请求...【放行前逻辑】&quot;</span>);</span><br><span class="line">        <span class="comment">//doFilter是放行操作</span></span><br><span class="line">        chain.doFilter(request,response);</span><br><span class="line">        System.out.println(<span class="string">&quot;拦截到了请求...【放行后逻辑】&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span>   <span class="comment">//销毁方法,只会调用一次: 通常做资源和环境的销毁工作</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">destroy</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;destory 销毁执行了...&quot;</span>);</span><br><span class="line">        Filter.<span class="built_in">super</span>.destroy();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p><strong>配置Filter：</strong>引导类上加<code>@ServletComponentScan</code>开启Servlet组件支持</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span>		</span><br><span class="line"><span class="meta">@ServletComponentScan()</span>		<span class="comment">//扫描Servlet的组件</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ServerApplication</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        SpringApplication.run(ServerApplication.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
+</ol>
+<blockquote>
+<ul>
+<li><p>通常在<code>init</code>方法中做一些<strong>资源以及环境的准备</strong>工作</p>
+</li>
+<li><p>通常在<code>destory</code>方法做<strong>资源的释放以及环境的清理</strong>工作</p>
+</li>
+<li><p>在Spring启动类上加上注解<code>ServletComponentScan</code>：因为Filter是JavaWeb三大组件之一并不属于SpringBoot，因此想要在SpringBoot上使用JavaWeb的三大组件那就需要加上注解，加上注解就表示当前项目是支持Servlet相关组件的</p>
+</li>
+</ul>
+</blockquote>
+<hr>
+
+
+
+<h3 id="3-3、Filter拦截路径"><a href="#3-3、Filter拦截路径" class="headerlink" title="3.3、Filter拦截路径"></a>3.3、Filter拦截路径</h3><table>
+<thead>
+<tr>
+<th align="center">拦截路径</th>
+<th align="center">URLPatterns值</th>
+<th align="center">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">拦截具体路径</td>
+<td align="center">&#x2F;login</td>
+<td align="center">只有访问&#x2F;login路径时，才会被拦截</td>
+</tr>
+<tr>
+<td align="center">目录拦截</td>
+<td align="center">&#x2F;emps&#x2F;*</td>
+<td align="center">访问&#x2F;emps下所有资源，都会被拦截</td>
+</tr>
+<tr>
+<td align="center">拦截所有</td>
+<td align="center">&#x2F;*</td>
+<td align="center">访问所有资源，都会被拦截【</td>
+</tr>
+</tbody></table>
+<h3 id="3-4、过滤器链"><a href="#3-4、过滤器链" class="headerlink" title="3.4、过滤器链"></a>3.4、过滤器链</h3><ul>
+<li>介绍：一个web应用中，可以配置多个过滤器，这多个过滤器就形成了一个<b style="color:red">过滤器链</b></li>
+<li>顺序：注解配置的Filter，优先级是按照过滤器类名（字符串）的自然排序</li>
+</ul>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309221415717.png"
+                      alt="image-20230922141513652"
+                ></p>
+<p><strong>举个例子</strong></p>
+<p>我创建了一个<code>AFilter</code>和一个<code>BFilter</code>因为两个拦截器的名字A比B靠前，所以过滤器链的先后顺序是</p>
+<ul>
+<li>浏览器请求资源：<code>浏览器</code>$\to$ <code>AFilter</code>$\to $<code>BFilter</code>$\to$<code>服务端</code></li>
+<li>服务端返回资源：<code>浏览器</code>$\leftarrow$ <code>AFilter</code>$\leftarrow $<code>BFilter</code>$\leftarrow$<code>后端资源</code></li>
+</ul>
+<p><strong>定义的两个测试过滤器如下：</strong></p>
+<center class="half" style="margin:0px;padding:0px">
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309221552065.png"
+                      width="425px" height="300px"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309221553557.png"
+                      width="425px" height="300px" 
+                >
+</center>
+
+<p><strong>启动服务，发送请求，查看拦截结果可以看到是A拦截器先捕获到请求</strong></p>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309221553756.png"
+                      width="400px" height="300px"
+                >
+
+
+
+<h3 id="3-5-登录操作过滤器的实现-例子"><a href="#3-5-登录操作过滤器的实现-例子" class="headerlink" title="3.5 登录操作过滤器的实现(例子)"></a>3.5 登录操作过滤器的实现(例子)</h3><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309221635480.png"
+                      alt="image-20230922163502367"
+                ></p>
+<p><strong>步骤：</strong></p>
+<ol>
+<li>获取请求 url</li>
+<li>判断请求 url 中是否包含login，如果包含，说明是登录操作，放行</li>
+<li>获取请求头中的令牌（token）</li>
+<li>判断令牌是否存在，如果不存在，返回错误结果（未登录）</li>
+<li>解析 token ，如果解析失败，返回错误结果（未登录）</li>
+<li>放行</li>
+</ol>
+<h4 style="color:blue">代码实现的基本逻辑</h4>
+
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@WebFilter(&quot;/*&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LoginFilter</span> <span class="keyword">implements</span> <span class="title class_">Filter</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">doFilter</span><span class="params">(ServletRequest request, ServletResponse response, FilterChain chain)</span> <span class="keyword">throws</span> IOException, ServletException &#123;</span><br><span class="line">        <span class="type">HttpServletRequest</span> <span class="variable">req</span> <span class="operator">=</span> (HttpServletRequest)request;</span><br><span class="line">        <span class="type">HttpServletResponse</span> <span class="variable">res</span> <span class="operator">=</span> (HttpServletResponse)response;</span><br><span class="line">        <span class="comment">//1. 获取到请求的url</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> req.getRequestURI().toString();</span><br><span class="line">        log.info(<span class="string">&quot;拦截到请求,请求地址为: &#123;&#125;&quot;</span>,url);</span><br><span class="line">        <span class="comment">//2. 判断请求是否包含login，如果包含，则说明是登录操作，放行</span></span><br><span class="line">        <span class="keyword">if</span>(url.contains(<span class="string">&quot;login&quot;</span>))&#123;</span><br><span class="line">            log.info(<span class="string">&quot;登录操作...&quot;</span>);</span><br><span class="line">            chain.doFilter(request,response);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//3. 获取请求头中的令牌(token)</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">token</span> <span class="operator">=</span> req.getHeader(<span class="string">&quot;token&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//4. 判断令牌是否存在，如果不存在，返回错误结果(未登录)</span></span><br><span class="line">        <span class="keyword">if</span>(!StringUtils.hasLength(token))&#123;</span><br><span class="line">            log.info(<span class="string">&quot;请求头token为空，尚未登录...&quot;</span>);</span><br><span class="line">            <span class="type">Result</span> <span class="variable">error</span> <span class="operator">=</span> Result.error(<span class="string">&quot;NOT_LOGIN&quot;</span>);</span><br><span class="line">            <span class="comment">//手动转换 对象--&gt;json--------》阿里巴巴的fastJSON</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">notLogin</span> <span class="operator">=</span> JSONObject.toJSONString(error);</span><br><span class="line">            res.getWriter().write(notLogin);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//5. 解析token如果解析失败，返回错误结果</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            JwtUtil.parseJWT(<span class="string">&quot;token&quot;</span>,token);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            log.info(<span class="string">&quot;解析token异常..&quot;</span>);</span><br><span class="line">            <span class="type">Result</span> <span class="variable">error</span> <span class="operator">=</span> Result.error(<span class="string">&quot;NOT_LOGIN&quot;</span>);</span><br><span class="line">            <span class="comment">//手动转换 对象--&gt;json--------》阿里巴巴的fastJSON</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">notLogin</span> <span class="operator">=</span> JSONObject.toJSONString(error);</span><br><span class="line">            res.getWriter().write(notLogin);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        log.info(<span class="string">&quot;令牌合法...&quot;</span>);</span><br><span class="line">        <span class="comment">//6. 放行</span></span><br><span class="line">        chain.doFilter(request,response);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="四、拦截器Interceptor"><a href="#四、拦截器Interceptor" class="headerlink" title="四、拦截器Interceptor"></a>四、拦截器Interceptor</h2><h3 id="4-1、概述"><a href="#4-1、概述" class="headerlink" title="4.1、概述"></a>4.1、概述</h3><ul>
+<li><strong>概念：</strong>是一种动态拦截方法调用的机制，类似于过滤器。Spring框架提供的，用来动态拦截控制器方法的执行。</li>
+<li><strong>作用：</strong>拦截请求，在指定的方法调用前后，根据业务需要执行预先设定的代码</li>
+</ul>
+<h3 id="4-2、快速入门"><a href="#4-2、快速入门" class="headerlink" title="4.2、快速入门"></a>4.2、快速入门</h3><ol>
+<li><p><strong>定义拦截器，实现HandlerInterceptor接口，并重写其所有方法</strong></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Component</span>	<span class="comment">//交给IOC管理</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LoginCheckInterceptor</span> <span class="keyword">implements</span> <span class="title class_">HandlerInterceptor</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span>   <span class="comment">//目标资源方法执行前执行，返回true：放行，返回false：不放行</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">preHandle</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object handler)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;preHandle方法执行了...&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span>   <span class="comment">//目标资源方法执行后执行</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">postHandle</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;postHandle方法执行了...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span>   <span class="comment">//视图渲染完毕后执行，最后执行</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">afterCompletion</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;视图渲染完毕执行....&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p><strong>注册拦截器</strong> </p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Configuration</span>  <span class="comment">//表示当前类是一个配置类</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">WebConfig</span> <span class="keyword">implements</span> <span class="title class_">WebMvcConfigurer</span> &#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> LoginCheckInterceptor loginCheckInterceptor;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addInterceptors</span><span class="params">(InterceptorRegistry registry)</span> &#123;</span><br><span class="line">        registry.addInterceptor(loginCheckInterceptor).addPathPatterns(<span class="string">&quot;/**&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
+</ol>
+<h3 id="4-3、Intercept拦截路径"><a href="#4-3、Intercept拦截路径" class="headerlink" title="4.3、Intercept拦截路径"></a>4.3、Intercept拦截路径</h3><ul>
+<li><p>拦截器可以根据需求，配置不同的拦截路径：</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addInterceptors</span><span class="params">(InterceptorRegistry registry)</span>&#123;</span><br><span class="line">    registry.addInterceptor(loginCheckInterceptor)</span><br><span class="line">        .addPathPatterns(<span class="string">&quot;/**&quot;</span>)			<span class="comment">//需要拦截那些资源</span></span><br><span class="line">        .excludePathPatterns(<span class="string">&quot;/login&quot;</span>);	<span class="comment">//不需要拦截那些资源</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<ol>
+<li><code>addPathPatterns()</code>：配置需要拦截的路径</li>
+<li><code>excludePathPatterns()</code>：配置不需要拦截的路径</li>
+</ol>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center">拦截路径</th>
+<th align="center">含义</th>
+<th align="center">举例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">&#x2F;*</td>
+<td align="center">一级路径</td>
+<td align="center">能匹配&#x2F;depts、&#x2F;emps、&#x2F;login、不能匹配&#x2F;depts&#x2F;1</td>
+</tr>
+<tr>
+<td align="center">&#x2F;**</td>
+<td align="center">任意级路径</td>
+<td align="center">能匹配&#x2F;depts、&#x2F;depts&#x2F;1、&#x2F;depts&#x2F;1&#x2F;2</td>
+</tr>
+<tr>
+<td align="center">&#x2F;depts&#x2F;*</td>
+<td align="center">&#x2F;depts下的一级路径</td>
+<td align="center">能匹配&#x2F;depts&#x2F;1，不能匹配&#x2F;depts&#x2F;1&#x2F;2、&#x2F;depts</td>
+</tr>
+<tr>
+<td align="center">&#x2F;depts&#x2F;**</td>
+<td align="center">&#x2F;depts下的任意路径</td>
+<td align="center">能匹配&#x2F;depts、&#x2F;depts&#x2F;1、&#x2F;depts&#x2F;1&#x2F;2、不能匹配&#x2F;emps&#x2F;1</td>
+</tr>
+</tbody></table>
+<h3 id="4-4、拦截器执行流程"><a href="#4-4、拦截器执行流程" class="headerlink" title="4.4、拦截器执行流程"></a>4.4、拦截器执行流程</h3><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309222242453.png"
+                      alt="image-20230922224235319"
+                ></p>
+<p>使用浏览器访问web服务器时</p>
+<p>定义的过滤器Filter会首先拦截到请求，然后执行放行前的逻辑，接着执行放行操作（doFilter）</p>
+<p>由于当前是基于SpiringBoot开发，所以放行之后会入到Spring的环境当中访问定义的Controller</p>
+<p>因为Tomcat是一个Servlet容器，可以识别Servlet程序，但是不识别Controller</p>
+<p>SpringWeb提供了一个核心的Servlet容器（称之为前端控制器：DispatcherServlet）</p>
+<p>由DispatchServelt将请求转发给Controller然后执行对应的接口方法</p>
+<p>但是因为定义了拦截器，所以请求先到拦截器然后才到Controller</p>
+<blockquote>
+<p><strong>Filter</strong>与<strong>Interceptor</strong><b style="color:red">区别</b></p>
+<ul>
+<li><strong>接口规范不同</strong>：过滤器需要实现Filter接口，而拦截器需要实现HandlerInterceptor接口</li>
+<li><strong>拦截范围不同</strong>：过滤器Filter会拦截<strong>所有</strong>资源，而Interceptor只<strong>会拦截Spring环境中的资源</strong></li>
+</ul>
+</blockquote>
+<h3 id="4-5、登录操作拦截器的实现（例子）"><a href="#4-5、登录操作拦截器的实现（例子）" class="headerlink" title="4.5、登录操作拦截器的实现（例子）"></a>4.5、登录操作拦截器的实现（例子）</h3><ol>
+<li>获取请求 url</li>
+<li>判断请求 url 中是否包含login，如果包含，说明是登录操作，放行</li>
+<li>获取请求头中的令牌（token）</li>
+<li>判断令牌是否存在，如果不存在，返回错误结果（未登录）</li>
+<li>解析 token ，如果解析失败，返回错误结果（未登录）</li>
+<li>放行</li>
+</ol>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LoginCheckInterceptor</span> <span class="keyword">implements</span> <span class="title class_">HandlerInterceptor</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span>   <span class="comment">//目标资源方法执行前执行，返回true：放行，返回false：不放行</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">preHandle</span><span class="params">(HttpServletRequest req, HttpServletResponse res, Object handler)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="comment">//1. 获取到请求的url</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> req.getRequestURI().toString();</span><br><span class="line">        log.info(<span class="string">&quot;拦截到请求,请求地址为: &#123;&#125;&quot;</span>,url);</span><br><span class="line">        <span class="comment">//2. 判断请求是否包含login，如果包含，则说明是登录操作，放行</span></span><br><span class="line">        <span class="keyword">if</span>(url.contains(<span class="string">&quot;login&quot;</span>))&#123;</span><br><span class="line">            log.info(<span class="string">&quot;登录操作...&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//3. 获取请求头中的令牌(token)</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">token</span> <span class="operator">=</span> req.getHeader(<span class="string">&quot;token&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//4. 判断令牌是否存在，如果不存在，返回错误结果(未登录)</span></span><br><span class="line">        <span class="keyword">if</span>(!StringUtils.hasLength(token))&#123;</span><br><span class="line">            log.info(<span class="string">&quot;请求头token为空，尚未登录...&quot;</span>);</span><br><span class="line">            <span class="type">Result</span> <span class="variable">error</span> <span class="operator">=</span> Result.error(<span class="string">&quot;NOT_LOGIN&quot;</span>);</span><br><span class="line">            <span class="comment">//手动转换 对象--&gt;json--------》阿里巴巴的fastJSON</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">notLogin</span> <span class="operator">=</span> JSONObject.toJSONString(error);</span><br><span class="line">            res.getWriter().write(notLogin);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//5. 解析token如果解析失败，返回错误结果</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            JwtUtil.parseJWT(<span class="string">&quot;token&quot;</span>,token);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            log.info(<span class="string">&quot;解析token异常..&quot;</span>);</span><br><span class="line">            <span class="type">Result</span> <span class="variable">error</span> <span class="operator">=</span> Result.error(<span class="string">&quot;NOT_LOGIN&quot;</span>);</span><br><span class="line">            <span class="comment">//手动转换 对象--&gt;json--------》阿里巴巴的fastJSON</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">notLogin</span> <span class="operator">=</span> JSONObject.toJSONString(error);</span><br><span class="line">            res.getWriter().write(notLogin);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        log.info(<span class="string">&quot;令牌合法...&quot;</span>);</span><br><span class="line">        <span class="comment">//6. 放行</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span>   <span class="comment">//目标资源方法执行后执行</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">postHandle</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;postHandle方法执行了...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span>   <span class="comment">//视图渲染完毕后执行，最后执行</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">afterCompletion</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;视图渲染完毕执行....&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<hr>
+]]></content>
+      <categories>
+        <category>常见技术问题</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>后端</tag>
       </tags>
   </entry>
 </search>

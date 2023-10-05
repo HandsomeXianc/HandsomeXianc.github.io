@@ -13,20 +13,33 @@
     
     <!--- Seo Part-->
     
-    <link rel="canonical" href="https://github.com/HandsomeXianc/tags/"/>
+    <link rel="canonical" href="https://github.com/HandsomeXianc/2023/09/28/解决vue3跨域问题/"/>
     <meta name="robots" content="index,follow">
     <meta name="googlebot" content="index,follow">
     <meta name="revisit-after" content="1 days">
     
-        <meta property="og:type" content="website">
-<meta property="og:title" content="tags">
-<meta property="og:url" content="https://github.com/HandsomeXianc/tags/index.html">
+        <meta name="description" content="“关于前端or后端解决跨域问题的一些手段&quot;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="解决Vue3跨域问题">
+<meta property="og:url" content="https://github.com/HandsomeXianc/2023/09/28/%E8%A7%A3%E5%86%B3Vue3%E8%B7%A8%E5%9F%9F%E9%97%AE%E9%A2%98/index.html">
 <meta property="og:site_name" content="MyBlog">
+<meta property="og:description" content="“关于前端or后端解决跨域问题的一些手段&quot;">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-10-04T15:47:49.000Z">
-<meta property="article:modified_time" content="2023-10-04T15:47:49.971Z">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131700282.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131701343.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131703011.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131708296.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131711294.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131713186.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131713943.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309141107847.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309141109801.png">
+<meta property="article:published_time" content="2023-09-27T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-05T11:46:16.704Z">
 <meta property="article:author" content="忘记中二的少年">
+<meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131700282.png">
     
     
         <!-- Google tag (gtag.js) -->
@@ -48,7 +61,7 @@
     
     <title>
         
-            标签 -
+            解决Vue3跨域问题 -
         
         橙留香的blog
     </title>
@@ -357,54 +370,268 @@
             <div class="main-content">
 
                 
+                    <div class="post-page-container">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            
+                <h1 class="article-title-regular">解决Vue3跨域问题</h1>
+            
+            </div>
+            
                     
-<div class="tagcloud-container">
-	
-	<div>
-		<h1 class="tagcloud-header">标签</h1>
-	</div>
-	<div class="tagcloud-content">
-		<ul class="tag-list" data-show-value="true">
-			
-			<li>
-				<a data-weight="7" href="/HandsomeXianc/tags/Java/"
-					><i class="fa-solid fa-hashtag"></i>Java</a
-				>
-			</li>
-			
-			<li>
-				<a data-weight="6" href="/HandsomeXianc/tags/%E5%90%8E%E7%AB%AF/"
-					><i class="fa-solid fa-hashtag"></i>后端</a
-				>
-			</li>
-			
-			<li>
-				<a data-weight="2" href="/HandsomeXianc/tags/spring%E5%85%A8%E5%AE%B6%E6%A1%B6/"
-					><i class="fa-solid fa-hashtag"></i>spring全家桶</a
-				>
-			</li>
-			
-			<li>
-				<a data-weight="1" href="/HandsomeXianc/tags/Mybatis/"
-					><i class="fa-solid fa-hashtag"></i>Mybatis</a
-				>
-			</li>
-			
-			<li>
-				<a data-weight="1" href="/HandsomeXianc/tags/Tag1/"
-					><i class="fa-solid fa-hashtag"></i>Tag1</a
-				>
-			</li>
-			
-			<li>
-				<a data-weight="1" href="/HandsomeXianc/tags/%E6%A0%87%E7%AD%BE2/"
-					><i class="fa-solid fa-hashtag"></i>标签2</a
-				>
-			</li>
-			
-		</ul>
-	</div>
-	
+        
+        
+            <div class="article-header flex flex-row gap-2 items-center">
+                <div class="avatar w-[46px] h-[46px] flex-shrink-0 rounded-medium border border-border-color p-[1px]">
+                    <img src="/HandsomeXianc/images/avatar.png">
+                </div>
+                <div class="info flex flex-col justify-between">
+                    <div class="author flex items-center">
+                        <span class="name text-default-text-color text-lg font-semibold">忘记中二的少年</span>
+                        
+                            <span class="author-label ml-1.5 text-xs px-2 py-0.5 rounded-small text-third-text-color border border-shadow-color-1">Lv2</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fa-regular fa-pen-fancy"></i>&nbsp;
+        <span class="desktop">2023-09-28</span>
+        <span class="mobile">2023-09-28</span>
+        <span class="hover-info">创建</span>
+    </span>
+    
+        <span class="article-date article-meta-item">
+            <i class="fa-regular fa-wrench"></i>&nbsp;
+            <span class="desktop">2023-10-05 19:46:16</span>
+            <span class="mobile">2023-10-05 19:46:16</span>
+            <span class="hover-info">更新</span>
+        </span>
+    
+
+    
+        <span class="article-categories article-meta-item">
+            <i class="fa-regular fa-folders"></i>&nbsp;
+            <ul>
+                
+                
+                    
+                        
+                        <li>
+                            <a href="/HandsomeXianc/categories/%E5%B8%B8%E8%A7%81%E6%8A%80%E6%9C%AF%E9%97%AE%E9%A2%98/">常见技术问题</a>&nbsp;
+                        </li>
+                    
+                    
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fa-regular fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/HandsomeXianc/tags/Java/">Java</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fa-regular fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        
+
+
+        <div class="article-content markdown-body">
+            <h1 id="解决Vue3跨域问题"><a href="#解决Vue3跨域问题" class="headerlink" title="解决Vue3跨域问题"></a>解决Vue3跨域问题</h1><blockquote>
+<p> 今天敲码发现本地前端向后端发送请求时，发送请求出现跨域问题，联系广大网友发现两种解决跨域的方法</p>
+</blockquote>
+<h2 id="一、前端解决跨域"><a href="#一、前端解决跨域" class="headerlink" title="一、前端解决跨域"></a>一、前端解决跨域</h2><p><strong>前端axios向后端发起请求时，调试报错【跨域：CORS policy】</strong></p>
+<center class="half">    
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131700282.png"
+                      alt="image-20230913170017182" width="465"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131701343.png"
+                      alt="image-20230913170130306" width="465"
+                >
+</center>
+
+<p><strong>后端3000接口接收到请求但是返回值res前端无法接收</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131703011.png"
+                      alt="image-20230913170327960"
+                ></p>
+<h3 id="解决方法【反向代理】"><a href="#解决方法【反向代理】" class="headerlink" title="解决方法【反向代理】"></a>解决方法【反向代理】</h3><ul>
+<li><strong>axios直接发送请求<code>/users</code>经反向代理发送到localhost:3000端口</strong></li>
+<li><strong>找到<code>vue.config.js</code>文件并添加反向代理，将匹配到<code>/user</code>路径的请求<code>转发到3000端口</code></strong></li>
+</ul>
+<center class="half">    
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131708296.png"
+                      alt="image-20230913170017182" width="465"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131711294.png"
+                      alt="image-20230913170130306" width="465"
+                >
+</center>
+
+<h3 id="问题解决成功…"><a href="#问题解决成功…" class="headerlink" title="问题解决成功…"></a>问题解决成功…</h3><ul>
+<li><strong>配置反向代理后前端成功向后端发送请求并接受获取到的参数</strong></li>
+</ul>
+<center class="half">    
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131713186.png"
+                      alt="image-20230913170017182" width="465"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131713943.png"
+                      alt="image-20230913170130306" width="465"
+                >
+</center>
+
+
+
+<h2 id="二、后端解决跨域"><a href="#二、后端解决跨域" class="headerlink" title="二、后端解决跨域"></a>二、后端解决跨域</h2><ul>
+<li>此处选择基于Spring框架配置的后端配置类进行跨域问题的解决</li>
+</ul>
+<h3 id="创建配置类"><a href="#创建配置类" class="headerlink" title="创建配置类"></a>创建配置类</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.mystudy.configuration;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.extern.java.Log;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.config.annotation.CorsRegistry;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.config.annotation.WebMvcConfigurer;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span>          <span class="comment">//日志打印</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CrosConfiguration</span> <span class="keyword">implements</span> <span class="title class_">WebMvcConfigurer</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addCorsMappings</span><span class="params">(CorsRegistry registry)</span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;跨域问题配置类设置成功...&quot;</span>);</span><br><span class="line">        registry.addMapping(<span class="string">&quot;/**&quot;</span>)	<span class="comment">//配置可以被跨域的路径，可以任意配置，可以具体到直接请求路径</span></span><br><span class="line">            <span class="comment">//允许所有的请求域名访问我们的跨域资源，可以固定单条或者多条内容</span></span><br><span class="line">                .allowedOriginPatterns(<span class="string">&quot;*&quot;</span>)</span><br><span class="line">            <span class="comment">//允许所有的请求方法访问该跨域资源服务器</span></span><br><span class="line">                .allowedMethods(<span class="string">&quot;GET&quot;</span>,<span class="string">&quot;HEAD&quot;</span>,<span class="string">&quot;POST&quot;</span>,<span class="string">&quot;PUT&quot;</span>,<span class="string">&quot;DELETE&quot;</span>,<span class="string">&quot;OPTIONS&quot;</span>)</span><br><span class="line">            <span class="comment">//用于告知浏览器当withCredentials属性设置为true时，是否可以显示跨域请求返回的内容</span></span><br><span class="line">                .allowCredentials(<span class="literal">true</span>)</span><br><span class="line">            <span class="comment">//资源过期时间</span></span><br><span class="line">                .maxAge(<span class="number">3600</span>)</span><br><span class="line">                .allowedHeaders(<span class="string">&quot;*&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="问题解决成功…-1"><a href="#问题解决成功…-1" class="headerlink" title="问题解决成功…"></a>问题解决成功…</h3><ul>
+<li><strong>前端照常发起请求，后端启动项目后配置类自动创建</strong></li>
+</ul>
+<center class="half">    
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309141107847.png"
+                      alt="image-20230913170017182" width="470"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309141109801.png"
+                      alt="image-20230913170130306" width="460"
+                >
+</center>
+
+<hr>
+        </div>
+
+        
+            <div class="post-copyright-info">
+                <div class="article-copyright-info-container">
+    <ul>
+        <li><strong>标题:</strong> 解决Vue3跨域问题</li>
+        <li><strong>作者:</strong> 忘记中二的少年</li>
+        <li><strong>创建于
+                :</strong> 2023-09-28 00:00:00</li>
+        
+            <li>
+                <strong>更新于
+                    :</strong> 2023-10-05 19:46:16
+            </li>
+        
+        <li>
+            <strong>链接:</strong> https://github.com/HandsomeXianc/HandsomeXianc.github.io/2023/09/28/解决Vue3跨域问题/
+        </li>
+        <li>
+            <strong>
+                版权声明:
+            </strong>
+            
+            本文章采用 <a class="license" target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0</a> 进行许可。
+            
+
+        </li>
+    </ul>
+</div>
+
+            </div>
+        
+
+        
+            <ul class="post-tags-box">
+                
+                    <li class="tag-item">
+                        <a href="/HandsomeXianc/tags/Java/">#Java</a>&nbsp;
+                    </li>
+                
+            </ul>
+        
+
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                        rel="prev"
+                        href="/HandsomeXianc/2023/10/01/%E6%96%87%E7%AB%A0%E5%88%9B%E5%BB%BA%E8%AF%B4%E6%98%8E/"
+                        >
+                            <span class="left arrow-icon flex justify-center items-center">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex justify-center items-center">
+                                <span class="post-nav-title-item">测试文章</span>
+                                <span class="post-nav-item">上一篇</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+            </div>
+        
+
+
+        
+    </div>
+
+    
+        <div class="toc-content-container">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <div class="toc-title">此页目录</div>
+        <div class="page-title">解决Vue3跨域问题</div>
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3Vue3%E8%B7%A8%E5%9F%9F%E9%97%AE%E9%A2%98"><span class="nav-text">解决Vue3跨域问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E7%AB%AF%E8%A7%A3%E5%86%B3%E8%B7%A8%E5%9F%9F"><span class="nav-text">一、前端解决跨域</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95%E3%80%90%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E3%80%91"><span class="nav-text">解决方法【反向代理】</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%E6%88%90%E5%8A%9F%E2%80%A6"><span class="nav-text">问题解决成功…</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%90%8E%E7%AB%AF%E8%A7%A3%E5%86%B3%E8%B7%A8%E5%9F%9F"><span class="nav-text">二、后端解决跨域</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E9%85%8D%E7%BD%AE%E7%B1%BB"><span class="nav-text">创建配置类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%E6%88%90%E5%8A%9F%E2%80%A6-1"><span class="nav-text">问题解决成功…</span></a></li></ol></li></ol></li></ol>
+
+    </div>
+</div>
+        </div>
+    
 </div>
 
 
@@ -482,6 +709,23 @@
         </div>
     </div>
 
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="article-tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="right-bottom-tools page-aside-toggle">
+                <i class="fa-regular fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
     
 
     <div class="right-side-tools-container">

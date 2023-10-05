@@ -13,24 +13,30 @@
     
     <!--- Seo Part-->
     
-    <link rel="canonical" href="https://github.com/HandsomeXianc/2023/10/01/文章创建说明/"/>
+    <link rel="canonical" href="https://github.com/HandsomeXianc/2023/10/03/pagehelper原理使用及/"/>
     <meta name="robots" content="index,follow">
     <meta name="googlebot" content="index,follow">
     <meta name="revisit-after" content="1 days">
     
-        <meta name="description" content="“使用excerpt来进行文章摘要&quot;">
+        <meta name="description" content="“Mybatis插件PageHelper简化了分页查询的开发&quot;">
 <meta property="og:type" content="article">
-<meta property="og:title" content="测试文章">
-<meta property="og:url" content="https://github.com/HandsomeXianc/2023/10/01/%E6%96%87%E7%AB%A0%E5%88%9B%E5%BB%BA%E8%AF%B4%E6%98%8E/index.html">
+<meta property="og:title" content="简述PageHelper的原理及使用">
+<meta property="og:url" content="https://github.com/HandsomeXianc/2023/10/03/PageHelper%E5%8E%9F%E7%90%86%E4%BD%BF%E7%94%A8%E5%8F%8A/index.html">
 <meta property="og:site_name" content="MyBlog">
-<meta property="og:description" content="“使用excerpt来进行文章摘要&quot;">
+<meta property="og:description" content="“Mybatis插件PageHelper简化了分页查询的开发&quot;">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-10-01T00:00:00.000Z">
-<meta property="article:modified_time" content="2023-10-05T11:35:47.007Z">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031558189.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031559077.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031559762.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031559367.png">
+<meta property="article:published_time" content="2023-10-03T04:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-05T11:41:56.391Z">
 <meta property="article:author" content="忘记中二的少年">
-<meta property="article:tag" content="Tag1">
-<meta property="article:tag" content="标签2">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="后端">
+<meta property="article:tag" content="Mybatis">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031558189.png">
     
     
         <!-- Google tag (gtag.js) -->
@@ -52,7 +58,7 @@
     
     <title>
         
-            测试文章 -
+            简述PageHelper的原理及使用 -
         
         橙留香的blog
     </title>
@@ -366,11 +372,7 @@
 
         <div class="article-title">
             
-                
-                
-                <img src="https://w.wallhaven.cc/full/qz/wallhaven-qzowgr.png" alt="测试文章" class="max-w-none"/>
-                
-                <h1 class="article-title-cover">测试文章</h1>
+                <h1 class="article-title-regular">简述PageHelper的原理及使用</h1>
             
             </div>
             
@@ -392,15 +394,15 @@
                         <div class="article-meta-info">
     <span class="article-date article-meta-item">
         <i class="fa-regular fa-pen-fancy"></i>&nbsp;
-        <span class="desktop">2023-10-01 08:00</span>
-        <span class="mobile">2023-10-01 08:00</span>
+        <span class="desktop">2023-10-03 12:00</span>
+        <span class="mobile">2023-10-03 12:00</span>
         <span class="hover-info">创建</span>
     </span>
     
         <span class="article-date article-meta-item">
             <i class="fa-regular fa-wrench"></i>&nbsp;
-            <span class="desktop">2023-10-05 19:35:47</span>
-            <span class="mobile">2023-10-05 19:35:47</span>
+            <span class="desktop">2023-10-05 19:41:56</span>
+            <span class="mobile">2023-10-05 19:41:56</span>
             <span class="hover-info">更新</span>
         </span>
     
@@ -414,17 +416,7 @@
                     
                         
                         <li>
-                            <a href="/HandsomeXianc/categories/%E6%B5%8B%E8%AF%95%E6%A0%87%E7%AD%BE1/">测试标签1</a>&nbsp;
-                        </li>
-                    
-                    
-                
-                    
-                        
-                            <li>></li>
-                        
-                        <li>
-                            <a href="/HandsomeXianc/categories/%E6%B5%8B%E8%AF%95%E6%A0%87%E7%AD%BE1/2%E6%A0%87%E7%AD%BE%E6%B5%8B%E8%AF%95/">2标签测试</a>&nbsp;
+                            <a href="/HandsomeXianc/categories/%E5%B8%B8%E8%A7%81%E6%8A%80%E6%9C%AF%E9%97%AE%E9%A2%98/">常见技术问题</a>&nbsp;
                         </li>
                     
                     
@@ -438,11 +430,15 @@
             <ul>
                 
                     <li>
-                        <a href="/HandsomeXianc/tags/Tag1/">Tag1</a>&nbsp;
+                        <a href="/HandsomeXianc/tags/Java/">Java</a>&nbsp;
                     </li>
                 
                     <li>
-                        | <a href="/HandsomeXianc/tags/%E6%A0%87%E7%AD%BE2/">标签2</a>&nbsp;
+                        | <a href="/HandsomeXianc/tags/%E5%90%8E%E7%AB%AF/">后端</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        | <a href="/HandsomeXianc/tags/Mybatis/">Mybatis</a>&nbsp;
                     </li>
                 
             </ul>
@@ -468,12 +464,98 @@
 
 
         <div class="article-content markdown-body">
-            <h1 id="测试文章"><a href="#测试文章" class="headerlink" title="测试文章"></a>测试文章</h1><h2 id="文章篇头编辑简介"><a href="#文章篇头编辑简介" class="headerlink" title="文章篇头编辑简介"></a>文章篇头编辑简介</h2><p>使用 <code>cover</code>标签添加图片的链接即可作为文章的首页展示图</p>
-<p>使用 <code>tags</code>给文章添加标签</p>
-<p>使用 <code>categories</code> 来个文章归类</p>
-<p>使用 <code>title</code> 给文章添加标题</p>
-<p>使用 <code>expert</code> 来鬼文章添加首页简要</p>
-<p>使用 <code>date</code> 标注文章发布时间</p>
+            <h1 id="简述PageHelper的原理及使用"><a href="#简述PageHelper的原理及使用" class="headerlink" title="简述PageHelper的原理及使用"></a>简述PageHelper的原理及使用</h1><h2 id="PageHelper原理"><a href="#PageHelper原理" class="headerlink" title="PageHelper原理"></a>PageHelper原理</h2><p><strong>PageHelper</strong>是<strong>MyBatis</strong>的通用分页插件，通过<strong>mybatis</strong>的<b style="color:red">拦截器</b>实现分页功能，<b style="color:blue">拦截sql查询请求，添加分页语句，最终实现分页查询功能。</b></p>
+<p>在调用dao的Service的方法中设置分页参数：PageHelper.startPage(page,size)，分页参数会设置在<u><strong><code>ThreadLocal</code></strong></u>中然后PageHelper会在mybatis执行SQL时进行拦截，从<u><b style="color:red">ThreadLocal</b></u>取出分页参数，修改当前执行的SQL语句，添加分页SQL，最后执行添加了分页sql的sql语句实现分页查询。</p>
+<h2 id="PageHelper使用"><a href="#PageHelper使用" class="headerlink" title="PageHelper使用"></a>PageHelper使用</h2><h3 id="导入pom坐标"><a href="#导入pom坐标" class="headerlink" title="导入pom坐标"></a>导入pom坐标</h3><div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.github.pagehelper<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>pagehelper-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>版本自行选择<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<h3 id="接口设计"><a href="#接口设计" class="headerlink" title="接口设计"></a>接口设计</h3><p><strong>基本信息：</strong></p>
+<p><strong>Path：</strong><code>/admin/employee/page</code></p>
+<p><strong>Method：</strong><code>Get</code></p>
+<h3 id="接口描述"><a href="#接口描述" class="headerlink" title="接口描述"></a>接口描述</h3><p><strong>Query</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">参数名称</th>
+<th align="center">是否必须</th>
+<th align="center">示例</th>
+<th align="center">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">name</td>
+<td align="center">否</td>
+<td align="center">张三</td>
+<td align="center">姓名</td>
+</tr>
+<tr>
+<td align="center">page</td>
+<td align="center">是</td>
+<td align="center">1</td>
+<td align="center">页码</td>
+</tr>
+<tr>
+<td align="center">pageSize</td>
+<td align="center">是</td>
+<td align="center">10</td>
+<td align="center">每页记录数</td>
+</tr>
+</tbody></table>
+<h3 id="创建DTO封装接口参数"><a href="#创建DTO封装接口参数" class="headerlink" title="创建DTO封装接口参数"></a>创建DTO封装接口参数</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//该类用来封装前端传递过来的参数</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">EmployeePageQueryDTO</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="comment">//员工姓名</span></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//页码</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> page;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//每页显示记录数</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> pageSize;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>将所有分页查询的结果统一封装成PageResult对象。为什么？方便返回给前端</strong></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *	封装分页查询的结果</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PageResult</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">long</span> total;		<span class="comment">//总记录数</span></span><br><span class="line">    <span class="keyword">private</span> List records;	<span class="comment">//当前页数据集合</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="Controller层代码实现"><a href="#Controller层代码实现" class="headerlink" title="Controller层代码实现"></a>Controller层代码实现</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(&quot;/page&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result&lt;PageResult&gt; <span class="title function_">page</span><span class="params">(EmployeePageQueryDTO employeePageQueryDTO)</span> &#123;</span><br><span class="line">	log.info(<span class="string">&quot;获取分页查询的数据:&#123;&#125;&quot;</span>,employeePageQueryDTO);</span><br><span class="line">	<span class="type">PageResult</span> <span class="variable">pageResult</span> <span class="operator">=</span> employeeService.pageQuery(employeePageQueryDTO);</span><br><span class="line">	<span class="keyword">return</span> Result.success(pageResult);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="Service层代码实现"><a href="#Service层代码实现" class="headerlink" title="Service层代码实现"></a>Service层代码实现</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> PageResult <span class="title function_">pageQuery</span><span class="params">(EmployeePageQueryDTO employeePageQueryDTO)</span> &#123;</span><br><span class="line">	<span class="comment">//开始分页查询，将分页参数传递到ThreadLocal中</span></span><br><span class="line">	PageHelper.startPage(employeePageQueryDTO.getPage(),employeePageQueryDTO.getPageSize());</span><br><span class="line">    <span class="comment">//将Mapper层查询到的数据封装在Page中，Page本质上也是一个List</span></span><br><span class="line">	Page&lt;Employee&gt; page = employeeMapper.pageQuery(employeePageQueryDTO);</span><br><span class="line">    <span class="comment">//获取总记录数和查询的记录</span></span><br><span class="line">	<span class="type">long</span> <span class="variable">total</span> <span class="operator">=</span> page.getTotal();	<span class="comment">//获取记录总数</span></span><br><span class="line">	List&lt;Employee&gt; result = page.getResult();	<span class="comment">//获取所有记录</span></span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">PageResult</span>(total,result);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="DAO层代码实现"><a href="#DAO层代码实现" class="headerlink" title="DAO层代码实现"></a>DAO层代码实现</h3><p><strong>因为涉及到模糊查询所以dao层的sql语句写在xml文件中会更加灵活</strong></p>
+<p><strong>在EmployeeMapper.java文件中代码实现如下：</strong></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Page&lt;Employee&gt; <span class="title function_">pageQuery</span><span class="params">(EmployeeP；ageQueryDTO employeePageQueryDTO)</span>;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>在EmployeeMapper.xml文件中代码实现如下：</strong></p>
+<div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;pageQuery&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;com.sky.entity.Employee&quot;</span>&gt;</span></span><br><span class="line">	select * from employee</span><br><span class="line">	<span class="tag">&lt;<span class="name">where</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;name != null and name != &#x27;&#x27; &quot;</span>&gt;</span></span><br><span class="line">			and name like concat(&#x27;%&#x27;,#&#123;name&#125;,&#x27;%&#x27;)</span><br><span class="line">		<span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">where</span>&gt;</span></span><br><span class="line">	order by create_time desc</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<h3 id="测试结果"><a href="#测试结果" class="headerlink" title="测试结果"></a>测试结果</h3><p><strong>首先看到初始的数据表中有如下记录</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031558189.png"
+                      alt="image-20231003140210891"
+                ></p>
+<p><strong>在不添加name的查询条件的时候，测试接口确实成功实现查询到了正确的数据，但是可以看到返回结果中时间类型的数据返回格式是不适合前端展示的</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031559077.png"
+                      alt="image-20231003140635158"
+                ></p>
+<h4>解决方式：</h4>
+
+<ul>
+<li><p><strong>方式一</strong>：在属性上加入注解，对日期进行格式化</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@JsonFormat(pattern = &quot;yyyy-MM-dd HH:mm:ss&quot;)</span></span><br><span class="line"><span class="keyword">private</span> LocalDateTime updateTime;</span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p><strong>方式二</strong>：在WebMvcConfiguration 中拓展 SpringMVC 的消息转换器，统一对日期类型进行格式化处理</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 扩展mvc框架的消息转换器</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> converters</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">extendMessageConverters</span><span class="params">(List&lt;HttpMessageConverter&lt;?&gt;&gt; converters)</span> &#123;</span><br><span class="line">	log.info(<span class="string">&quot;扩展消息转换器...&quot;</span>);</span><br><span class="line">	<span class="comment">//创建一个消息转换器对象</span></span><br><span class="line">	<span class="type">MappingJackson2HttpMessageConverter</span> <span class="variable">messageConverter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MappingJackson2HttpMessageConverter</span>();</span><br><span class="line">	<span class="comment">//需要为消息转换器，创建一个对象转换器，对象转换器可以将Java对象序列化为JSON数据</span></span><br><span class="line">	messageConverter.setObjectMapper(<span class="keyword">new</span> <span class="title class_">JacksonObjectMapper</span>());</span><br><span class="line">	<span class="comment">//将自己的消息转换器加入到容器中</span></span><br><span class="line">	converters.add(<span class="number">0</span>,messageConverter);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
+</ul>
+<p><strong>根据上述的两种方式选择自己喜欢的方式即可，不过大多数情况下建议使用第二种方式，但是使用第二种方式的时候对象转换器又是什么呢？下面给出一个Jackson的对象转换器作为参考</strong></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 对象映射器:基于jackson将Java对象转为json，或者将json转为Java对象</span></span><br><span class="line"><span class="comment"> * 将JSON解析为Java对象的过程称为 [从JSON反序列化Java对象]</span></span><br><span class="line"><span class="comment"> * 从Java对象生成JSON的过程称为 [序列化Java对象到JSON]</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JacksonObjectMapper</span> <span class="keyword">extends</span> <span class="title class_">ObjectMapper</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DEFAULT_DATE_FORMAT</span> <span class="operator">=</span> <span class="string">&quot;yyyy-MM-dd&quot;</span>;</span><br><span class="line">    <span class="comment">//public static final String DEFAULT_DATE_TIME_FORMAT = &quot;yyyy-MM-dd HH:mm:ss&quot;;</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DEFAULT_DATE_TIME_FORMAT</span> <span class="operator">=</span> <span class="string">&quot;yyyy-MM-dd HH:mm&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DEFAULT_TIME_FORMAT</span> <span class="operator">=</span> <span class="string">&quot;HH:mm:ss&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">JacksonObjectMapper</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>();</span><br><span class="line">        <span class="comment">//收到未知属性时不报异常</span></span><br><span class="line">        <span class="built_in">this</span>.configure(FAIL_ON_UNKNOWN_PROPERTIES, <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//反序列化时，属性不存在的兼容处理</span></span><br><span class="line">        <span class="built_in">this</span>.getDeserializationConfig().withoutFeatures(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);</span><br><span class="line"></span><br><span class="line">        <span class="type">SimpleModule</span> <span class="variable">simpleModule</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SimpleModule</span>()</span><br><span class="line">                .addDeserializer(LocalDateTime.class, <span class="keyword">new</span> <span class="title class_">LocalDateTimeDeserializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_FORMAT)))</span><br><span class="line">                .addDeserializer(LocalDate.class, <span class="keyword">new</span> <span class="title class_">LocalDateDeserializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_FORMAT)))</span><br><span class="line">                .addDeserializer(LocalTime.class, <span class="keyword">new</span> <span class="title class_">LocalTimeDeserializer</span>(DateTimeFormatter.ofPattern(DEFAULT_TIME_FORMAT)))</span><br><span class="line">                .addSerializer(LocalDateTime.class, <span class="keyword">new</span> <span class="title class_">LocalDateTimeSerializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_FORMAT)))</span><br><span class="line">                .addSerializer(LocalDate.class, <span class="keyword">new</span> <span class="title class_">LocalDateSerializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_FORMAT)))</span><br><span class="line">                .addSerializer(LocalTime.class, <span class="keyword">new</span> <span class="title class_">LocalTimeSerializer</span>(DateTimeFormatter.ofPattern(DEFAULT_TIME_FORMAT)));</span><br><span class="line"></span><br><span class="line">        <span class="comment">//注册功能模块 例如，可以添加自定义序列化器和反序列化器</span></span><br><span class="line">        <span class="built_in">this</span>.registerModule(simpleModule);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
+
+<p><strong>有了上述的知识基础，创建一个消息转换器并使用</strong>，然后重新启动服务进行测试</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031559762.png"
+                      alt="image-20231003141157673"
+                ></p>
+<p>可以看到此时前端接收到的数据就是比较适合使用的时间格式</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031559367.png"
+                      alt="image-20231003141616468"
+                ></p>
 
         </div>
 
@@ -481,18 +563,18 @@
             <div class="post-copyright-info">
                 <div class="article-copyright-info-container">
     <ul>
-        <li><strong>标题:</strong> 测试文章</li>
+        <li><strong>标题:</strong> 简述PageHelper的原理及使用</li>
         <li><strong>作者:</strong> 忘记中二的少年</li>
         <li><strong>创建于
-                :</strong> 2023-10-01 08:00:00</li>
+                :</strong> 2023-10-03 12:00:00</li>
         
             <li>
                 <strong>更新于
-                    :</strong> 2023-10-05 19:35:47
+                    :</strong> 2023-10-05 19:41:56
             </li>
         
         <li>
-            <strong>链接:</strong> https://github.com/HandsomeXianc/HandsomeXianc.github.io/2023/10/01/文章创建说明/
+            <strong>链接:</strong> https://github.com/HandsomeXianc/HandsomeXianc.github.io/2023/10/03/PageHelper原理使用及/
         </li>
         <li>
             <strong>
@@ -513,11 +595,15 @@
             <ul class="post-tags-box">
                 
                     <li class="tag-item">
-                        <a href="/HandsomeXianc/tags/Tag1/">#Tag1</a>&nbsp;
+                        <a href="/HandsomeXianc/tags/Java/">#Java</a>&nbsp;
                     </li>
                 
                     <li class="tag-item">
-                        <a href="/HandsomeXianc/tags/%E6%A0%87%E7%AD%BE2/">#标签2</a>&nbsp;
+                        <a href="/HandsomeXianc/tags/%E5%90%8E%E7%AB%AF/">#后端</a>&nbsp;
+                    </li>
+                
+                    <li class="tag-item">
+                        <a href="/HandsomeXianc/tags/Mybatis/">#Mybatis</a>&nbsp;
                     </li>
                 
             </ul>
@@ -531,13 +617,13 @@
                     <div class="article-prev">
                         <a class="prev"
                         rel="prev"
-                        href="/HandsomeXianc/2023/10/02/%E5%85%A8%E5%B1%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E5%99%A8/"
+                        href="/HandsomeXianc/2023/10/03/AOP%E5%9F%BA%E7%A1%80/"
                         >
                             <span class="left arrow-icon flex justify-center items-center">
                                 <i class="fa-solid fa-chevron-left"></i>
                             </span>
                             <span class="title flex justify-center items-center">
-                                <span class="post-nav-title-item">全局异常处理器</span>
+                                <span class="post-nav-title-item">Spring技术AOP基础</span>
                                 <span class="post-nav-item">上一篇</span>
                             </span>
                         </a>
@@ -547,10 +633,10 @@
                     <div class="article-next">
                         <a class="next"
                         rel="next"
-                        href="/HandsomeXianc/2023/09/28/%E8%A7%A3%E5%86%B3Vue3%E8%B7%A8%E5%9F%9F%E9%97%AE%E9%A2%98/"
+                        href="/HandsomeXianc/2023/10/02/%E5%85%A8%E5%B1%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E5%99%A8/"
                         >
                             <span class="title flex justify-center items-center">
-                                <span class="post-nav-title-item">解决Vue3跨域问题</span>
+                                <span class="post-nav-title-item">全局异常处理器</span>
                                 <span class="post-nav-item">下一篇</span>
                             </span>
                             <span class="right arrow-icon flex justify-center items-center">
@@ -571,8 +657,8 @@
             <div class="post-toc-wrap">
     <div class="post-toc">
         <div class="toc-title">此页目录</div>
-        <div class="page-title">测试文章</div>
-        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E6%96%87%E7%AB%A0"><span class="nav-text">测试文章</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E7%AB%A0%E7%AF%87%E5%A4%B4%E7%BC%96%E8%BE%91%E7%AE%80%E4%BB%8B"><span class="nav-text">文章篇头编辑简介</span></a></li></ol></li></ol>
+        <div class="page-title">简述PageHelper的原理及使用</div>
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E8%BF%B0PageHelper%E7%9A%84%E5%8E%9F%E7%90%86%E5%8F%8A%E4%BD%BF%E7%94%A8"><span class="nav-text">简述PageHelper的原理及使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#PageHelper%E5%8E%9F%E7%90%86"><span class="nav-text">PageHelper原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PageHelper%E4%BD%BF%E7%94%A8"><span class="nav-text">PageHelper使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%BC%E5%85%A5pom%E5%9D%90%E6%A0%87"><span class="nav-text">导入pom坐标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1"><span class="nav-text">接口设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A5%E5%8F%A3%E6%8F%8F%E8%BF%B0"><span class="nav-text">接口描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BADTO%E5%B0%81%E8%A3%85%E6%8E%A5%E5%8F%A3%E5%8F%82%E6%95%B0"><span class="nav-text">创建DTO封装接口参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Controller%E5%B1%82%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-text">Controller层代码实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Service%E5%B1%82%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-text">Service层代码实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DAO%E5%B1%82%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-text">DAO层代码实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E7%BB%93%E6%9E%9C"><span class="nav-text">测试结果</span></a></li></ol></li></ol></li></ol>
 
     </div>
 </div>
