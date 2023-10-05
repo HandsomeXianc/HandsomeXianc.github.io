@@ -1,27 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>测试文章</title>
-    <url>/HandsomeXianc/2023/10/01/hello-world/</url>
-    <content><![CDATA[<h1 id="测试文章"><a href="#测试文章" class="headerlink" title="测试文章"></a>测试文章</h1><h2 id="文章篇头编辑简介"><a href="#文章篇头编辑简介" class="headerlink" title="文章篇头编辑简介"></a>文章篇头编辑简介</h2><p>使用 <code>cover</code>标签添加图片的链接即可作为文章的首页展示图</p>
-<p>使用 <code>tags</code>给文章添加标签</p>
-<p>使用 <code>categories</code> 来个文章归类</p>
-<p>使用 <code>title</code> 给文章添加标题</p>
-<p>使用 <code>expert</code> 来鬼文章添加首页简要</p>
-<p>使用 <code>date</code> 标注文章发布时间</p>
-]]></content>
-      <categories>
-        <category>测试标签1</category>
-        <category>2标签测试</category>
-      </categories>
-      <tags>
-        <tag>Tag1</tag>
-        <tag>标签2</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title></title>
-    <url>/HandsomeXianc/2023/10/05/%E5%85%A8%E5%B1%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E5%99%A8/</url>
+    <title>全局异常处理器</title>
+    <url>/HandsomeXianc/2023/10/02/%E5%85%A8%E5%B1%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E5%99%A8/</url>
     <content><![CDATA[<h1 id="全局异常处理器"><a href="#全局异常处理器" class="headerlink" title="全局异常处理器"></a>全局异常处理器</h1><blockquote>
 <p><b style="color:blue">悟已往之不谏，知来者之可追</b>:hash::first_quarter_moon::ant:</p>
 </blockquote>
@@ -74,5 +55,32 @@
                       alt="image-20230923125513819"
                 ></p>
 ]]></content>
+      <categories>
+        <category>常见技术问题</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>后端</tag>
+        <tag>spring全家桶</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>测试文章</title>
+    <url>/HandsomeXianc/2023/10/01/%E6%96%87%E7%AB%A0%E5%88%9B%E5%BB%BA%E8%AF%B4%E6%98%8E/</url>
+    <content><![CDATA[<h1 id="测试文章"><a href="#测试文章" class="headerlink" title="测试文章"></a>测试文章</h1><h2 id="文章篇头编辑简介"><a href="#文章篇头编辑简介" class="headerlink" title="文章篇头编辑简介"></a>文章篇头编辑简介</h2><p>使用 <code>cover</code>标签添加图片的链接即可作为文章的首页展示图</p>
+<p>使用 <code>tags</code>给文章添加标签</p>
+<p>使用 <code>categories</code> 来个文章归类</p>
+<p>使用 <code>title</code> 给文章添加标题</p>
+<p>使用 <code>expert</code> 来鬼文章添加首页简要</p>
+<p>使用 <code>date</code> 标注文章发布时间</p>
+]]></content>
+      <categories>
+        <category>测试标签1</category>
+        <category>2标签测试</category>
+      </categories>
+      <tags>
+        <tag>Tag1</tag>
+        <tag>标签2</tag>
+      </tags>
   </entry>
 </search>
