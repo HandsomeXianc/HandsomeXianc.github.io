@@ -1,8 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>简述PageHelper的原理及使用</title>
+    <url>/2023/10/03/PageHelper%E5%8E%9F%E7%90%86%E4%BD%BF%E7%94%A8%E5%8F%8A/</url>
+    <content><![CDATA[<h1 id="简述PageHelper的原理及使用"><a href="#简述PageHelper的原理及使用" class="headerlink" title="简述PageHelper的原理及使用"></a>简述PageHelper的原理及使用</h1><h2 id="PageHelper原理"><a href="#PageHelper原理" class="headerlink" title="PageHelper原理"></a>PageHelper原理</h2><p><strong>PageHelper</strong>是<strong>MyBatis</strong>的通用分页插件，通过<strong>mybatis</strong>的<b style="color:red">拦截器</b>实现分页功能，<b style="color:blue">拦截sql查询请求，添加分页语句，最终实现分页查询功能。</b></p>
+<p>在调用dao的Service的方法中设置分页参数：PageHelper.startPage(page,size)，分页参数会设置在<u><strong><code>ThreadLocal</code></strong></u>中然后PageHelper会在mybatis执行SQL时进行拦截，从<u><b style="color:red">ThreadLocal</b></u>取出分页参数，修改当前执行的SQL语句，添加分页SQL，最后执行添加了分页sql的sql语句实现分页查询。</p>
+<h2 id="PageHelper使用"><a href="#PageHelper使用" class="headerlink" title="PageHelper使用"></a>PageHelper使用</h2><h3 id="导入pom坐标"><a href="#导入pom坐标" class="headerlink" title="导入pom坐标"></a>导入pom坐标</h3><div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.github.pagehelper<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>pagehelper-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>版本自行选择<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<h3 id="接口设计"><a href="#接口设计" class="headerlink" title="接口设计"></a>接口设计</h3><p><strong>基本信息：</strong></p>
+<p><strong>Path：</strong><code>/admin/employee/page</code></p>
+<p><strong>Method：</strong><code>Get</code></p>
+<h3 id="接口描述"><a href="#接口描述" class="headerlink" title="接口描述"></a>接口描述</h3><p><strong>Query</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">参数名称</th>
+<th align="center">是否必须</th>
+<th align="center">示例</th>
+<th align="center">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">name</td>
+<td align="center">否</td>
+<td align="center">张三</td>
+<td align="center">姓名</td>
+</tr>
+<tr>
+<td align="center">page</td>
+<td align="center">是</td>
+<td align="center">1</td>
+<td align="center">页码</td>
+</tr>
+<tr>
+<td align="center">pageSize</td>
+<td align="center">是</td>
+<td align="center">10</td>
+<td align="center">每页记录数</td>
+</tr>
+</tbody></table>
+<h3 id="创建DTO封装接口参数"><a href="#创建DTO封装接口参数" class="headerlink" title="创建DTO封装接口参数"></a>创建DTO封装接口参数</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//该类用来封装前端传递过来的参数</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">EmployeePageQueryDTO</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="comment">//员工姓名</span></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//页码</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> page;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//每页显示记录数</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> pageSize;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>将所有分页查询的结果统一封装成PageResult对象。为什么？方便返回给前端</strong></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *	封装分页查询的结果</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PageResult</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">long</span> total;		<span class="comment">//总记录数</span></span><br><span class="line">    <span class="keyword">private</span> List records;	<span class="comment">//当前页数据集合</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="Controller层代码实现"><a href="#Controller层代码实现" class="headerlink" title="Controller层代码实现"></a>Controller层代码实现</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@GetMapping(&quot;/page&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result&lt;PageResult&gt; <span class="title function_">page</span><span class="params">(EmployeePageQueryDTO employeePageQueryDTO)</span> &#123;</span><br><span class="line">	log.info(<span class="string">&quot;获取分页查询的数据:&#123;&#125;&quot;</span>,employeePageQueryDTO);</span><br><span class="line">	<span class="type">PageResult</span> <span class="variable">pageResult</span> <span class="operator">=</span> employeeService.pageQuery(employeePageQueryDTO);</span><br><span class="line">	<span class="keyword">return</span> Result.success(pageResult);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="Service层代码实现"><a href="#Service层代码实现" class="headerlink" title="Service层代码实现"></a>Service层代码实现</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> PageResult <span class="title function_">pageQuery</span><span class="params">(EmployeePageQueryDTO employeePageQueryDTO)</span> &#123;</span><br><span class="line">	<span class="comment">//开始分页查询，将分页参数传递到ThreadLocal中</span></span><br><span class="line">	PageHelper.startPage(employeePageQueryDTO.getPage(),employeePageQueryDTO.getPageSize());</span><br><span class="line">    <span class="comment">//将Mapper层查询到的数据封装在Page中，Page本质上也是一个List</span></span><br><span class="line">	Page&lt;Employee&gt; page = employeeMapper.pageQuery(employeePageQueryDTO);</span><br><span class="line">    <span class="comment">//获取总记录数和查询的记录</span></span><br><span class="line">	<span class="type">long</span> <span class="variable">total</span> <span class="operator">=</span> page.getTotal();	<span class="comment">//获取记录总数</span></span><br><span class="line">	List&lt;Employee&gt; result = page.getResult();	<span class="comment">//获取所有记录</span></span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">PageResult</span>(total,result);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="DAO层代码实现"><a href="#DAO层代码实现" class="headerlink" title="DAO层代码实现"></a>DAO层代码实现</h3><p><strong>因为涉及到模糊查询所以dao层的sql语句写在xml文件中会更加灵活</strong></p>
+<p><strong>在EmployeeMapper.java文件中代码实现如下：</strong></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line">Page&lt;Employee&gt; <span class="title function_">pageQuery</span><span class="params">(EmployeeP；ageQueryDTO employeePageQueryDTO)</span>;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>在EmployeeMapper.xml文件中代码实现如下：</strong></p>
+<div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;pageQuery&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;com.sky.entity.Employee&quot;</span>&gt;</span></span><br><span class="line">	select * from employee</span><br><span class="line">	<span class="tag">&lt;<span class="name">where</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;name != null and name != &#x27;&#x27; &quot;</span>&gt;</span></span><br><span class="line">			and name like concat(&#x27;%&#x27;,#&#123;name&#125;,&#x27;%&#x27;)</span><br><span class="line">		<span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">where</span>&gt;</span></span><br><span class="line">	order by create_time desc</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<h3 id="测试结果"><a href="#测试结果" class="headerlink" title="测试结果"></a>测试结果</h3><p><strong>首先看到初始的数据表中有如下记录</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031558189.png"
+                      alt="image-20231003140210891"
+                ></p>
+<p><strong>在不添加name的查询条件的时候，测试接口确实成功实现查询到了正确的数据，但是可以看到返回结果中时间类型的数据返回格式是不适合前端展示的</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031559077.png"
+                      alt="image-20231003140635158"
+                ></p>
+<h4>解决方式：</h4>
+
+<ul>
+<li><p><strong>方式一</strong>：在属性上加入注解，对日期进行格式化</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@JsonFormat(pattern = &quot;yyyy-MM-dd HH:mm:ss&quot;)</span></span><br><span class="line"><span class="keyword">private</span> LocalDateTime updateTime;</span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p><strong>方式二</strong>：在WebMvcConfiguration 中拓展 SpringMVC 的消息转换器，统一对日期类型进行格式化处理</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 扩展mvc框架的消息转换器</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> converters</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">extendMessageConverters</span><span class="params">(List&lt;HttpMessageConverter&lt;?&gt;&gt; converters)</span> &#123;</span><br><span class="line">	log.info(<span class="string">&quot;扩展消息转换器...&quot;</span>);</span><br><span class="line">	<span class="comment">//创建一个消息转换器对象</span></span><br><span class="line">	<span class="type">MappingJackson2HttpMessageConverter</span> <span class="variable">messageConverter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MappingJackson2HttpMessageConverter</span>();</span><br><span class="line">	<span class="comment">//需要为消息转换器，创建一个对象转换器，对象转换器可以将Java对象序列化为JSON数据</span></span><br><span class="line">	messageConverter.setObjectMapper(<span class="keyword">new</span> <span class="title class_">JacksonObjectMapper</span>());</span><br><span class="line">	<span class="comment">//将自己的消息转换器加入到容器中</span></span><br><span class="line">	converters.add(<span class="number">0</span>,messageConverter);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
+</ul>
+<p><strong>根据上述的两种方式选择自己喜欢的方式即可，不过大多数情况下建议使用第二种方式，但是使用第二种方式的时候对象转换器又是什么呢？下面给出一个Jackson的对象转换器作为参考</strong></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 对象映射器:基于jackson将Java对象转为json，或者将json转为Java对象</span></span><br><span class="line"><span class="comment"> * 将JSON解析为Java对象的过程称为 [从JSON反序列化Java对象]</span></span><br><span class="line"><span class="comment"> * 从Java对象生成JSON的过程称为 [序列化Java对象到JSON]</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JacksonObjectMapper</span> <span class="keyword">extends</span> <span class="title class_">ObjectMapper</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DEFAULT_DATE_FORMAT</span> <span class="operator">=</span> <span class="string">&quot;yyyy-MM-dd&quot;</span>;</span><br><span class="line">    <span class="comment">//public static final String DEFAULT_DATE_TIME_FORMAT = &quot;yyyy-MM-dd HH:mm:ss&quot;;</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DEFAULT_DATE_TIME_FORMAT</span> <span class="operator">=</span> <span class="string">&quot;yyyy-MM-dd HH:mm&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DEFAULT_TIME_FORMAT</span> <span class="operator">=</span> <span class="string">&quot;HH:mm:ss&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">JacksonObjectMapper</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>();</span><br><span class="line">        <span class="comment">//收到未知属性时不报异常</span></span><br><span class="line">        <span class="built_in">this</span>.configure(FAIL_ON_UNKNOWN_PROPERTIES, <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//反序列化时，属性不存在的兼容处理</span></span><br><span class="line">        <span class="built_in">this</span>.getDeserializationConfig().withoutFeatures(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);</span><br><span class="line"></span><br><span class="line">        <span class="type">SimpleModule</span> <span class="variable">simpleModule</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SimpleModule</span>()</span><br><span class="line">                .addDeserializer(LocalDateTime.class, <span class="keyword">new</span> <span class="title class_">LocalDateTimeDeserializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_FORMAT)))</span><br><span class="line">                .addDeserializer(LocalDate.class, <span class="keyword">new</span> <span class="title class_">LocalDateDeserializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_FORMAT)))</span><br><span class="line">                .addDeserializer(LocalTime.class, <span class="keyword">new</span> <span class="title class_">LocalTimeDeserializer</span>(DateTimeFormatter.ofPattern(DEFAULT_TIME_FORMAT)))</span><br><span class="line">                .addSerializer(LocalDateTime.class, <span class="keyword">new</span> <span class="title class_">LocalDateTimeSerializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_FORMAT)))</span><br><span class="line">                .addSerializer(LocalDate.class, <span class="keyword">new</span> <span class="title class_">LocalDateSerializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_FORMAT)))</span><br><span class="line">                .addSerializer(LocalTime.class, <span class="keyword">new</span> <span class="title class_">LocalTimeSerializer</span>(DateTimeFormatter.ofPattern(DEFAULT_TIME_FORMAT)));</span><br><span class="line"></span><br><span class="line">        <span class="comment">//注册功能模块 例如，可以添加自定义序列化器和反序列化器</span></span><br><span class="line">        <span class="built_in">this</span>.registerModule(simpleModule);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
+
+<p><strong>有了上述的知识基础，创建一个消息转换器并使用</strong>，然后重新启动服务进行测试</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031559762.png"
+                      alt="image-20231003141157673"
+                ></p>
+<p>可以看到此时前端接收到的数据就是比较适合使用的时间格式</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031559367.png"
+                      alt="image-20231003141616468"
+                ></p>
+]]></content>
+      <categories>
+        <category>常见技术问题</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>后端</tag>
+        <tag>Mybatis</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Spring技术AOP基础</title>
-    <url>/HandsomeXianc/2023/10/03/AOP%E5%9F%BA%E7%A1%80/</url>
+    <url>/2023/10/03/AOP%E5%9F%BA%E7%A1%80/</url>
     <content><![CDATA[<h1 id="AOP基础"><a href="#AOP基础" class="headerlink" title="AOP基础"></a>AOP基础</h1><h2 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h2><ul>
 <li><b style="color:red">AOP：</b><span style="color:red">A</span>spect <span style="color:red">O</span>riented <span style="color:red">P</span>rogramming（<span style="color:red">面向切面编程，面向方面编程</span>），其实就是面向特定的方法编程。</li>
 <li><strong>动态代理</strong>是面向切面编程最主流的实现。而SpringAOP是Spring框架的高级技术，旨在管理bean对象的过程中，主要通过底层的动态代理机制，对特定的方法进行编程。</li>
@@ -347,249 +452,8 @@
       </tags>
   </entry>
   <entry>
-    <title>简述PageHelper的原理及使用</title>
-    <url>/HandsomeXianc/2023/10/03/PageHelper%E5%8E%9F%E7%90%86%E4%BD%BF%E7%94%A8%E5%8F%8A/</url>
-    <content><![CDATA[<h1 id="简述PageHelper的原理及使用"><a href="#简述PageHelper的原理及使用" class="headerlink" title="简述PageHelper的原理及使用"></a>简述PageHelper的原理及使用</h1><h2 id="PageHelper原理"><a href="#PageHelper原理" class="headerlink" title="PageHelper原理"></a>PageHelper原理</h2><p><strong>PageHelper</strong>是<strong>MyBatis</strong>的通用分页插件，通过<strong>mybatis</strong>的<b style="color:red">拦截器</b>实现分页功能，<b style="color:blue">拦截sql查询请求，添加分页语句，最终实现分页查询功能。</b></p>
-<p>在调用dao的Service的方法中设置分页参数：PageHelper.startPage(page,size)，分页参数会设置在<u><strong><code>ThreadLocal</code></strong></u>中然后PageHelper会在mybatis执行SQL时进行拦截，从<u><b style="color:red">ThreadLocal</b></u>取出分页参数，修改当前执行的SQL语句，添加分页SQL，最后执行添加了分页sql的sql语句实现分页查询。</p>
-<h2 id="PageHelper使用"><a href="#PageHelper使用" class="headerlink" title="PageHelper使用"></a>PageHelper使用</h2><h3 id="导入pom坐标"><a href="#导入pom坐标" class="headerlink" title="导入pom坐标"></a>导入pom坐标</h3><div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.github.pagehelper<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>pagehelper-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>版本自行选择<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
-
-<h3 id="接口设计"><a href="#接口设计" class="headerlink" title="接口设计"></a>接口设计</h3><p><strong>基本信息：</strong></p>
-<p><strong>Path：</strong><code>/admin/employee/page</code></p>
-<p><strong>Method：</strong><code>Get</code></p>
-<h3 id="接口描述"><a href="#接口描述" class="headerlink" title="接口描述"></a>接口描述</h3><p><strong>Query</strong></p>
-<table>
-<thead>
-<tr>
-<th align="center">参数名称</th>
-<th align="center">是否必须</th>
-<th align="center">示例</th>
-<th align="center">备注</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center">name</td>
-<td align="center">否</td>
-<td align="center">张三</td>
-<td align="center">姓名</td>
-</tr>
-<tr>
-<td align="center">page</td>
-<td align="center">是</td>
-<td align="center">1</td>
-<td align="center">页码</td>
-</tr>
-<tr>
-<td align="center">pageSize</td>
-<td align="center">是</td>
-<td align="center">10</td>
-<td align="center">每页记录数</td>
-</tr>
-</tbody></table>
-<h3 id="创建DTO封装接口参数"><a href="#创建DTO封装接口参数" class="headerlink" title="创建DTO封装接口参数"></a>创建DTO封装接口参数</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//该类用来封装前端传递过来的参数</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">EmployeePageQueryDTO</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="comment">//员工姓名</span></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//页码</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> page;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//每页显示记录数</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> pageSize;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
-
-<p><strong>将所有分页查询的结果统一封装成PageResult对象。为什么？方便返回给前端</strong></p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *	封装分页查询的结果</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PageResult</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">long</span> total;		<span class="comment">//总记录数</span></span><br><span class="line">    <span class="keyword">private</span> List records;	<span class="comment">//当前页数据集合</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
-
-<h3 id="Controller层代码实现"><a href="#Controller层代码实现" class="headerlink" title="Controller层代码实现"></a>Controller层代码实现</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@GetMapping(&quot;/page&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result&lt;PageResult&gt; <span class="title function_">page</span><span class="params">(EmployeePageQueryDTO employeePageQueryDTO)</span> &#123;</span><br><span class="line">	log.info(<span class="string">&quot;获取分页查询的数据:&#123;&#125;&quot;</span>,employeePageQueryDTO);</span><br><span class="line">	<span class="type">PageResult</span> <span class="variable">pageResult</span> <span class="operator">=</span> employeeService.pageQuery(employeePageQueryDTO);</span><br><span class="line">	<span class="keyword">return</span> Result.success(pageResult);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
-
-<h3 id="Service层代码实现"><a href="#Service层代码实现" class="headerlink" title="Service层代码实现"></a>Service层代码实现</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> PageResult <span class="title function_">pageQuery</span><span class="params">(EmployeePageQueryDTO employeePageQueryDTO)</span> &#123;</span><br><span class="line">	<span class="comment">//开始分页查询，将分页参数传递到ThreadLocal中</span></span><br><span class="line">	PageHelper.startPage(employeePageQueryDTO.getPage(),employeePageQueryDTO.getPageSize());</span><br><span class="line">    <span class="comment">//将Mapper层查询到的数据封装在Page中，Page本质上也是一个List</span></span><br><span class="line">	Page&lt;Employee&gt; page = employeeMapper.pageQuery(employeePageQueryDTO);</span><br><span class="line">    <span class="comment">//获取总记录数和查询的记录</span></span><br><span class="line">	<span class="type">long</span> <span class="variable">total</span> <span class="operator">=</span> page.getTotal();	<span class="comment">//获取记录总数</span></span><br><span class="line">	List&lt;Employee&gt; result = page.getResult();	<span class="comment">//获取所有记录</span></span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">PageResult</span>(total,result);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
-
-<h3 id="DAO层代码实现"><a href="#DAO层代码实现" class="headerlink" title="DAO层代码实现"></a>DAO层代码实现</h3><p><strong>因为涉及到模糊查询所以dao层的sql语句写在xml文件中会更加灵活</strong></p>
-<p><strong>在EmployeeMapper.java文件中代码实现如下：</strong></p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line">Page&lt;Employee&gt; <span class="title function_">pageQuery</span><span class="params">(EmployeeP；ageQueryDTO employeePageQueryDTO)</span>;</span><br></pre></td></tr></table></figure></div>
-
-<p><strong>在EmployeeMapper.xml文件中代码实现如下：</strong></p>
-<div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;pageQuery&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;com.sky.entity.Employee&quot;</span>&gt;</span></span><br><span class="line">	select * from employee</span><br><span class="line">	<span class="tag">&lt;<span class="name">where</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;name != null and name != &#x27;&#x27; &quot;</span>&gt;</span></span><br><span class="line">			and name like concat(&#x27;%&#x27;,#&#123;name&#125;,&#x27;%&#x27;)</span><br><span class="line">		<span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">where</span>&gt;</span></span><br><span class="line">	order by create_time desc</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
-
-<h3 id="测试结果"><a href="#测试结果" class="headerlink" title="测试结果"></a>测试结果</h3><p><strong>首先看到初始的数据表中有如下记录</strong></p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031558189.png"
-                      alt="image-20231003140210891"
-                ></p>
-<p><strong>在不添加name的查询条件的时候，测试接口确实成功实现查询到了正确的数据，但是可以看到返回结果中时间类型的数据返回格式是不适合前端展示的</strong></p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031559077.png"
-                      alt="image-20231003140635158"
-                ></p>
-<h4>解决方式：</h4>
-
-<ul>
-<li><p><strong>方式一</strong>：在属性上加入注解，对日期进行格式化</p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@JsonFormat(pattern = &quot;yyyy-MM-dd HH:mm:ss&quot;)</span></span><br><span class="line"><span class="keyword">private</span> LocalDateTime updateTime;</span><br></pre></td></tr></table></figure></div>
-</li>
-<li><p><strong>方式二</strong>：在WebMvcConfiguration 中拓展 SpringMVC 的消息转换器，统一对日期类型进行格式化处理</p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 扩展mvc框架的消息转换器</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> converters</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">extendMessageConverters</span><span class="params">(List&lt;HttpMessageConverter&lt;?&gt;&gt; converters)</span> &#123;</span><br><span class="line">	log.info(<span class="string">&quot;扩展消息转换器...&quot;</span>);</span><br><span class="line">	<span class="comment">//创建一个消息转换器对象</span></span><br><span class="line">	<span class="type">MappingJackson2HttpMessageConverter</span> <span class="variable">messageConverter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MappingJackson2HttpMessageConverter</span>();</span><br><span class="line">	<span class="comment">//需要为消息转换器，创建一个对象转换器，对象转换器可以将Java对象序列化为JSON数据</span></span><br><span class="line">	messageConverter.setObjectMapper(<span class="keyword">new</span> <span class="title class_">JacksonObjectMapper</span>());</span><br><span class="line">	<span class="comment">//将自己的消息转换器加入到容器中</span></span><br><span class="line">	converters.add(<span class="number">0</span>,messageConverter);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
-</ul>
-<p><strong>根据上述的两种方式选择自己喜欢的方式即可，不过大多数情况下建议使用第二种方式，但是使用第二种方式的时候对象转换器又是什么呢？下面给出一个Jackson的对象转换器作为参考</strong></p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 对象映射器:基于jackson将Java对象转为json，或者将json转为Java对象</span></span><br><span class="line"><span class="comment"> * 将JSON解析为Java对象的过程称为 [从JSON反序列化Java对象]</span></span><br><span class="line"><span class="comment"> * 从Java对象生成JSON的过程称为 [序列化Java对象到JSON]</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JacksonObjectMapper</span> <span class="keyword">extends</span> <span class="title class_">ObjectMapper</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DEFAULT_DATE_FORMAT</span> <span class="operator">=</span> <span class="string">&quot;yyyy-MM-dd&quot;</span>;</span><br><span class="line">    <span class="comment">//public static final String DEFAULT_DATE_TIME_FORMAT = &quot;yyyy-MM-dd HH:mm:ss&quot;;</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DEFAULT_DATE_TIME_FORMAT</span> <span class="operator">=</span> <span class="string">&quot;yyyy-MM-dd HH:mm&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DEFAULT_TIME_FORMAT</span> <span class="operator">=</span> <span class="string">&quot;HH:mm:ss&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">JacksonObjectMapper</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>();</span><br><span class="line">        <span class="comment">//收到未知属性时不报异常</span></span><br><span class="line">        <span class="built_in">this</span>.configure(FAIL_ON_UNKNOWN_PROPERTIES, <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//反序列化时，属性不存在的兼容处理</span></span><br><span class="line">        <span class="built_in">this</span>.getDeserializationConfig().withoutFeatures(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);</span><br><span class="line"></span><br><span class="line">        <span class="type">SimpleModule</span> <span class="variable">simpleModule</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SimpleModule</span>()</span><br><span class="line">                .addDeserializer(LocalDateTime.class, <span class="keyword">new</span> <span class="title class_">LocalDateTimeDeserializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_FORMAT)))</span><br><span class="line">                .addDeserializer(LocalDate.class, <span class="keyword">new</span> <span class="title class_">LocalDateDeserializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_FORMAT)))</span><br><span class="line">                .addDeserializer(LocalTime.class, <span class="keyword">new</span> <span class="title class_">LocalTimeDeserializer</span>(DateTimeFormatter.ofPattern(DEFAULT_TIME_FORMAT)))</span><br><span class="line">                .addSerializer(LocalDateTime.class, <span class="keyword">new</span> <span class="title class_">LocalDateTimeSerializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_FORMAT)))</span><br><span class="line">                .addSerializer(LocalDate.class, <span class="keyword">new</span> <span class="title class_">LocalDateSerializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_FORMAT)))</span><br><span class="line">                .addSerializer(LocalTime.class, <span class="keyword">new</span> <span class="title class_">LocalTimeSerializer</span>(DateTimeFormatter.ofPattern(DEFAULT_TIME_FORMAT)));</span><br><span class="line"></span><br><span class="line">        <span class="comment">//注册功能模块 例如，可以添加自定义序列化器和反序列化器</span></span><br><span class="line">        <span class="built_in">this</span>.registerModule(simpleModule);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
-
-<p><strong>有了上述的知识基础，创建一个消息转换器并使用</strong>，然后重新启动服务进行测试</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031559762.png"
-                      alt="image-20231003141157673"
-                ></p>
-<p>可以看到此时前端接收到的数据就是比较适合使用的时间格式</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031559367.png"
-                      alt="image-20231003141616468"
-                ></p>
-]]></content>
-      <categories>
-        <category>常见技术问题</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-        <tag>后端</tag>
-        <tag>Mybatis</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>文件上传下载</title>
-    <url>/HandsomeXianc/2023/10/04/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B8%8B%E8%BD%BD/</url>
-    <content><![CDATA[<h1 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h1><h2 id="一、文件上传介绍"><a href="#一、文件上传介绍" class="headerlink" title="一、文件上传介绍"></a><span style="color:purple">一、文件上传介绍</span></h2><p>文件上传，也称为upload，是将本地图片、视频、音频等文件上传到服务器，供其他用户浏览或者下载的过程</p>
-<p>文件上传时，对页面的form表单有如下要求：</p>
-<ul>
-<li><code>method=&quot;post&quot;</code> 							        采用post方式提交数据</li>
-<li><code>enctype=&quot;multipart/form-data&quot; </code>   采用multipart格式上传文件</li>
-<li><code>type=&quot;file&quot;</code>                                       使用input的file控件上传</li>
-</ul>
-<p><strong>举例</strong></p>
-<div class="highlight-container" data-rel="Html"><figure class="iseeu highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">method</span>=<span class="string">&quot;post&quot;</span> <span class="attr">action</span>=<span class="string">&quot;/common/upload&quot;</span> <span class="attr">enctype</span>=<span class="string">&quot;multipart/form-data&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">&quot;myFile&quot;</span> <span class="attr">type</span>=<span class="string">&quot;file&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span> <span class="attr">value</span>=<span class="string">&quot;提交&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
-
-
-
-<p>服务端要接收客户端页面上传的文件，通常会使用Apache的两个插件</p>
-<ul>
-<li><code>commons-fileupload</code></li>
-<li><code>commons-io</code></li>
-</ul>
-<p>Spring框架在spring-web包中对文件上传进行了封装，大大简化了服务端代码，我们只需要在Controller的方法中声明一个<code>MultipartFile</code>类型的参数即可接收上传的文件，例如：</p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 文件上传</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span> file</span></span><br><span class="line"><span class="comment">* <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">@PostMapping(&quot;/upload&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload</span><span class="params">(MultipartFile file)</span>&#123;</span><br><span class="line">	System.out.println(file);</span><br><span class="line">	<span class="keyword">return</span> Result.success(<span class="literal">null</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
-
-
-
-<h2 id="二、文件下载介绍"><a href="#二、文件下载介绍" class="headerlink" title="二、文件下载介绍"></a><span style="color:green">二、文件下载介绍</span></h2><p>文件下载，也称为download，是指将文件从服务器传输到本地计算机的过程</p>
-<p>通过浏览器进行文件下载，通常有两种表现形式：</p>
-<ul>
-<li>以附件形式下载，弹出保存对话框，将文件保存到指定磁盘目录</li>
-<li>直接在浏览器中打开</li>
-</ul>
-<p>通过浏览器进行文件下载，本质上就是服务端将文件以流的形式写回浏览器的过程</p>
-<h2 id="三、文件上传接收代码实现"><a href="#三、文件上传接收代码实现" class="headerlink" title="三、文件上传接收代码实现"></a><span style="color:red">三、文件上传接收代码实现</span></h2><h3 id="前端数据方法代码"><a href="#前端数据方法代码" class="headerlink" title="前端数据方法代码"></a>前端数据方法代码</h3><ul>
-<li>此处调用axios向接口：<code>http://localhost:3000/common/upload</code>发送了表单数据设置表头header为<code>Content-type:multipar/form-data</code>，数据包含：<ol>
-<li><code>username</code>：字符串类型</li>
-<li><code>gender</code>：字符串类型</li>
-<li><code>introduction</code>：字符串类型</li>
-<li><code>avatar</code>：字符串类型</li>
-<li><code>file</code>：文件类型</li>
-</ol>
-</li>
-</ul>
-<center class="half">    
-    <img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309150932591.png"
-                      alt="image-20230913170017182" width="330" height="270px"  style="border:solid 2px orange"
-                >
-    <img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309150933147.png"
-                      alt="image-20230913170130306" width="600" height="270px"  style="border:solid 2px orange"
-                >
-</center>
-
-
-<ul>
-<li>打开调试工具查看发送的表单数据，观察发送数据的<code>name</code></li>
-</ul>
-<img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309150933419.png"
-                      width="500px" style="border:solid 2px blue"
-                >
-
-<h3 id="后端接口代码实现"><a href="#后端接口代码实现" class="headerlink" title="后端接口代码实现"></a>后端接口代码实现</h3><ul>
-<li><strong><span style="color:blue">第一种写法：</span></strong></li>
-</ul>
-<p>接口的参数对应表单数据的各项name，文件类型使用<code>MultipartFile</code>接收，若接口参数名与前端发送数据的name一致的时候可以不使用注解<code>@RequestParam</code>对应</p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span>						<span class="comment">//打印日志</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/common&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CommonController</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/upload&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload</span><span class="params">( <span class="meta">@RequestParam(&quot;username&quot;)</span> String username,</span></span><br><span class="line"><span class="params">                                  <span class="meta">@RequestParam(&quot;gender&quot;)</span> Integer gender,</span></span><br><span class="line"><span class="params">                                  <span class="meta">@RequestParam(&quot;introduction&quot;)</span> String introduction,</span></span><br><span class="line"><span class="params">                                  <span class="meta">@RequestParam(&quot;avatar&quot;)</span> String avatar,</span></span><br><span class="line"><span class="params">                                  <span class="meta">@RequestParam(&quot;file&quot;)</span>MultipartFile file)</span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;更新用户名:&#123;&#125;&quot;</span>,username);</span><br><span class="line">        log.info(<span class="string">&quot;更新性别:&#123;&#125;&quot;</span>,gender == <span class="number">1</span>?<span class="string">&#x27;男&#x27;</span>:gender==<span class="number">0</span>?<span class="string">&quot;女&quot;</span>:<span class="string">&quot;保密&quot;</span>);</span><br><span class="line">        log.info(<span class="string">&quot;用户简介:&#123;&#125;&quot;</span>,introduction);</span><br><span class="line">        log.info(<span class="string">&quot;头像地址:&#123;&#125;&quot;</span>,avatar);</span><br><span class="line">        log.info(<span class="string">&quot;接收到文件:&#123;&#125;&quot;</span>,file.toString());</span><br><span class="line">        <span class="keyword">return</span> Result.success(<span class="string">&quot;接收到上传的数据&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
-
-<ul>
-<li><strong><span style="color:blue">第二种写法：</span></strong></li>
-</ul>
-<p>考虑到需要接收的表单数据比较到，直接将所有参数写在接口上会显得代码比较繁琐，因此创建一个DTO来封装数据</p>
-<ol>
-<li><p>创建UploadDTO类</p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Data</span>					<span class="comment">//对所有的数据创建getter和setter</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span>		<span class="comment">//无参构造函数</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span>		<span class="comment">//有参构造函数</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UploadDTO</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String username;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> gender;</span><br><span class="line">    <span class="keyword">private</span> String introduction;</span><br><span class="line">    <span class="keyword">private</span> String avatar;</span><br><span class="line">    <span class="keyword">private</span> MultipartFile file;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
-</li>
-<li><p>使用DTO接收参数</p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@PostMapping(&quot;/upload&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload</span><span class="params">(UploadDTO user)</span>&#123;</span><br><span class="line">	log.info(user.getFile().toString());</span><br><span class="line">	<span class="keyword">return</span> Result.success(<span class="string">&quot;接收到上传的数据&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
-</ol>
-<h2 id="四、将上传的文件保存在本地"><a href="#四、将上传的文件保存在本地" class="headerlink" title="四、将上传的文件保存在本地"></a>四、将上传的文件保存在本地</h2><ol>
-<li><p>在配置文件中配置本地的路径，此处我的配置文件为<code>application.yml</code>，设置了基本路径为<code>D:\\Desktop</code></p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309151210089.png"
-                      alt="image-20230915121019943"
-                ></p>
-</li>
-<li><p>使用注解<code>@Value</code>接收配置文件的数据，并使用<code>UUID生存随机种子(保证文件名唯一)</code>，将上传文件保存到本地</p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/common&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CommonController</span> &#123;</span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;mystudy.basePath&#125;&quot;)</span>		<span class="comment">//@Value接收配置项数据</span></span><br><span class="line">    <span class="keyword">private</span> String basePath;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/upload&quot;)</span>		<span class="comment">//此处DTO对象描述看上文</span></span><br><span class="line">    <span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload</span><span class="params">(UploadDTO user)</span>&#123;</span><br><span class="line">        <span class="comment">//file是一个零时文件，需要转存到指定位置，否则本次请求完成后文件会删除</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//获取源文件的文件名字</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">originalFilename</span> <span class="operator">=</span> user.getFile().getOriginalFilename();</span><br><span class="line">            <span class="comment">//获取源文件的后缀</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">extension</span> <span class="operator">=</span> originalFilename.substring(originalFilename.lastIndexOf(<span class="string">&quot;.&quot;</span>));</span><br><span class="line">            <span class="comment">//根据UUID生成的随机数加上源文件的后缀名生成新的文件名[唯一不重复]</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">newName</span> <span class="operator">=</span> UUID.randomUUID().toString() + extension;</span><br><span class="line">            </span><br><span class="line">			<span class="comment">//创建一个目录对象</span></span><br><span class="line">            <span class="type">File</span> <span class="variable">dir</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(basePath);</span><br><span class="line">            <span class="comment">//判断当前目录是否存在</span></span><br><span class="line">            <span class="keyword">if</span>(!dir.exists()) dir.mkdirs();</span><br><span class="line">            </span><br><span class="line">            <span class="comment">//将临时文件转存到指定位置</span></span><br><span class="line">            user.getFile().transferTo(<span class="keyword">new</span> <span class="title class_">File</span>(basePath+ newName));</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">			log.error(<span class="string">&quot;文件上传失败：&#123;&#125;&quot;</span>,e);</span><br><span class="line">            <span class="keyword">return</span> Result.error(<span class="string">&quot;文件上传失败...&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> Result.success(<span class="string">&quot;成功接收上传数据&quot;</span>);</span><br><span class="line">&#125;&#125;</span><br></pre></td></tr></table></figure></div></li>
-</ol>
-<h2 id="五、配置文件上传选项"><a href="#五、配置文件上传选项" class="headerlink" title="五、配置文件上传选项"></a>五、配置文件上传选项</h2><ul>
-<li>在SpringBoot中，文件上传，默认单个文件允许最大大小为<code>1M</code>.如果需要上传大文件，则进行如下配置</li>
-</ul>
-<div class="highlight-container" data-rel="Yaml"><figure class="iseeu highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 打开application.yml配置文件</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">servlet:</span></span><br><span class="line">    <span class="attr">multipart:</span></span><br><span class="line">      <span class="attr">max-file-size:</span> <span class="string">10MB</span>				<span class="comment">#配置单个文件最大上传大小</span></span><br><span class="line">      <span class="attr">max-request-size:</span> <span class="string">100MB</span>			<span class="comment">#配置单个请求最大上传大小(一次请求可以上传多个文件)</span></span><br></pre></td></tr></table></figure></div>
-
-
-
-<h2 id="六、文件上传阿里云OSS"><a href="#六、文件上传阿里云OSS" class="headerlink" title="六、文件上传阿里云OSS"></a><span style="color:purple">六、文件上传阿里云OSS</span></h2><h3 id="第一步：导入依赖"><a href="#第一步：导入依赖" class="headerlink" title="第一步：导入依赖"></a>第一步：导入依赖</h3><blockquote>
-<p>官方文档地址：<a class="link"   href="https://help.aliyun.com/zh/oss/developer-reference/java-installation?spm=a2c4g.11186623.0.0.13dc3ba3geaLZ3"  style="color:red;font-weight:800">在这里 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
-</blockquote>
-<ul>
-<li>首先导入阿里云的依赖【Java 9版本以上】</li>
-</ul>
-<div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.aliyun.oss<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>aliyun-sdk-oss<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.15.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.xml.bind<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jaxb-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.3.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.activation<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>activation<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.1.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- no more than 2.3.3--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.glassfish.jaxb<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jaxb-runtime<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.3.3<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
-
-<h3 id="第二步：创建数据配置类"><a href="#第二步：创建数据配置类" class="headerlink" title="第二步：创建数据配置类"></a>第二步：创建数据配置类</h3><ol>
-<li><p><strong>现在<code>application.yml</code>文件中写入数据</strong></p>
-<div class="highlight-container" data-rel="Yaml"><figure class="iseeu highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">aliyun:</span></span><br><span class="line">  <span class="attr">oss:</span></span><br><span class="line">    <span class="attr">endpoint:</span> <span class="string">桶子归属地域</span></span><br><span class="line">    <span class="attr">bucketName:</span> <span class="string">桶子的名字</span></span><br><span class="line">    <span class="attr">accessKeyId:</span> <span class="string">自己OSS桶子的accessKeyId</span></span><br><span class="line">    <span class="attr">accessKeySecret:</span> <span class="string">自己桶子的accessKeySecret</span></span><br></pre></td></tr></table></figure></div>
-</li>
-<li><p><strong>创建配置类</strong><code>AliOssProperties</code></p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Data</span>					<span class="comment">//为类添加getter/setter</span></span><br><span class="line"><span class="meta">@Component</span>				<span class="comment">//交给IOC管理</span></span><br><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;aliyun.oss&quot;)</span>			<span class="comment">//将上述前缀为aliyun.oss配置数据匹配</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AliOssProperties</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String endpoint;</span><br><span class="line">    <span class="keyword">private</span> String bucketName;</span><br><span class="line">    <span class="keyword">private</span> String accessKeyId;</span><br><span class="line">    <span class="keyword">private</span> String accessKeySecret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
-</li>
-<li><p><strong>创建实现对象</strong><code>AliOssUtil</code></p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AliOssUtil</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String endpoint;</span><br><span class="line">    <span class="keyword">private</span> String accessKeyId;</span><br><span class="line">    <span class="keyword">private</span> String accessKeySecret;</span><br><span class="line">    <span class="keyword">private</span> String bucketName;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">upload</span><span class="params">(<span class="type">byte</span>[] bytes,String objectName)</span> &#123;</span><br><span class="line">        <span class="type">OSS</span> <span class="variable">ossClient</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">OSSClientBuilder</span>().build(endpoint, accessKeyId, accessKeySecret);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">PutObjectRequest</span> <span class="variable">putObjectRequest</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PutObjectRequest</span>(bucketName, objectName, <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(bytes));</span><br><span class="line">            <span class="type">PutObjectResult</span> <span class="variable">putObjectResult</span> <span class="operator">=</span> ossClient.putObject(putObjectRequest);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (OSSException oe) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;Caught an OSSException, which means your request made it to OSS, &quot;</span></span><br><span class="line">                    + <span class="string">&quot;but was rejected with an error response for some reason.&quot;</span>);</span><br><span class="line">            System.out.println(<span class="string">&quot;Error Message:&quot;</span> + oe.getErrorMessage());</span><br><span class="line">            System.out.println(<span class="string">&quot;Error Code:&quot;</span> + oe.getErrorCode());</span><br><span class="line">            System.out.println(<span class="string">&quot;Request ID:&quot;</span> + oe.getRequestId());</span><br><span class="line">            System.out.println(<span class="string">&quot;Host ID:&quot;</span> + oe.getHostId());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ClientException ce) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;Caught an ClientException, which means the client encountered &quot;</span></span><br><span class="line">                    + <span class="string">&quot;a serious internal problem while trying to communicate with OSS, &quot;</span></span><br><span class="line">                    + <span class="string">&quot;such as not being able to access the network.&quot;</span>);</span><br><span class="line">            System.out.println(<span class="string">&quot;Error Message:&quot;</span> + ce.getMessage());</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (ossClient != <span class="literal">null</span>) &#123;</span><br><span class="line">                ossClient.shutdown();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//文件访问路径规则 https://BucketName.Endpoint/ObjectName</span></span><br><span class="line">        <span class="type">StringBuilder</span> <span class="variable">stringBuilder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>(<span class="string">&quot;https://&quot;</span>);</span><br><span class="line">        stringBuilder</span><br><span class="line">                .append(bucketName)</span><br><span class="line">                .append(<span class="string">&quot;.&quot;</span>)</span><br><span class="line">                .append(endpoint)</span><br><span class="line">                .append(<span class="string">&quot;/&quot;</span>)</span><br><span class="line">                .append(objectName);</span><br><span class="line"></span><br><span class="line">        log.info(<span class="string">&quot;文件上传到:&#123;&#125;&quot;</span>, stringBuilder.toString());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> stringBuilder.toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
-</li>
-<li><p><strong>创建实现对象的”工厂”</strong><code>OSSConfiguration</code></p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OSSConfiguration</span> &#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line">    <span class="keyword">public</span> AliOssUtil <span class="title function_">aliOssUtil</span><span class="params">(AliOssProperties aliOssProperties)</span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;开始创建阿里云上传工具类对象：&#123;&#125;&quot;</span>,aliOssProperties);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">AliOssUtil</span>(aliOssProperties.getEndpoint(),</span><br><span class="line">                aliOssProperties.getAccessKeyId(),</span><br><span class="line">                aliOssProperties.getAccessKeySecret(),</span><br><span class="line">                aliOssProperties.getBucketName());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
-</ol>
-<h3 id="第三步：后端接口代码实现"><a href="#第三步：后端接口代码实现" class="headerlink" title="第三步：后端接口代码实现"></a>第三步：后端接口代码实现</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 进行文件的云上传【阿里云OSS存储】</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/common&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CommonController</span> &#123;</span><br><span class="line">    <span class="meta">@Autowired</span>				<span class="comment">//将OSS配置类导入</span></span><br><span class="line">    <span class="keyword">private</span> AliOssUtil aliOssUtil;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/upload&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload_OSS</span><span class="params">(UploadDTO user)</span>&#123;<span class="comment">//此处DTO看上文，上文封装了</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//原始的文件名字</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">originalFilename</span> <span class="operator">=</span> user.getFile().getOriginalFilename();</span><br><span class="line">            <span class="comment">//截取文件名的后缀</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">extension</span> <span class="operator">=</span> originalFilename.substring(originalFilename.lastIndexOf(<span class="string">&quot;.&quot;</span>));</span><br><span class="line">            <span class="comment">//构造新的文件名称</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">newName</span> <span class="operator">=</span> UUID.randomUUID().toString() + extension;</span><br><span class="line">            <span class="comment">//获取返回的文件请求路径</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">filePath</span> <span class="operator">=</span> aliOssUtil.upload(user.getFile().getBytes(), newName);</span><br><span class="line">            <span class="keyword">return</span> Result.success(filePath);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;文件上传失败：&#123;&#125;&quot;</span>,e);</span><br><span class="line">            <span class="keyword">return</span> Result.error(<span class="string">&quot;上传文件失败...&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></div>
-
-]]></content>
-      <categories>
-        <category>常见技术问题</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-        <tag>后端</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>开发规范(Swagger) + 接口文档</title>
-    <url>/HandsomeXianc/2023/10/06/%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83(Swagger)/</url>
+    <url>/2023/10/06/%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83(Swagger)/</url>
     <content><![CDATA[<h1 id="开发规范-Swagger-接口文档"><a href="#开发规范-Swagger-接口文档" class="headerlink" title="开发规范(Swagger) + 接口文档"></a>开发规范(Swagger) + 接口文档</h1><blockquote>
 <p>归去来兮辞:japan::japanese_goblin::ice_cream:</p>
 </blockquote>
@@ -728,7 +592,7 @@
   </entry>
   <entry>
     <title>全局异常处理器</title>
-    <url>/HandsomeXianc/2023/10/02/%E5%85%A8%E5%B1%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E5%99%A8/</url>
+    <url>/2023/10/02/%E5%85%A8%E5%B1%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E5%99%A8/</url>
     <content><![CDATA[<h1 id="全局异常处理器"><a href="#全局异常处理器" class="headerlink" title="全局异常处理器"></a>全局异常处理器</h1><blockquote>
 <p><b style="color:blue">悟已往之不谏，知来者之可追</b>:hash::first_quarter_moon::ant:</p>
 </blockquote>
@@ -791,8 +655,144 @@
       </tags>
   </entry>
   <entry>
+    <title>文件上传下载</title>
+    <url>/2023/10/04/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B8%8B%E8%BD%BD/</url>
+    <content><![CDATA[<h1 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h1><h2 id="一、文件上传介绍"><a href="#一、文件上传介绍" class="headerlink" title="一、文件上传介绍"></a><span style="color:purple">一、文件上传介绍</span></h2><p>文件上传，也称为upload，是将本地图片、视频、音频等文件上传到服务器，供其他用户浏览或者下载的过程</p>
+<p>文件上传时，对页面的form表单有如下要求：</p>
+<ul>
+<li><code>method=&quot;post&quot;</code> 							        采用post方式提交数据</li>
+<li><code>enctype=&quot;multipart/form-data&quot; </code>   采用multipart格式上传文件</li>
+<li><code>type=&quot;file&quot;</code>                                       使用input的file控件上传</li>
+</ul>
+<p><strong>举例</strong></p>
+<div class="highlight-container" data-rel="Html"><figure class="iseeu highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">method</span>=<span class="string">&quot;post&quot;</span> <span class="attr">action</span>=<span class="string">&quot;/common/upload&quot;</span> <span class="attr">enctype</span>=<span class="string">&quot;multipart/form-data&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">&quot;myFile&quot;</span> <span class="attr">type</span>=<span class="string">&quot;file&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span> <span class="attr">value</span>=<span class="string">&quot;提交&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>服务端要接收客户端页面上传的文件，通常会使用Apache的两个插件</p>
+<ul>
+<li><code>commons-fileupload</code></li>
+<li><code>commons-io</code></li>
+</ul>
+<p>Spring框架在spring-web包中对文件上传进行了封装，大大简化了服务端代码，我们只需要在Controller的方法中声明一个<code>MultipartFile</code>类型的参数即可接收上传的文件，例如：</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 文件上传</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span> file</span></span><br><span class="line"><span class="comment">* <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">@PostMapping(&quot;/upload&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload</span><span class="params">(MultipartFile file)</span>&#123;</span><br><span class="line">	System.out.println(file);</span><br><span class="line">	<span class="keyword">return</span> Result.success(<span class="literal">null</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="二、文件下载介绍"><a href="#二、文件下载介绍" class="headerlink" title="二、文件下载介绍"></a><span style="color:green">二、文件下载介绍</span></h2><p>文件下载，也称为download，是指将文件从服务器传输到本地计算机的过程</p>
+<p>通过浏览器进行文件下载，通常有两种表现形式：</p>
+<ul>
+<li>以附件形式下载，弹出保存对话框，将文件保存到指定磁盘目录</li>
+<li>直接在浏览器中打开</li>
+</ul>
+<p>通过浏览器进行文件下载，本质上就是服务端将文件以流的形式写回浏览器的过程</p>
+<h2 id="三、文件上传接收代码实现"><a href="#三、文件上传接收代码实现" class="headerlink" title="三、文件上传接收代码实现"></a><span style="color:red">三、文件上传接收代码实现</span></h2><h3 id="前端数据方法代码"><a href="#前端数据方法代码" class="headerlink" title="前端数据方法代码"></a>前端数据方法代码</h3><ul>
+<li>此处调用axios向接口：<code>http://localhost:3000/common/upload</code>发送了表单数据设置表头header为<code>Content-type:multipar/form-data</code>，数据包含：<ol>
+<li><code>username</code>：字符串类型</li>
+<li><code>gender</code>：字符串类型</li>
+<li><code>introduction</code>：字符串类型</li>
+<li><code>avatar</code>：字符串类型</li>
+<li><code>file</code>：文件类型</li>
+</ol>
+</li>
+</ul>
+<center class="half">    
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309150932591.png"
+                      alt="image-20230913170017182" width="330" height="270px"  style="border:solid 2px orange"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309150933147.png"
+                      alt="image-20230913170130306" width="600" height="270px"  style="border:solid 2px orange"
+                >
+</center>
+
+
+<ul>
+<li>打开调试工具查看发送的表单数据，观察发送数据的<code>name</code></li>
+</ul>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309150933419.png"
+                      width="500px" style="border:solid 2px blue"
+                >
+
+<h3 id="后端接口代码实现"><a href="#后端接口代码实现" class="headerlink" title="后端接口代码实现"></a>后端接口代码实现</h3><ul>
+<li><strong><span style="color:blue">第一种写法：</span></strong></li>
+</ul>
+<p>接口的参数对应表单数据的各项name，文件类型使用<code>MultipartFile</code>接收，若接口参数名与前端发送数据的name一致的时候可以不使用注解<code>@RequestParam</code>对应</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span>						<span class="comment">//打印日志</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/common&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CommonController</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/upload&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload</span><span class="params">( <span class="meta">@RequestParam(&quot;username&quot;)</span> String username,</span></span><br><span class="line"><span class="params">                                  <span class="meta">@RequestParam(&quot;gender&quot;)</span> Integer gender,</span></span><br><span class="line"><span class="params">                                  <span class="meta">@RequestParam(&quot;introduction&quot;)</span> String introduction,</span></span><br><span class="line"><span class="params">                                  <span class="meta">@RequestParam(&quot;avatar&quot;)</span> String avatar,</span></span><br><span class="line"><span class="params">                                  <span class="meta">@RequestParam(&quot;file&quot;)</span>MultipartFile file)</span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;更新用户名:&#123;&#125;&quot;</span>,username);</span><br><span class="line">        log.info(<span class="string">&quot;更新性别:&#123;&#125;&quot;</span>,gender == <span class="number">1</span>?<span class="string">&#x27;男&#x27;</span>:gender==<span class="number">0</span>?<span class="string">&quot;女&quot;</span>:<span class="string">&quot;保密&quot;</span>);</span><br><span class="line">        log.info(<span class="string">&quot;用户简介:&#123;&#125;&quot;</span>,introduction);</span><br><span class="line">        log.info(<span class="string">&quot;头像地址:&#123;&#125;&quot;</span>,avatar);</span><br><span class="line">        log.info(<span class="string">&quot;接收到文件:&#123;&#125;&quot;</span>,file.toString());</span><br><span class="line">        <span class="keyword">return</span> Result.success(<span class="string">&quot;接收到上传的数据&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li><strong><span style="color:blue">第二种写法：</span></strong></li>
+</ul>
+<p>考虑到需要接收的表单数据比较到，直接将所有参数写在接口上会显得代码比较繁琐，因此创建一个DTO来封装数据</p>
+<ol>
+<li><p>创建UploadDTO类</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Data</span>					<span class="comment">//对所有的数据创建getter和setter</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span>		<span class="comment">//无参构造函数</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span>		<span class="comment">//有参构造函数</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UploadDTO</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String username;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> gender;</span><br><span class="line">    <span class="keyword">private</span> String introduction;</span><br><span class="line">    <span class="keyword">private</span> String avatar;</span><br><span class="line">    <span class="keyword">private</span> MultipartFile file;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p>使用DTO接收参数</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@PostMapping(&quot;/upload&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload</span><span class="params">(UploadDTO user)</span>&#123;</span><br><span class="line">	log.info(user.getFile().toString());</span><br><span class="line">	<span class="keyword">return</span> Result.success(<span class="string">&quot;接收到上传的数据&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
+</ol>
+<h2 id="四、将上传的文件保存在本地"><a href="#四、将上传的文件保存在本地" class="headerlink" title="四、将上传的文件保存在本地"></a>四、将上传的文件保存在本地</h2><ol>
+<li><p>在配置文件中配置本地的路径，此处我的配置文件为<code>application.yml</code>，设置了基本路径为<code>D:\\Desktop</code></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309151210089.png"
+                      alt="image-20230915121019943"
+                ></p>
+</li>
+<li><p>使用注解<code>@Value</code>接收配置文件的数据，并使用<code>UUID生存随机种子(保证文件名唯一)</code>，将上传文件保存到本地</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/common&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CommonController</span> &#123;</span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;mystudy.basePath&#125;&quot;)</span>		<span class="comment">//@Value接收配置项数据</span></span><br><span class="line">    <span class="keyword">private</span> String basePath;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/upload&quot;)</span>		<span class="comment">//此处DTO对象描述看上文</span></span><br><span class="line">    <span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload</span><span class="params">(UploadDTO user)</span>&#123;</span><br><span class="line">        <span class="comment">//file是一个零时文件，需要转存到指定位置，否则本次请求完成后文件会删除</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//获取源文件的文件名字</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">originalFilename</span> <span class="operator">=</span> user.getFile().getOriginalFilename();</span><br><span class="line">            <span class="comment">//获取源文件的后缀</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">extension</span> <span class="operator">=</span> originalFilename.substring(originalFilename.lastIndexOf(<span class="string">&quot;.&quot;</span>));</span><br><span class="line">            <span class="comment">//根据UUID生成的随机数加上源文件的后缀名生成新的文件名[唯一不重复]</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">newName</span> <span class="operator">=</span> UUID.randomUUID().toString() + extension;</span><br><span class="line">            </span><br><span class="line">			<span class="comment">//创建一个目录对象</span></span><br><span class="line">            <span class="type">File</span> <span class="variable">dir</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(basePath);</span><br><span class="line">            <span class="comment">//判断当前目录是否存在</span></span><br><span class="line">            <span class="keyword">if</span>(!dir.exists()) dir.mkdirs();</span><br><span class="line">            </span><br><span class="line">            <span class="comment">//将临时文件转存到指定位置</span></span><br><span class="line">            user.getFile().transferTo(<span class="keyword">new</span> <span class="title class_">File</span>(basePath+ newName));</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">			log.error(<span class="string">&quot;文件上传失败：&#123;&#125;&quot;</span>,e);</span><br><span class="line">            <span class="keyword">return</span> Result.error(<span class="string">&quot;文件上传失败...&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> Result.success(<span class="string">&quot;成功接收上传数据&quot;</span>);</span><br><span class="line">&#125;&#125;</span><br></pre></td></tr></table></figure></div></li>
+</ol>
+<h2 id="五、配置文件上传选项"><a href="#五、配置文件上传选项" class="headerlink" title="五、配置文件上传选项"></a>五、配置文件上传选项</h2><ul>
+<li>在SpringBoot中，文件上传，默认单个文件允许最大大小为<code>1M</code>.如果需要上传大文件，则进行如下配置</li>
+</ul>
+<div class="highlight-container" data-rel="Yaml"><figure class="iseeu highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 打开application.yml配置文件</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">servlet:</span></span><br><span class="line">    <span class="attr">multipart:</span></span><br><span class="line">      <span class="attr">max-file-size:</span> <span class="string">10MB</span>				<span class="comment">#配置单个文件最大上传大小</span></span><br><span class="line">      <span class="attr">max-request-size:</span> <span class="string">100MB</span>			<span class="comment">#配置单个请求最大上传大小(一次请求可以上传多个文件)</span></span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="六、文件上传阿里云OSS"><a href="#六、文件上传阿里云OSS" class="headerlink" title="六、文件上传阿里云OSS"></a><span style="color:purple">六、文件上传阿里云OSS</span></h2><h3 id="第一步：导入依赖"><a href="#第一步：导入依赖" class="headerlink" title="第一步：导入依赖"></a>第一步：导入依赖</h3><blockquote>
+<p>官方文档地址：<a class="link"   href="https://help.aliyun.com/zh/oss/developer-reference/java-installation?spm=a2c4g.11186623.0.0.13dc3ba3geaLZ3"  style="color:red;font-weight:800">在这里 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
+</blockquote>
+<ul>
+<li>首先导入阿里云的依赖【Java 9版本以上】</li>
+</ul>
+<div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.aliyun.oss<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>aliyun-sdk-oss<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.15.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.xml.bind<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jaxb-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.3.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.activation<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>activation<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.1.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- no more than 2.3.3--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.glassfish.jaxb<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jaxb-runtime<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.3.3<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<h3 id="第二步：创建数据配置类"><a href="#第二步：创建数据配置类" class="headerlink" title="第二步：创建数据配置类"></a>第二步：创建数据配置类</h3><ol>
+<li><p><strong>现在<code>application.yml</code>文件中写入数据</strong></p>
+<div class="highlight-container" data-rel="Yaml"><figure class="iseeu highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">aliyun:</span></span><br><span class="line">  <span class="attr">oss:</span></span><br><span class="line">    <span class="attr">endpoint:</span> <span class="string">桶子归属地域</span></span><br><span class="line">    <span class="attr">bucketName:</span> <span class="string">桶子的名字</span></span><br><span class="line">    <span class="attr">accessKeyId:</span> <span class="string">自己OSS桶子的accessKeyId</span></span><br><span class="line">    <span class="attr">accessKeySecret:</span> <span class="string">自己桶子的accessKeySecret</span></span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p><strong>创建配置类</strong><code>AliOssProperties</code></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Data</span>					<span class="comment">//为类添加getter/setter</span></span><br><span class="line"><span class="meta">@Component</span>				<span class="comment">//交给IOC管理</span></span><br><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;aliyun.oss&quot;)</span>			<span class="comment">//将上述前缀为aliyun.oss配置数据匹配</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AliOssProperties</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String endpoint;</span><br><span class="line">    <span class="keyword">private</span> String bucketName;</span><br><span class="line">    <span class="keyword">private</span> String accessKeyId;</span><br><span class="line">    <span class="keyword">private</span> String accessKeySecret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p><strong>创建实现对象</strong><code>AliOssUtil</code></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AliOssUtil</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String endpoint;</span><br><span class="line">    <span class="keyword">private</span> String accessKeyId;</span><br><span class="line">    <span class="keyword">private</span> String accessKeySecret;</span><br><span class="line">    <span class="keyword">private</span> String bucketName;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">upload</span><span class="params">(<span class="type">byte</span>[] bytes,String objectName)</span> &#123;</span><br><span class="line">        <span class="type">OSS</span> <span class="variable">ossClient</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">OSSClientBuilder</span>().build(endpoint, accessKeyId, accessKeySecret);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">PutObjectRequest</span> <span class="variable">putObjectRequest</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PutObjectRequest</span>(bucketName, objectName, <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(bytes));</span><br><span class="line">            <span class="type">PutObjectResult</span> <span class="variable">putObjectResult</span> <span class="operator">=</span> ossClient.putObject(putObjectRequest);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (OSSException oe) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;Caught an OSSException, which means your request made it to OSS, &quot;</span></span><br><span class="line">                    + <span class="string">&quot;but was rejected with an error response for some reason.&quot;</span>);</span><br><span class="line">            System.out.println(<span class="string">&quot;Error Message:&quot;</span> + oe.getErrorMessage());</span><br><span class="line">            System.out.println(<span class="string">&quot;Error Code:&quot;</span> + oe.getErrorCode());</span><br><span class="line">            System.out.println(<span class="string">&quot;Request ID:&quot;</span> + oe.getRequestId());</span><br><span class="line">            System.out.println(<span class="string">&quot;Host ID:&quot;</span> + oe.getHostId());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ClientException ce) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;Caught an ClientException, which means the client encountered &quot;</span></span><br><span class="line">                    + <span class="string">&quot;a serious internal problem while trying to communicate with OSS, &quot;</span></span><br><span class="line">                    + <span class="string">&quot;such as not being able to access the network.&quot;</span>);</span><br><span class="line">            System.out.println(<span class="string">&quot;Error Message:&quot;</span> + ce.getMessage());</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (ossClient != <span class="literal">null</span>) &#123;</span><br><span class="line">                ossClient.shutdown();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//文件访问路径规则 https://BucketName.Endpoint/ObjectName</span></span><br><span class="line">        <span class="type">StringBuilder</span> <span class="variable">stringBuilder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>(<span class="string">&quot;https://&quot;</span>);</span><br><span class="line">        stringBuilder</span><br><span class="line">                .append(bucketName)</span><br><span class="line">                .append(<span class="string">&quot;.&quot;</span>)</span><br><span class="line">                .append(endpoint)</span><br><span class="line">                .append(<span class="string">&quot;/&quot;</span>)</span><br><span class="line">                .append(objectName);</span><br><span class="line"></span><br><span class="line">        log.info(<span class="string">&quot;文件上传到:&#123;&#125;&quot;</span>, stringBuilder.toString());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> stringBuilder.toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p><strong>创建实现对象的”工厂”</strong><code>OSSConfiguration</code></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OSSConfiguration</span> &#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line">    <span class="keyword">public</span> AliOssUtil <span class="title function_">aliOssUtil</span><span class="params">(AliOssProperties aliOssProperties)</span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;开始创建阿里云上传工具类对象：&#123;&#125;&quot;</span>,aliOssProperties);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">AliOssUtil</span>(aliOssProperties.getEndpoint(),</span><br><span class="line">                aliOssProperties.getAccessKeyId(),</span><br><span class="line">                aliOssProperties.getAccessKeySecret(),</span><br><span class="line">                aliOssProperties.getBucketName());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
+</ol>
+<h3 id="第三步：后端接口代码实现"><a href="#第三步：后端接口代码实现" class="headerlink" title="第三步：后端接口代码实现"></a>第三步：后端接口代码实现</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 进行文件的云上传【阿里云OSS存储】</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/common&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CommonController</span> &#123;</span><br><span class="line">    <span class="meta">@Autowired</span>				<span class="comment">//将OSS配置类导入</span></span><br><span class="line">    <span class="keyword">private</span> AliOssUtil aliOssUtil;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/upload&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload_OSS</span><span class="params">(UploadDTO user)</span>&#123;<span class="comment">//此处DTO看上文，上文封装了</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//原始的文件名字</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">originalFilename</span> <span class="operator">=</span> user.getFile().getOriginalFilename();</span><br><span class="line">            <span class="comment">//截取文件名的后缀</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">extension</span> <span class="operator">=</span> originalFilename.substring(originalFilename.lastIndexOf(<span class="string">&quot;.&quot;</span>));</span><br><span class="line">            <span class="comment">//构造新的文件名称</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">newName</span> <span class="operator">=</span> UUID.randomUUID().toString() + extension;</span><br><span class="line">            <span class="comment">//获取返回的文件请求路径</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">filePath</span> <span class="operator">=</span> aliOssUtil.upload(user.getFile().getBytes(), newName);</span><br><span class="line">            <span class="keyword">return</span> Result.success(filePath);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;文件上传失败：&#123;&#125;&quot;</span>,e);</span><br><span class="line">            <span class="keyword">return</span> Result.error(<span class="string">&quot;上传文件失败...&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></div>
+
+]]></content>
+      <categories>
+        <category>常见技术问题</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>后端</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>测试文章</title>
-    <url>/HandsomeXianc/2023/10/01/%E6%96%87%E7%AB%A0%E5%88%9B%E5%BB%BA%E8%AF%B4%E6%98%8E/</url>
+    <url>/2023/10/01/%E6%96%87%E7%AB%A0%E5%88%9B%E5%BB%BA%E8%AF%B4%E6%98%8E/</url>
     <content><![CDATA[<h1 id="测试文章"><a href="#测试文章" class="headerlink" title="测试文章"></a>测试文章</h1><h2 id="文章篇头编辑简介"><a href="#文章篇头编辑简介" class="headerlink" title="文章篇头编辑简介"></a>文章篇头编辑简介</h2><p>使用 <code>cover</code>标签添加图片的链接即可作为文章的首页展示图</p>
 <p>使用 <code>tags</code>给文章添加标签</p>
 <p>使用 <code>categories</code> 来个文章归类</p>
@@ -810,107 +810,8 @@
       </tags>
   </entry>
   <entry>
-    <title>解决Vue3跨域问题</title>
-    <url>/HandsomeXianc/2023/09/28/%E8%A7%A3%E5%86%B3Vue3%E8%B7%A8%E5%9F%9F%E9%97%AE%E9%A2%98/</url>
-    <content><![CDATA[<h1 id="解决Vue3跨域问题"><a href="#解决Vue3跨域问题" class="headerlink" title="解决Vue3跨域问题"></a>解决Vue3跨域问题</h1><blockquote>
-<p> 今天敲码发现本地前端向后端发送请求时，发送请求出现跨域问题，联系广大网友发现两种解决跨域的方法</p>
-</blockquote>
-<h2 id="一、前端解决跨域"><a href="#一、前端解决跨域" class="headerlink" title="一、前端解决跨域"></a>一、前端解决跨域</h2><p><strong>前端axios向后端发起请求时，调试报错【跨域：CORS policy】</strong></p>
-<center class="half">    
-    <img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131700282.png"
-                      alt="image-20230913170017182" width="465"
-                >
-    <img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131701343.png"
-                      alt="image-20230913170130306" width="465"
-                >
-</center>
-
-<p><strong>后端3000接口接收到请求但是返回值res前端无法接收</strong></p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131703011.png"
-                      alt="image-20230913170327960"
-                ></p>
-<h3 id="解决方法【反向代理】"><a href="#解决方法【反向代理】" class="headerlink" title="解决方法【反向代理】"></a>解决方法【反向代理】</h3><ul>
-<li><strong>axios直接发送请求<code>/users</code>经反向代理发送到localhost:3000端口</strong></li>
-<li><strong>找到<code>vue.config.js</code>文件并添加反向代理，将匹配到<code>/user</code>路径的请求<code>转发到3000端口</code></strong></li>
-</ul>
-<center class="half">    
-    <img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131708296.png"
-                      alt="image-20230913170017182" width="465"
-                >
-    <img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131711294.png"
-                      alt="image-20230913170130306" width="465"
-                >
-</center>
-
-<h3 id="问题解决成功…"><a href="#问题解决成功…" class="headerlink" title="问题解决成功…"></a>问题解决成功…</h3><ul>
-<li><strong>配置反向代理后前端成功向后端发送请求并接受获取到的参数</strong></li>
-</ul>
-<center class="half">    
-    <img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131713186.png"
-                      alt="image-20230913170017182" width="465"
-                >
-    <img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131713943.png"
-                      alt="image-20230913170130306" width="465"
-                >
-</center>
-
-
-
-<h2 id="二、后端解决跨域"><a href="#二、后端解决跨域" class="headerlink" title="二、后端解决跨域"></a>二、后端解决跨域</h2><ul>
-<li>此处选择基于Spring框架配置的后端配置类进行跨域问题的解决</li>
-</ul>
-<h3 id="创建配置类"><a href="#创建配置类" class="headerlink" title="创建配置类"></a>创建配置类</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.mystudy.configuration;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.extern.java.Log;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.config.annotation.CorsRegistry;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.config.annotation.WebMvcConfigurer;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span>          <span class="comment">//日志打印</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CrosConfiguration</span> <span class="keyword">implements</span> <span class="title class_">WebMvcConfigurer</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addCorsMappings</span><span class="params">(CorsRegistry registry)</span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;跨域问题配置类设置成功...&quot;</span>);</span><br><span class="line">        registry.addMapping(<span class="string">&quot;/**&quot;</span>)	<span class="comment">//配置可以被跨域的路径，可以任意配置，可以具体到直接请求路径</span></span><br><span class="line">            <span class="comment">//允许所有的请求域名访问我们的跨域资源，可以固定单条或者多条内容</span></span><br><span class="line">                .allowedOriginPatterns(<span class="string">&quot;*&quot;</span>)</span><br><span class="line">            <span class="comment">//允许所有的请求方法访问该跨域资源服务器</span></span><br><span class="line">                .allowedMethods(<span class="string">&quot;GET&quot;</span>,<span class="string">&quot;HEAD&quot;</span>,<span class="string">&quot;POST&quot;</span>,<span class="string">&quot;PUT&quot;</span>,<span class="string">&quot;DELETE&quot;</span>,<span class="string">&quot;OPTIONS&quot;</span>)</span><br><span class="line">            <span class="comment">//用于告知浏览器当withCredentials属性设置为true时，是否可以显示跨域请求返回的内容</span></span><br><span class="line">                .allowCredentials(<span class="literal">true</span>)</span><br><span class="line">            <span class="comment">//资源过期时间</span></span><br><span class="line">                .maxAge(<span class="number">3600</span>)</span><br><span class="line">                .allowedHeaders(<span class="string">&quot;*&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
-
-<h3 id="问题解决成功…-1"><a href="#问题解决成功…-1" class="headerlink" title="问题解决成功…"></a>问题解决成功…</h3><ul>
-<li><strong>前端照常发起请求，后端启动项目后配置类自动创建</strong></li>
-</ul>
-<center class="half">    
-    <img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309141107847.png"
-                      alt="image-20230913170017182" width="470"
-                >
-    <img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309141109801.png"
-                      alt="image-20230913170130306" width="460"
-                >
-</center>
-
-<hr>]]></content>
-      <categories>
-        <category>常见技术问题</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>登录认证《JWT+Filter+Interceptor》</title>
-    <url>/HandsomeXianc/2023/10/05/%E7%99%BB%E5%BD%95%E8%AE%A4%E8%AF%81%E3%80%8AJWT+Filter+Interceptor%E3%80%8B/</url>
+    <url>/2023/10/05/%E7%99%BB%E5%BD%95%E8%AE%A4%E8%AF%81%E3%80%8AJWT+Filter+Interceptor%E3%80%8B/</url>
     <content><![CDATA[<h1 id="登录认证《JWT-Filter-Interceptor》"><a href="#登录认证《JWT-Filter-Interceptor》" class="headerlink" title="登录认证《JWT+Filter+Interceptor》"></a>登录认证《JWT+Filter+Interceptor》</h1><blockquote>
 <p><b style="color:green;width:100%;text-align:center" >$\int_{birth}^{death}卷dt &#x3D; life$</b>:1st_place_medal: :hamburger::happy::broken_heart:</p>
 </blockquote>
@@ -1324,6 +1225,105 @@
       <tags>
         <tag>Java</tag>
         <tag>后端</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>解决Vue3跨域问题</title>
+    <url>/2023/09/28/%E8%A7%A3%E5%86%B3Vue3%E8%B7%A8%E5%9F%9F%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<h1 id="解决Vue3跨域问题"><a href="#解决Vue3跨域问题" class="headerlink" title="解决Vue3跨域问题"></a>解决Vue3跨域问题</h1><blockquote>
+<p> 今天敲码发现本地前端向后端发送请求时，发送请求出现跨域问题，联系广大网友发现两种解决跨域的方法</p>
+</blockquote>
+<h2 id="一、前端解决跨域"><a href="#一、前端解决跨域" class="headerlink" title="一、前端解决跨域"></a>一、前端解决跨域</h2><p><strong>前端axios向后端发起请求时，调试报错【跨域：CORS policy】</strong></p>
+<center class="half">    
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131700282.png"
+                      alt="image-20230913170017182" width="465"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131701343.png"
+                      alt="image-20230913170130306" width="465"
+                >
+</center>
+
+<p><strong>后端3000接口接收到请求但是返回值res前端无法接收</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131703011.png"
+                      alt="image-20230913170327960"
+                ></p>
+<h3 id="解决方法【反向代理】"><a href="#解决方法【反向代理】" class="headerlink" title="解决方法【反向代理】"></a>解决方法【反向代理】</h3><ul>
+<li><strong>axios直接发送请求<code>/users</code>经反向代理发送到localhost:3000端口</strong></li>
+<li><strong>找到<code>vue.config.js</code>文件并添加反向代理，将匹配到<code>/user</code>路径的请求<code>转发到3000端口</code></strong></li>
+</ul>
+<center class="half">    
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131708296.png"
+                      alt="image-20230913170017182" width="465"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131711294.png"
+                      alt="image-20230913170130306" width="465"
+                >
+</center>
+
+<h3 id="问题解决成功…"><a href="#问题解决成功…" class="headerlink" title="问题解决成功…"></a>问题解决成功…</h3><ul>
+<li><strong>配置反向代理后前端成功向后端发送请求并接受获取到的参数</strong></li>
+</ul>
+<center class="half">    
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131713186.png"
+                      alt="image-20230913170017182" width="465"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309131713943.png"
+                      alt="image-20230913170130306" width="465"
+                >
+</center>
+
+
+
+<h2 id="二、后端解决跨域"><a href="#二、后端解决跨域" class="headerlink" title="二、后端解决跨域"></a>二、后端解决跨域</h2><ul>
+<li>此处选择基于Spring框架配置的后端配置类进行跨域问题的解决</li>
+</ul>
+<h3 id="创建配置类"><a href="#创建配置类" class="headerlink" title="创建配置类"></a>创建配置类</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.mystudy.configuration;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.extern.java.Log;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.config.annotation.CorsRegistry;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.config.annotation.WebMvcConfigurer;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span>          <span class="comment">//日志打印</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CrosConfiguration</span> <span class="keyword">implements</span> <span class="title class_">WebMvcConfigurer</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addCorsMappings</span><span class="params">(CorsRegistry registry)</span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;跨域问题配置类设置成功...&quot;</span>);</span><br><span class="line">        registry.addMapping(<span class="string">&quot;/**&quot;</span>)	<span class="comment">//配置可以被跨域的路径，可以任意配置，可以具体到直接请求路径</span></span><br><span class="line">            <span class="comment">//允许所有的请求域名访问我们的跨域资源，可以固定单条或者多条内容</span></span><br><span class="line">                .allowedOriginPatterns(<span class="string">&quot;*&quot;</span>)</span><br><span class="line">            <span class="comment">//允许所有的请求方法访问该跨域资源服务器</span></span><br><span class="line">                .allowedMethods(<span class="string">&quot;GET&quot;</span>,<span class="string">&quot;HEAD&quot;</span>,<span class="string">&quot;POST&quot;</span>,<span class="string">&quot;PUT&quot;</span>,<span class="string">&quot;DELETE&quot;</span>,<span class="string">&quot;OPTIONS&quot;</span>)</span><br><span class="line">            <span class="comment">//用于告知浏览器当withCredentials属性设置为true时，是否可以显示跨域请求返回的内容</span></span><br><span class="line">                .allowCredentials(<span class="literal">true</span>)</span><br><span class="line">            <span class="comment">//资源过期时间</span></span><br><span class="line">                .maxAge(<span class="number">3600</span>)</span><br><span class="line">                .allowedHeaders(<span class="string">&quot;*&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="问题解决成功…-1"><a href="#问题解决成功…-1" class="headerlink" title="问题解决成功…"></a>问题解决成功…</h3><ul>
+<li><strong>前端照常发起请求，后端启动项目后配置类自动创建</strong></li>
+</ul>
+<center class="half">    
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309141107847.png"
+                      alt="image-20230913170017182" width="470"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309141109801.png"
+                      alt="image-20230913170130306" width="460"
+                >
+</center>
+
+<hr>]]></content>
+      <categories>
+        <category>常见技术问题</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
       </tags>
   </entry>
 </search>
