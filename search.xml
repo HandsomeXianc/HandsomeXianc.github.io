@@ -471,6 +471,89 @@
       </tags>
   </entry>
   <entry>
+    <title>全局异常处理器</title>
+    <url>/2023/10/02/%E5%85%A8%E5%B1%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E5%99%A8/</url>
+    <content><![CDATA[<h1 id="全局异常处理器"><a href="#全局异常处理器" class="headerlink" title="全局异常处理器"></a>全局异常处理器</h1><blockquote>
+<p><b style="color:blue">悟已往之不谏，知来者之可追</b>:hash::first_quarter_moon::ant:</p>
+</blockquote>
+<h2 id="处理过程展示"><a href="#处理过程展示" class="headerlink" title="处理过程展示"></a>处理过程展示</h2><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231125992.png"
+                      alt="image-20230923112514872"
+                ></p>
+<h2 id="问题的来由"><a href="#问题的来由" class="headerlink" title="问题的来由"></a>问题的来由</h2><p><strong>已知我有一个用户表用于存储用户的个人信息，并且设置了主键ID和username唯一</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231133064.png"
+                      alt="image-20230923113308037"
+                ></p>
+<p><strong>于是我接着创建一个新用户admin，系统会报错</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231203635.png"
+                      alt="image-20230923120340502"
+                ></p>
+<p><strong>上述错误的没有进行处理，因此当Mapper抛出Duplicate错误的时候，错误将抛出到调用mapper的service层，因为service层也没有做处理，因此错误继续向上抛至调用Service的Controller层，然后框架就会返回一个错误数据【该数据不符合我们返回值的规范，我们返回值规范是一个Result类】</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231213299.png"
+                      alt="image-20230923121310267"
+                ></p>
+<p><strong>为此，定义一个全局异常处理器，捕获异常，并做统一处理</strong>：创建一个类，并添加上<b style="color:blue">@RestControllerAdvice</b>注解，该注解标识这个类是一个全局异常处理器，方法上添加<b style="color:blue">@ExceptionHandler</b>注解说明捕获的异常种类</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RestControllerAdvice</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">GlobalExceptionHandler</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ExceptionHandler(Exception.class)</span></span><br><span class="line">    <span class="keyword">public</span> Result <span class="title function_">ex</span><span class="params">(Exception ex)</span>&#123;</span><br><span class="line">        ex.printStackTrace();			<span class="comment">//显示异常的堆栈信息</span></span><br><span class="line">        <span class="keyword">return</span> Result.error(<span class="string">&quot;对不起,操作失败,请联系管理员...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li>@<code>ExceptionHandler</code>：通过指定注解的value属性，说明要捕获的异常 		</li>
+<li>@<code>RestControllerAdvice</code>：该注解由@ControllerAdvice + @ResponseBody组成，ResponseBody会将返回值转换为JSON传递到前端</li>
+</ul>
+<p><strong>设置完全局异常处理器之后再次发送请求查看结果</strong>可以看到服务端捕获到异常并打印了异常的堆栈信息：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231253097.png"
+                      alt="image-20230923125348842"
+                ></p>
+<p>同时前端接收到的返回值也变成我们想要接收的数据类型</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231255855.png"
+                      alt="image-20230923125513819"
+                ></p>
+]]></content>
+      <categories>
+        <category>常见技术问题</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>后端</tag>
+        <tag>spring全家桶</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>测试文章</title>
+    <url>/2023/10/01/%E6%96%87%E7%AB%A0%E5%88%9B%E5%BB%BA%E8%AF%B4%E6%98%8E/</url>
+    <content><![CDATA[<h1 id="测试文章"><a href="#测试文章" class="headerlink" title="测试文章"></a>测试文章</h1><h2 id="文章篇头编辑简介"><a href="#文章篇头编辑简介" class="headerlink" title="文章篇头编辑简介"></a>文章篇头编辑简介</h2><p>使用 <code>cover</code>标签添加图片的链接即可作为文章的首页展示图</p>
+<p>使用 <code>tags</code>给文章添加标签</p>
+<p>使用 <code>categories</code> 来个文章归类</p>
+<p>使用 <code>title</code> 给文章添加标题</p>
+<p>使用 <code>expert</code> 来鬼文章添加首页简要</p>
+<p>使用 <code>date</code> 标注文章发布时间</p>
+]]></content>
+      <categories>
+        <category>测试标签1</category>
+        <category>2标签测试</category>
+      </categories>
+      <tags>
+        <tag>Tag1</tag>
+        <tag>标签2</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>开发规范(Swagger) + 接口文档</title>
     <url>/2023/10/06/%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83(Swagger)/</url>
     <content><![CDATA[<h1 id="开发规范-Swagger-接口文档"><a href="#开发规范-Swagger-接口文档" class="headerlink" title="开发规范(Swagger) + 接口文档"></a>开发规范(Swagger) + 接口文档</h1><blockquote>
@@ -607,70 +690,6 @@
       <tags>
         <tag>Java</tag>
         <tag>后端</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>全局异常处理器</title>
-    <url>/2023/10/02/%E5%85%A8%E5%B1%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E5%99%A8/</url>
-    <content><![CDATA[<h1 id="全局异常处理器"><a href="#全局异常处理器" class="headerlink" title="全局异常处理器"></a>全局异常处理器</h1><blockquote>
-<p><b style="color:blue">悟已往之不谏，知来者之可追</b>:hash::first_quarter_moon::ant:</p>
-</blockquote>
-<h2 id="处理过程展示"><a href="#处理过程展示" class="headerlink" title="处理过程展示"></a>处理过程展示</h2><p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231125992.png"
-                      alt="image-20230923112514872"
-                ></p>
-<h2 id="问题的来由"><a href="#问题的来由" class="headerlink" title="问题的来由"></a>问题的来由</h2><p><strong>已知我有一个用户表用于存储用户的个人信息，并且设置了主键ID和username唯一</strong></p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231133064.png"
-                      alt="image-20230923113308037"
-                ></p>
-<p><strong>于是我接着创建一个新用户admin，系统会报错</strong></p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231203635.png"
-                      alt="image-20230923120340502"
-                ></p>
-<p><strong>上述错误的没有进行处理，因此当Mapper抛出Duplicate错误的时候，错误将抛出到调用mapper的service层，因为service层也没有做处理，因此错误继续向上抛至调用Service的Controller层，然后框架就会返回一个错误数据【该数据不符合我们返回值的规范，我们返回值规范是一个Result类】</strong></p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231213299.png"
-                      alt="image-20230923121310267"
-                ></p>
-<p><strong>为此，定义一个全局异常处理器，捕获异常，并做统一处理</strong>：创建一个类，并添加上<b style="color:blue">@RestControllerAdvice</b>注解，该注解标识这个类是一个全局异常处理器，方法上添加<b style="color:blue">@ExceptionHandler</b>注解说明捕获的异常种类</p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RestControllerAdvice</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">GlobalExceptionHandler</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ExceptionHandler(Exception.class)</span></span><br><span class="line">    <span class="keyword">public</span> Result <span class="title function_">ex</span><span class="params">(Exception ex)</span>&#123;</span><br><span class="line">        ex.printStackTrace();			<span class="comment">//显示异常的堆栈信息</span></span><br><span class="line">        <span class="keyword">return</span> Result.error(<span class="string">&quot;对不起,操作失败,请联系管理员...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
-
-<ul>
-<li>@<code>ExceptionHandler</code>：通过指定注解的value属性，说明要捕获的异常 		</li>
-<li>@<code>RestControllerAdvice</code>：该注解由@ControllerAdvice + @ResponseBody组成，ResponseBody会将返回值转换为JSON传递到前端</li>
-</ul>
-<p><strong>设置完全局异常处理器之后再次发送请求查看结果</strong>可以看到服务端捕获到异常并打印了异常的堆栈信息：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231253097.png"
-                      alt="image-20230923125348842"
-                ></p>
-<p>同时前端接收到的返回值也变成我们想要接收的数据类型</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231255855.png"
-                      alt="image-20230923125513819"
-                ></p>
-]]></content>
-      <categories>
-        <category>常见技术问题</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-        <tag>后端</tag>
-        <tag>spring全家桶</tag>
       </tags>
   </entry>
   <entry>
@@ -1324,25 +1343,6 @@
       </categories>
       <tags>
         <tag>Java</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>测试文章</title>
-    <url>/2023/10/01/%E6%96%87%E7%AB%A0%E5%88%9B%E5%BB%BA%E8%AF%B4%E6%98%8E/</url>
-    <content><![CDATA[<h1 id="测试文章"><a href="#测试文章" class="headerlink" title="测试文章"></a>测试文章</h1><h2 id="文章篇头编辑简介"><a href="#文章篇头编辑简介" class="headerlink" title="文章篇头编辑简介"></a>文章篇头编辑简介</h2><p>使用 <code>cover</code>标签添加图片的链接即可作为文章的首页展示图</p>
-<p>使用 <code>tags</code>给文章添加标签</p>
-<p>使用 <code>categories</code> 来个文章归类</p>
-<p>使用 <code>title</code> 给文章添加标题</p>
-<p>使用 <code>expert</code> 来鬼文章添加首页简要</p>
-<p>使用 <code>date</code> 标注文章发布时间</p>
-]]></content>
-      <categories>
-        <category>测试标签1</category>
-        <category>2标签测试</category>
-      </categories>
-      <tags>
-        <tag>Tag1</tag>
-        <tag>标签2</tag>
       </tags>
   </entry>
 </search>
