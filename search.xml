@@ -1,111 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>简述PageHelper的原理及使用</title>
-    <url>/2023/10/03/PageHelper%E5%8E%9F%E7%90%86%E4%BD%BF%E7%94%A8%E5%8F%8A/</url>
-    <content><![CDATA[<h1 id="简述PageHelper的原理及使用"><a href="#简述PageHelper的原理及使用" class="headerlink" title="简述PageHelper的原理及使用"></a>简述PageHelper的原理及使用</h1><h2 id="PageHelper原理"><a href="#PageHelper原理" class="headerlink" title="PageHelper原理"></a>PageHelper原理</h2><p><strong>PageHelper</strong>是<strong>MyBatis</strong>的通用分页插件，通过<strong>mybatis</strong>的<b style="color:red">拦截器</b>实现分页功能，<b style="color:blue">拦截sql查询请求，添加分页语句，最终实现分页查询功能。</b></p>
-<p>在调用dao的Service的方法中设置分页参数：PageHelper.startPage(page,size)，分页参数会设置在<u><strong><code>ThreadLocal</code></strong></u>中然后PageHelper会在mybatis执行SQL时进行拦截，从<u><b style="color:red">ThreadLocal</b></u>取出分页参数，修改当前执行的SQL语句，添加分页SQL，最后执行添加了分页sql的sql语句实现分页查询。</p>
-<h2 id="PageHelper使用"><a href="#PageHelper使用" class="headerlink" title="PageHelper使用"></a>PageHelper使用</h2><h3 id="导入pom坐标"><a href="#导入pom坐标" class="headerlink" title="导入pom坐标"></a>导入pom坐标</h3><div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.github.pagehelper<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>pagehelper-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>版本自行选择<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
-
-<h3 id="接口设计"><a href="#接口设计" class="headerlink" title="接口设计"></a>接口设计</h3><p><strong>基本信息：</strong></p>
-<p><strong>Path：</strong><code>/admin/employee/page</code></p>
-<p><strong>Method：</strong><code>Get</code></p>
-<h3 id="接口描述"><a href="#接口描述" class="headerlink" title="接口描述"></a>接口描述</h3><p><strong>Query</strong></p>
-<table>
-<thead>
-<tr>
-<th align="center">参数名称</th>
-<th align="center">是否必须</th>
-<th align="center">示例</th>
-<th align="center">备注</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center">name</td>
-<td align="center">否</td>
-<td align="center">张三</td>
-<td align="center">姓名</td>
-</tr>
-<tr>
-<td align="center">page</td>
-<td align="center">是</td>
-<td align="center">1</td>
-<td align="center">页码</td>
-</tr>
-<tr>
-<td align="center">pageSize</td>
-<td align="center">是</td>
-<td align="center">10</td>
-<td align="center">每页记录数</td>
-</tr>
-</tbody></table>
-<h3 id="创建DTO封装接口参数"><a href="#创建DTO封装接口参数" class="headerlink" title="创建DTO封装接口参数"></a>创建DTO封装接口参数</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//该类用来封装前端传递过来的参数</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">EmployeePageQueryDTO</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="comment">//员工姓名</span></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//页码</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> page;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//每页显示记录数</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> pageSize;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
-
-<p><strong>将所有分页查询的结果统一封装成PageResult对象。为什么？方便返回给前端</strong></p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *	封装分页查询的结果</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PageResult</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">long</span> total;		<span class="comment">//总记录数</span></span><br><span class="line">    <span class="keyword">private</span> List records;	<span class="comment">//当前页数据集合</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
-
-<h3 id="Controller层代码实现"><a href="#Controller层代码实现" class="headerlink" title="Controller层代码实现"></a>Controller层代码实现</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@GetMapping(&quot;/page&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result&lt;PageResult&gt; <span class="title function_">page</span><span class="params">(EmployeePageQueryDTO employeePageQueryDTO)</span> &#123;</span><br><span class="line">	log.info(<span class="string">&quot;获取分页查询的数据:&#123;&#125;&quot;</span>,employeePageQueryDTO);</span><br><span class="line">	<span class="type">PageResult</span> <span class="variable">pageResult</span> <span class="operator">=</span> employeeService.pageQuery(employeePageQueryDTO);</span><br><span class="line">	<span class="keyword">return</span> Result.success(pageResult);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
-
-<h3 id="Service层代码实现"><a href="#Service层代码实现" class="headerlink" title="Service层代码实现"></a>Service层代码实现</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> PageResult <span class="title function_">pageQuery</span><span class="params">(EmployeePageQueryDTO employeePageQueryDTO)</span> &#123;</span><br><span class="line">	<span class="comment">//开始分页查询，将分页参数传递到ThreadLocal中</span></span><br><span class="line">	PageHelper.startPage(employeePageQueryDTO.getPage(),employeePageQueryDTO.getPageSize());</span><br><span class="line">    <span class="comment">//将Mapper层查询到的数据封装在Page中，Page本质上也是一个List</span></span><br><span class="line">	Page&lt;Employee&gt; page = employeeMapper.pageQuery(employeePageQueryDTO);</span><br><span class="line">    <span class="comment">//获取总记录数和查询的记录</span></span><br><span class="line">	<span class="type">long</span> <span class="variable">total</span> <span class="operator">=</span> page.getTotal();	<span class="comment">//获取记录总数</span></span><br><span class="line">	List&lt;Employee&gt; result = page.getResult();	<span class="comment">//获取所有记录</span></span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">PageResult</span>(total,result);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
-
-<h3 id="DAO层代码实现"><a href="#DAO层代码实现" class="headerlink" title="DAO层代码实现"></a>DAO层代码实现</h3><p><strong>因为涉及到模糊查询所以dao层的sql语句写在xml文件中会更加灵活</strong></p>
-<p><strong>在EmployeeMapper.java文件中代码实现如下：</strong></p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line">Page&lt;Employee&gt; <span class="title function_">pageQuery</span><span class="params">(EmployeeP；ageQueryDTO employeePageQueryDTO)</span>;</span><br></pre></td></tr></table></figure></div>
-
-<p><strong>在EmployeeMapper.xml文件中代码实现如下：</strong></p>
-<div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;pageQuery&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;com.sky.entity.Employee&quot;</span>&gt;</span></span><br><span class="line">	select * from employee</span><br><span class="line">	<span class="tag">&lt;<span class="name">where</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;name != null and name != &#x27;&#x27; &quot;</span>&gt;</span></span><br><span class="line">			and name like concat(&#x27;%&#x27;,#&#123;name&#125;,&#x27;%&#x27;)</span><br><span class="line">		<span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">where</span>&gt;</span></span><br><span class="line">	order by create_time desc</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
-
-<h3 id="测试结果"><a href="#测试结果" class="headerlink" title="测试结果"></a>测试结果</h3><p><strong>首先看到初始的数据表中有如下记录</strong></p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031558189.png"
-                      alt="image-20231003140210891"
-                ></p>
-<p><strong>在不添加name的查询条件的时候，测试接口确实成功实现查询到了正确的数据，但是可以看到返回结果中时间类型的数据返回格式是不适合前端展示的</strong></p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031559077.png"
-                      alt="image-20231003140635158"
-                ></p>
-<h4>解决方式：</h4>
-
-<ul>
-<li><p><strong>方式一</strong>：在属性上加入注解，对日期进行格式化</p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@JsonFormat(pattern = &quot;yyyy-MM-dd HH:mm:ss&quot;)</span></span><br><span class="line"><span class="keyword">private</span> LocalDateTime updateTime;</span><br></pre></td></tr></table></figure></div>
-</li>
-<li><p><strong>方式二</strong>：在WebMvcConfiguration 中拓展 SpringMVC 的消息转换器，统一对日期类型进行格式化处理</p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 扩展mvc框架的消息转换器</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> converters</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">extendMessageConverters</span><span class="params">(List&lt;HttpMessageConverter&lt;?&gt;&gt; converters)</span> &#123;</span><br><span class="line">	log.info(<span class="string">&quot;扩展消息转换器...&quot;</span>);</span><br><span class="line">	<span class="comment">//创建一个消息转换器对象</span></span><br><span class="line">	<span class="type">MappingJackson2HttpMessageConverter</span> <span class="variable">messageConverter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MappingJackson2HttpMessageConverter</span>();</span><br><span class="line">	<span class="comment">//需要为消息转换器，创建一个对象转换器，对象转换器可以将Java对象序列化为JSON数据</span></span><br><span class="line">	messageConverter.setObjectMapper(<span class="keyword">new</span> <span class="title class_">JacksonObjectMapper</span>());</span><br><span class="line">	<span class="comment">//将自己的消息转换器加入到容器中</span></span><br><span class="line">	converters.add(<span class="number">0</span>,messageConverter);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
-</ul>
-<p><strong>根据上述的两种方式选择自己喜欢的方式即可，不过大多数情况下建议使用第二种方式，但是使用第二种方式的时候对象转换器又是什么呢？下面给出一个Jackson的对象转换器作为参考</strong></p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 对象映射器:基于jackson将Java对象转为json，或者将json转为Java对象</span></span><br><span class="line"><span class="comment"> * 将JSON解析为Java对象的过程称为 [从JSON反序列化Java对象]</span></span><br><span class="line"><span class="comment"> * 从Java对象生成JSON的过程称为 [序列化Java对象到JSON]</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JacksonObjectMapper</span> <span class="keyword">extends</span> <span class="title class_">ObjectMapper</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DEFAULT_DATE_FORMAT</span> <span class="operator">=</span> <span class="string">&quot;yyyy-MM-dd&quot;</span>;</span><br><span class="line">    <span class="comment">//public static final String DEFAULT_DATE_TIME_FORMAT = &quot;yyyy-MM-dd HH:mm:ss&quot;;</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DEFAULT_DATE_TIME_FORMAT</span> <span class="operator">=</span> <span class="string">&quot;yyyy-MM-dd HH:mm&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DEFAULT_TIME_FORMAT</span> <span class="operator">=</span> <span class="string">&quot;HH:mm:ss&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">JacksonObjectMapper</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>();</span><br><span class="line">        <span class="comment">//收到未知属性时不报异常</span></span><br><span class="line">        <span class="built_in">this</span>.configure(FAIL_ON_UNKNOWN_PROPERTIES, <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//反序列化时，属性不存在的兼容处理</span></span><br><span class="line">        <span class="built_in">this</span>.getDeserializationConfig().withoutFeatures(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);</span><br><span class="line"></span><br><span class="line">        <span class="type">SimpleModule</span> <span class="variable">simpleModule</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SimpleModule</span>()</span><br><span class="line">                .addDeserializer(LocalDateTime.class, <span class="keyword">new</span> <span class="title class_">LocalDateTimeDeserializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_FORMAT)))</span><br><span class="line">                .addDeserializer(LocalDate.class, <span class="keyword">new</span> <span class="title class_">LocalDateDeserializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_FORMAT)))</span><br><span class="line">                .addDeserializer(LocalTime.class, <span class="keyword">new</span> <span class="title class_">LocalTimeDeserializer</span>(DateTimeFormatter.ofPattern(DEFAULT_TIME_FORMAT)))</span><br><span class="line">                .addSerializer(LocalDateTime.class, <span class="keyword">new</span> <span class="title class_">LocalDateTimeSerializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_FORMAT)))</span><br><span class="line">                .addSerializer(LocalDate.class, <span class="keyword">new</span> <span class="title class_">LocalDateSerializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_FORMAT)))</span><br><span class="line">                .addSerializer(LocalTime.class, <span class="keyword">new</span> <span class="title class_">LocalTimeSerializer</span>(DateTimeFormatter.ofPattern(DEFAULT_TIME_FORMAT)));</span><br><span class="line"></span><br><span class="line">        <span class="comment">//注册功能模块 例如，可以添加自定义序列化器和反序列化器</span></span><br><span class="line">        <span class="built_in">this</span>.registerModule(simpleModule);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
-
-<p><strong>有了上述的知识基础，创建一个消息转换器并使用</strong>，然后重新启动服务进行测试</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031559762.png"
-                      alt="image-20231003141157673"
-                ></p>
-<p>可以看到此时前端接收到的数据就是比较适合使用的时间格式</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031559367.png"
-                      alt="image-20231003141616468"
-                ></p>
-]]></content>
-      <categories>
-        <category>常见技术问题</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-        <tag>后端</tag>
-        <tag>Mybatis</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Spring技术AOP基础</title>
     <url>/2023/10/03/AOP%E5%9F%BA%E7%A1%80/</url>
     <content><![CDATA[<h1 id="AOP基础"><a href="#AOP基础" class="headerlink" title="AOP基础"></a>AOP基础</h1><h2 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h2><ul>
@@ -441,6 +336,25 @@
 <blockquote>
 <p>技术点：枚举、注解、AOP、反射</p>
 </blockquote>
+<p><strong>在清楚操作步骤之后，现在开始实现上述的过程</strong></p>
+<ul>
+<li>首先自定义注解</li>
+</ul>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 自定义注解,用于标识某个方法需要进行功能字段的自动填充处理</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Target(ElementType.METHOD)</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> AutoFill &#123;</span><br><span class="line">    <span class="comment">//标识数据库操作类型： UPDATE INSERT</span></span><br><span class="line">    OperationType <span class="title function_">value</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li>自定义切面类之前，首先创建一个constant保存字符串【利于后期统一修改用到字符串的地方】</li>
+</ul>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AutoFillConstant</span> &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 实体类中的方法名称</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">SET_CREATE_TIME</span> <span class="operator">=</span> <span class="string">&quot;setCreateTime&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">SET_UPDATE_TIME</span> <span class="operator">=</span> <span class="string">&quot;setUpdateTime&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">SET_CREATE_USER</span> <span class="operator">=</span> <span class="string">&quot;setCreateUser&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">SET_UPDATE_USER</span> <span class="operator">=</span> <span class="string">&quot;setUpdateUser&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li>然后就可以开始定义切面类</li>
+</ul>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 自定义切面类，实现公共字段的自动填充处理逻辑</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AutoFillAspect</span> &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 指定切入点</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Pointcut(&quot;execution(* com.sky.mapper.*.*(..)) &amp;&amp; @annotation(com.sky.annotation.AutoFill)&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">autoFillPointCut</span><span class="params">()</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 前置通知，为公共字段赋值</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Before(&quot;autoFillPointCut()&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">autoFill</span><span class="params">(JoinPoint joinPoint)</span> &#123;</span><br><span class="line">            log.info(<span class="string">&quot;开始进行公共字段自动填充&quot;</span>);</span><br><span class="line">        <span class="comment">//获取当前被拦截的方法上的数据库操作类型</span></span><br><span class="line">        <span class="type">MethodSignature</span> <span class="variable">signature</span> <span class="operator">=</span> (MethodSignature)joinPoint.getSignature();<span class="comment">//方法签名对象</span></span><br><span class="line">        <span class="type">AutoFill</span> <span class="variable">annotation</span> <span class="operator">=</span> signature.getMethod().getAnnotation(AutoFill.class);</span><br><span class="line">        <span class="type">OperationType</span> <span class="variable">operationType</span> <span class="operator">=</span> annotation.value();<span class="comment">//获取数据库的操作类型</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//获取当前被拦截的方法参数--实体对象</span></span><br><span class="line">        Object[] args = joinPoint.getArgs();</span><br><span class="line">        <span class="keyword">if</span>(args == <span class="literal">null</span> || args.length == <span class="number">0</span>)<span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">Object</span> <span class="variable">entity</span> <span class="operator">=</span> args[<span class="number">0</span>];</span><br><span class="line">        <span class="comment">//准备赋值的数据</span></span><br><span class="line">        <span class="type">LocalDateTime</span> <span class="variable">now</span> <span class="operator">=</span> LocalDateTime.now();</span><br><span class="line">        <span class="type">Long</span> <span class="variable">currentId</span> <span class="operator">=</span> BaseContext.getCurrentId();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//根据当前不同的操作类型,为对应的属性通过反射来赋值</span></span><br><span class="line">        <span class="keyword">if</span>(operationType == OperationType.INSERT)&#123;</span><br><span class="line">            <span class="comment">//为四个公共字段赋值</span></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="type">Method</span> <span class="variable">setCreateTime</span> <span class="operator">=</span> entity.getClass().getDeclaredMethod(AutoFillConstant.SET_CREATE_TIME, LocalDateTime.class);</span><br><span class="line">                <span class="type">Method</span> <span class="variable">setCreateUser</span> <span class="operator">=</span> entity.getClass().getDeclaredMethod(AutoFillConstant.SET_CREATE_USER, Long.class);</span><br><span class="line">                <span class="type">Method</span> <span class="variable">setUpdateTime</span> <span class="operator">=</span> entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_TIME, LocalDateTime.class);</span><br><span class="line">                <span class="type">Method</span> <span class="variable">setUpdateUser</span> <span class="operator">=</span> entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_USER, Long.class);</span><br><span class="line"></span><br><span class="line">                setCreateTime.invoke(entity,now);</span><br><span class="line">                setUpdateTime.invoke(entity,now);</span><br><span class="line">                setCreateUser.invoke(entity,currentId);</span><br><span class="line">                setUpdateUser.invoke(entity,currentId);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(operationType == OperationType.UPDATE)&#123;</span><br><span class="line">            <span class="comment">//为更新时间和更新人ID进行赋值</span></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="type">Method</span> <span class="variable">setUpdateTime</span> <span class="operator">=</span> entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_TIME, LocalDateTime.class);</span><br><span class="line">                <span class="type">Method</span> <span class="variable">setUpdateUser</span> <span class="operator">=</span> entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_USER, Long.class);</span><br><span class="line"></span><br><span class="line">                setUpdateTime.invoke(entity,now);</span><br><span class="line">                setUpdateUser.invoke(entity,currentId);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li>随后在需要进行公共字段填充的地方添加上自定义的注解即可</li>
+</ul>
 ]]></content>
       <categories>
         <category>常见技术问题</category>
@@ -449,6 +363,111 @@
         <tag>Java</tag>
         <tag>后端</tag>
         <tag>spring全家桶</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>简述PageHelper的原理及使用</title>
+    <url>/2023/10/03/PageHelper%E5%8E%9F%E7%90%86%E4%BD%BF%E7%94%A8%E5%8F%8A/</url>
+    <content><![CDATA[<h1 id="简述PageHelper的原理及使用"><a href="#简述PageHelper的原理及使用" class="headerlink" title="简述PageHelper的原理及使用"></a>简述PageHelper的原理及使用</h1><h2 id="PageHelper原理"><a href="#PageHelper原理" class="headerlink" title="PageHelper原理"></a>PageHelper原理</h2><p><strong>PageHelper</strong>是<strong>MyBatis</strong>的通用分页插件，通过<strong>mybatis</strong>的<b style="color:red">拦截器</b>实现分页功能，<b style="color:blue">拦截sql查询请求，添加分页语句，最终实现分页查询功能。</b></p>
+<p>在调用dao的Service的方法中设置分页参数：PageHelper.startPage(page,size)，分页参数会设置在<u><strong><code>ThreadLocal</code></strong></u>中然后PageHelper会在mybatis执行SQL时进行拦截，从<u><b style="color:red">ThreadLocal</b></u>取出分页参数，修改当前执行的SQL语句，添加分页SQL，最后执行添加了分页sql的sql语句实现分页查询。</p>
+<h2 id="PageHelper使用"><a href="#PageHelper使用" class="headerlink" title="PageHelper使用"></a>PageHelper使用</h2><h3 id="导入pom坐标"><a href="#导入pom坐标" class="headerlink" title="导入pom坐标"></a>导入pom坐标</h3><div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.github.pagehelper<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>pagehelper-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>版本自行选择<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<h3 id="接口设计"><a href="#接口设计" class="headerlink" title="接口设计"></a>接口设计</h3><p><strong>基本信息：</strong></p>
+<p><strong>Path：</strong><code>/admin/employee/page</code></p>
+<p><strong>Method：</strong><code>Get</code></p>
+<h3 id="接口描述"><a href="#接口描述" class="headerlink" title="接口描述"></a>接口描述</h3><p><strong>Query</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">参数名称</th>
+<th align="center">是否必须</th>
+<th align="center">示例</th>
+<th align="center">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">name</td>
+<td align="center">否</td>
+<td align="center">张三</td>
+<td align="center">姓名</td>
+</tr>
+<tr>
+<td align="center">page</td>
+<td align="center">是</td>
+<td align="center">1</td>
+<td align="center">页码</td>
+</tr>
+<tr>
+<td align="center">pageSize</td>
+<td align="center">是</td>
+<td align="center">10</td>
+<td align="center">每页记录数</td>
+</tr>
+</tbody></table>
+<h3 id="创建DTO封装接口参数"><a href="#创建DTO封装接口参数" class="headerlink" title="创建DTO封装接口参数"></a>创建DTO封装接口参数</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//该类用来封装前端传递过来的参数</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">EmployeePageQueryDTO</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="comment">//员工姓名</span></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//页码</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> page;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//每页显示记录数</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> pageSize;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>将所有分页查询的结果统一封装成PageResult对象。为什么？方便返回给前端</strong></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *	封装分页查询的结果</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PageResult</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">long</span> total;		<span class="comment">//总记录数</span></span><br><span class="line">    <span class="keyword">private</span> List records;	<span class="comment">//当前页数据集合</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="Controller层代码实现"><a href="#Controller层代码实现" class="headerlink" title="Controller层代码实现"></a>Controller层代码实现</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@GetMapping(&quot;/page&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result&lt;PageResult&gt; <span class="title function_">page</span><span class="params">(EmployeePageQueryDTO employeePageQueryDTO)</span> &#123;</span><br><span class="line">	log.info(<span class="string">&quot;获取分页查询的数据:&#123;&#125;&quot;</span>,employeePageQueryDTO);</span><br><span class="line">	<span class="type">PageResult</span> <span class="variable">pageResult</span> <span class="operator">=</span> employeeService.pageQuery(employeePageQueryDTO);</span><br><span class="line">	<span class="keyword">return</span> Result.success(pageResult);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="Service层代码实现"><a href="#Service层代码实现" class="headerlink" title="Service层代码实现"></a>Service层代码实现</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> PageResult <span class="title function_">pageQuery</span><span class="params">(EmployeePageQueryDTO employeePageQueryDTO)</span> &#123;</span><br><span class="line">	<span class="comment">//开始分页查询，将分页参数传递到ThreadLocal中</span></span><br><span class="line">	PageHelper.startPage(employeePageQueryDTO.getPage(),employeePageQueryDTO.getPageSize());</span><br><span class="line">    <span class="comment">//将Mapper层查询到的数据封装在Page中，Page本质上也是一个List</span></span><br><span class="line">	Page&lt;Employee&gt; page = employeeMapper.pageQuery(employeePageQueryDTO);</span><br><span class="line">    <span class="comment">//获取总记录数和查询的记录</span></span><br><span class="line">	<span class="type">long</span> <span class="variable">total</span> <span class="operator">=</span> page.getTotal();	<span class="comment">//获取记录总数</span></span><br><span class="line">	List&lt;Employee&gt; result = page.getResult();	<span class="comment">//获取所有记录</span></span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">PageResult</span>(total,result);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="DAO层代码实现"><a href="#DAO层代码实现" class="headerlink" title="DAO层代码实现"></a>DAO层代码实现</h3><p><strong>因为涉及到模糊查询所以dao层的sql语句写在xml文件中会更加灵活</strong></p>
+<p><strong>在EmployeeMapper.java文件中代码实现如下：</strong></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line">Page&lt;Employee&gt; <span class="title function_">pageQuery</span><span class="params">(EmployeeP；ageQueryDTO employeePageQueryDTO)</span>;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>在EmployeeMapper.xml文件中代码实现如下：</strong></p>
+<div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;pageQuery&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;com.sky.entity.Employee&quot;</span>&gt;</span></span><br><span class="line">	select * from employee</span><br><span class="line">	<span class="tag">&lt;<span class="name">where</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;name != null and name != &#x27;&#x27; &quot;</span>&gt;</span></span><br><span class="line">			and name like concat(&#x27;%&#x27;,#&#123;name&#125;,&#x27;%&#x27;)</span><br><span class="line">		<span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">where</span>&gt;</span></span><br><span class="line">	order by create_time desc</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<h3 id="测试结果"><a href="#测试结果" class="headerlink" title="测试结果"></a>测试结果</h3><p><strong>首先看到初始的数据表中有如下记录</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031558189.png"
+                      alt="image-20231003140210891"
+                ></p>
+<p><strong>在不添加name的查询条件的时候，测试接口确实成功实现查询到了正确的数据，但是可以看到返回结果中时间类型的数据返回格式是不适合前端展示的</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031559077.png"
+                      alt="image-20231003140635158"
+                ></p>
+<h4>解决方式：</h4>
+
+<ul>
+<li><p><strong>方式一</strong>：在属性上加入注解，对日期进行格式化</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@JsonFormat(pattern = &quot;yyyy-MM-dd HH:mm:ss&quot;)</span></span><br><span class="line"><span class="keyword">private</span> LocalDateTime updateTime;</span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p><strong>方式二</strong>：在WebMvcConfiguration 中拓展 SpringMVC 的消息转换器，统一对日期类型进行格式化处理</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 扩展mvc框架的消息转换器</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> converters</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">extendMessageConverters</span><span class="params">(List&lt;HttpMessageConverter&lt;?&gt;&gt; converters)</span> &#123;</span><br><span class="line">	log.info(<span class="string">&quot;扩展消息转换器...&quot;</span>);</span><br><span class="line">	<span class="comment">//创建一个消息转换器对象</span></span><br><span class="line">	<span class="type">MappingJackson2HttpMessageConverter</span> <span class="variable">messageConverter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MappingJackson2HttpMessageConverter</span>();</span><br><span class="line">	<span class="comment">//需要为消息转换器，创建一个对象转换器，对象转换器可以将Java对象序列化为JSON数据</span></span><br><span class="line">	messageConverter.setObjectMapper(<span class="keyword">new</span> <span class="title class_">JacksonObjectMapper</span>());</span><br><span class="line">	<span class="comment">//将自己的消息转换器加入到容器中</span></span><br><span class="line">	converters.add(<span class="number">0</span>,messageConverter);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
+</ul>
+<p><strong>根据上述的两种方式选择自己喜欢的方式即可，不过大多数情况下建议使用第二种方式，但是使用第二种方式的时候对象转换器又是什么呢？下面给出一个Jackson的对象转换器作为参考</strong></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 对象映射器:基于jackson将Java对象转为json，或者将json转为Java对象</span></span><br><span class="line"><span class="comment"> * 将JSON解析为Java对象的过程称为 [从JSON反序列化Java对象]</span></span><br><span class="line"><span class="comment"> * 从Java对象生成JSON的过程称为 [序列化Java对象到JSON]</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JacksonObjectMapper</span> <span class="keyword">extends</span> <span class="title class_">ObjectMapper</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DEFAULT_DATE_FORMAT</span> <span class="operator">=</span> <span class="string">&quot;yyyy-MM-dd&quot;</span>;</span><br><span class="line">    <span class="comment">//public static final String DEFAULT_DATE_TIME_FORMAT = &quot;yyyy-MM-dd HH:mm:ss&quot;;</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DEFAULT_DATE_TIME_FORMAT</span> <span class="operator">=</span> <span class="string">&quot;yyyy-MM-dd HH:mm&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DEFAULT_TIME_FORMAT</span> <span class="operator">=</span> <span class="string">&quot;HH:mm:ss&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">JacksonObjectMapper</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>();</span><br><span class="line">        <span class="comment">//收到未知属性时不报异常</span></span><br><span class="line">        <span class="built_in">this</span>.configure(FAIL_ON_UNKNOWN_PROPERTIES, <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//反序列化时，属性不存在的兼容处理</span></span><br><span class="line">        <span class="built_in">this</span>.getDeserializationConfig().withoutFeatures(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);</span><br><span class="line"></span><br><span class="line">        <span class="type">SimpleModule</span> <span class="variable">simpleModule</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SimpleModule</span>()</span><br><span class="line">                .addDeserializer(LocalDateTime.class, <span class="keyword">new</span> <span class="title class_">LocalDateTimeDeserializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_FORMAT)))</span><br><span class="line">                .addDeserializer(LocalDate.class, <span class="keyword">new</span> <span class="title class_">LocalDateDeserializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_FORMAT)))</span><br><span class="line">                .addDeserializer(LocalTime.class, <span class="keyword">new</span> <span class="title class_">LocalTimeDeserializer</span>(DateTimeFormatter.ofPattern(DEFAULT_TIME_FORMAT)))</span><br><span class="line">                .addSerializer(LocalDateTime.class, <span class="keyword">new</span> <span class="title class_">LocalDateTimeSerializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_FORMAT)))</span><br><span class="line">                .addSerializer(LocalDate.class, <span class="keyword">new</span> <span class="title class_">LocalDateSerializer</span>(DateTimeFormatter.ofPattern(DEFAULT_DATE_FORMAT)))</span><br><span class="line">                .addSerializer(LocalTime.class, <span class="keyword">new</span> <span class="title class_">LocalTimeSerializer</span>(DateTimeFormatter.ofPattern(DEFAULT_TIME_FORMAT)));</span><br><span class="line"></span><br><span class="line">        <span class="comment">//注册功能模块 例如，可以添加自定义序列化器和反序列化器</span></span><br><span class="line">        <span class="built_in">this</span>.registerModule(simpleModule);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
+
+<p><strong>有了上述的知识基础，创建一个消息转换器并使用</strong>，然后重新启动服务进行测试</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031559762.png"
+                      alt="image-20231003141157673"
+                ></p>
+<p>可以看到此时前端接收到的数据就是比较适合使用的时间格式</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310031559367.png"
+                      alt="image-20231003141616468"
+                ></p>
+]]></content>
+      <categories>
+        <category>常见技术问题</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>后端</tag>
+        <tag>Mybatis</tag>
       </tags>
   </entry>
   <entry>
@@ -788,25 +807,6 @@
       <tags>
         <tag>Java</tag>
         <tag>后端</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>测试文章</title>
-    <url>/2023/10/01/%E6%96%87%E7%AB%A0%E5%88%9B%E5%BB%BA%E8%AF%B4%E6%98%8E/</url>
-    <content><![CDATA[<h1 id="测试文章"><a href="#测试文章" class="headerlink" title="测试文章"></a>测试文章</h1><h2 id="文章篇头编辑简介"><a href="#文章篇头编辑简介" class="headerlink" title="文章篇头编辑简介"></a>文章篇头编辑简介</h2><p>使用 <code>cover</code>标签添加图片的链接即可作为文章的首页展示图</p>
-<p>使用 <code>tags</code>给文章添加标签</p>
-<p>使用 <code>categories</code> 来个文章归类</p>
-<p>使用 <code>title</code> 给文章添加标题</p>
-<p>使用 <code>expert</code> 来鬼文章添加首页简要</p>
-<p>使用 <code>date</code> 标注文章发布时间</p>
-]]></content>
-      <categories>
-        <category>测试标签1</category>
-        <category>2标签测试</category>
-      </categories>
-      <tags>
-        <tag>Tag1</tag>
-        <tag>标签2</tag>
       </tags>
   </entry>
   <entry>
@@ -1324,6 +1324,25 @@
       </categories>
       <tags>
         <tag>Java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>测试文章</title>
+    <url>/2023/10/01/%E6%96%87%E7%AB%A0%E5%88%9B%E5%BB%BA%E8%AF%B4%E6%98%8E/</url>
+    <content><![CDATA[<h1 id="测试文章"><a href="#测试文章" class="headerlink" title="测试文章"></a>测试文章</h1><h2 id="文章篇头编辑简介"><a href="#文章篇头编辑简介" class="headerlink" title="文章篇头编辑简介"></a>文章篇头编辑简介</h2><p>使用 <code>cover</code>标签添加图片的链接即可作为文章的首页展示图</p>
+<p>使用 <code>tags</code>给文章添加标签</p>
+<p>使用 <code>categories</code> 来个文章归类</p>
+<p>使用 <code>title</code> 给文章添加标题</p>
+<p>使用 <code>expert</code> 来鬼文章添加首页简要</p>
+<p>使用 <code>date</code> 标注文章发布时间</p>
+]]></content>
+      <categories>
+        <category>测试标签1</category>
+        <category>2标签测试</category>
+      </categories>
+      <tags>
+        <tag>Tag1</tag>
+        <tag>标签2</tag>
       </tags>
   </entry>
 </search>
