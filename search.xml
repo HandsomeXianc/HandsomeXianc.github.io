@@ -366,6 +366,237 @@
       </tags>
   </entry>
   <entry>
+    <title>Git操作入门</title>
+    <url>/2023/09/17/Git%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/</url>
+    <content><![CDATA[<h1 id="Git快速入门"><a href="#Git快速入门" class="headerlink" title="Git快速入门"></a>Git快速入门</h1><h2 id="1-克隆远程项目到本地文件夹"><a href="#1-克隆远程项目到本地文件夹" class="headerlink" title="1.  克隆远程项目到本地文件夹"></a>1.  克隆远程项目到本地文件夹</h2><ul>
+<li>先创建一个空的文件夹，如何使用 git bush 命令</li>
+</ul>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">git clone 仓库地址</span><br><span class="line">示例： git clone https://gitee.com/Xc_cc/java2021net20213902009.git</span><br></pre></td></tr></table></figure></div>
+
+<h2 id="2-修改文件并提交到本地仓库"><a href="#2-修改文件并提交到本地仓库" class="headerlink" title="2.  修改文件并提交到本地仓库"></a>2.  修改文件并提交到本地仓库</h2><div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">git add [被修改的文件]				此步操作需要先cd 进入修改文件的同级目录</span><br><span class="line">git commit			会进入到vim编辑器提示你写入注释</span><br><span class="line">使用 git commit -m &#x27;注释&#x27;	可以不用进入vim编辑器直接添加注释并提交</span><br></pre></td></tr></table></figure></div>
+
+<h2 id="3-推送到远程仓库"><a href="#3-推送到远程仓库" class="headerlink" title="3.  推送到远程仓库"></a>3.  推送到远程仓库</h2><div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">git log 显示提交的记录日志</span><br><span class="line">git push	提交到远程仓库</span><br></pre></td></tr></table></figure></div>
+
+<h2 id="4-1-忽略版本跟踪"><a href="#4-1-忽略版本跟踪" class="headerlink" title="4.1 忽略版本跟踪"></a>4.1 忽略版本跟踪</h2><ul>
+<li>如果有哪些文件是在文件上传到仓库的时候是不需要上传的则需要使用忽略版本跟踪</li>
+</ul>
+<ol>
+<li><p>在 项目根目录创建 <code>.gitignore</code> 文件</p>
+</li>
+<li><p>用文本编辑器打开文件，进行配置：</p>
+<ul>
+<li><p>每项配置独占一行</p>
+</li>
+<li><p>每行的内容可以是：文件&#x2F;目录 的<code>名称</code>，<code>路径</code>或是的<code>模式匹配</code></p>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="4-2-gitignore忽略文件的版本跟踪"><a href="#4-2-gitignore忽略文件的版本跟踪" class="headerlink" title="4.2 gitignore忽略文件的版本跟踪"></a>4.2 gitignore忽略文件的版本跟踪</h2><p><strong>模式匹配</strong>：</p>
+<ol>
+<li><strong>空行</strong>不匹配任何文件，因此常用作分隔符（方便阅读）</li>
+<li><span style="color:red">#</span>用于注释，<span style="color:red"> \ </span>表示转义（如需实体 \ 则需要添加引号”<span style="color:red"> \ </span>“）</li>
+<li><span style="color:red">*</span>可以匹配任何字符串（0或多次），<span style="color:red">？</span>可以匹配任何字符（1次）。（注意：他们都不可以匹配<span style="color:red">  \ </span>）</li>
+<li>原来被排除的文件使用<span style="color:red"> ！</span>模式之后该文件会重新被包含。但是如果该文件的父级目录被排除了，那么使用<span style="color:red">！</span>也不会再次被包含</li>
+<li><span style="color:red">[ ]</span>通常用于匹配一个字符列表，如：a[mn]z可以匹配 amz 和anz</li>
+<li><span style="color:red">**</span>用于匹配多级目录，如a &#x2F; * *&#x2F;可以匹配 “a&#x2F;b” , “a&#x2F;x&#x2F;b” , “a&#x2F;x&#x2F;y&#x2F;b” 等等。</li>
+</ol>
+<h2 id="5-如何检查ignore规则有效性"><a href="#5-如何检查ignore规则有效性" class="headerlink" title="5. 如何检查ignore规则有效性"></a>5. 如何检查ignore规则有效性</h2><p>使用命令：</p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">git check-ignore -v &#123;文件或目录路径&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p>若是使用命令之后有输出，说明该文件已被忽略。</p>
+<h2 id="细节"><a href="#细节" class="headerlink" title="细节"></a>细节</h2><p><code>.gitignore </code>只能忽略那些没有被追踪的文件，所以先纳入版本管理后写入的<code>.gitignore</code> 是无效的。</p>
+<p><strong>解决方法：</strong></p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">先修改 .gitignore 文件，之后执行以下内容</span><br><span class="line">git rm -r --cached .</span><br><span class="line">git add . </span><br><span class="line">git status</span><br></pre></td></tr></table></figure></div>
+
+<p>同样的，已被<code>.gitignore</code>忽略的文件也是无法加入版本库的</p>
+<p><strong>解决方法：</strong></p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">先在 .gitignore 中移除掉需要重新纳入版本追踪的文件再使用</span><br><span class="line">git add .</span><br></pre></td></tr></table></figure></div>
+
+<h2 id="6-从版本库中恢复文件"><a href="#6-从版本库中恢复文件" class="headerlink" title="6. 从版本库中恢复文件"></a>6. 从版本库中恢复文件</h2><ol>
+<li><p>文件恢复（一）：修改或删除之后，没有<code>add</code>过的文件恢复。</p>
+<p><strong>解决方法：</strong>使用 <code>git checkout 文件名</code>命令即可</p>
+</li>
+<li><p>文件恢复（二）：有<code>add</code>，但无<code>commit</code>过的文件恢复</p>
+<p><strong>解决方法：</strong>先用 <code>git log</code>查看日志，获取需要恢复的版本commit的<code>id</code></p>
+<p>​						 然后使用<code>git checkout &lt;commitid&gt; &lt;文件路径&gt;</code>命令即可</p>
+<p>​	 					<strong>表示：</strong>从某个 commit 状态中 恢复文件到工作区</p>
+</li>
+<li><p>文件恢复（三）：已 commit 的文件，恢复到之前的版本</p>
+<p><strong>解决方法：</strong>使用<code>git checkout &lt;commitid&gt; &lt;文件路径&gt;</code>命令即可，同第二种情况一样</p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>后端</category>
+      </categories>
+      <tags>
+        <tag>后端</tag>
+        <tag>git</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redis入门</title>
+    <url>/2023/10/07/Redis%E5%9F%BA%E7%A1%80/</url>
+    <content><![CDATA[<h1 id="Redis入门"><a href="#Redis入门" class="headerlink" title="Redis入门"></a>Redis入门</h1><h2 id="Redis简介"><a href="#Redis简介" class="headerlink" title="Redis简介"></a>Redis简介</h2><p>Redis是一个基于<strong>内存</strong>的key-value结构的数据库</p>
+<ul>
+<li>基于内存存储，读写性能高</li>
+<li>适合存储热点数据（热点商品、咨询、新闻）【访问频繁】</li>
+<li>企业应用广泛</li>
+</ul>
+<h2 id="5种常用的数据类型介绍"><a href="#5种常用的数据类型介绍" class="headerlink" title="5种常用的数据类型介绍"></a>5种常用的数据类型介绍</h2><p>Redis存储的是key-value结构的数据，其中key是字符串类型，value有5种常用的数据类型</p>
+<ul>
+<li>字符串 string</li>
+<li>哈希 hash</li>
+<li>列表 list</li>
+<li>集合 set</li>
+<li>有序集合 sorted set &#x2F; zset</li>
+</ul>
+<h2 id="各种数据类型的特点"><a href="#各种数据类型的特点" class="headerlink" title="各种数据类型的特点"></a>各种数据类型的特点</h2><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309081447840.jpg"
+                      alt="processon"
+                ></p>
+<ul>
+<li><strong>字符串</strong>：普通字符串，redis中最简单的数据类型</li>
+<li><strong>哈希</strong>：散列表，类似Java中的HashMap结构</li>
+<li><strong>列表</strong>：按照插入的顺序排序，可以有重复的元素，类似Java中的LinkedList</li>
+<li><strong>集合</strong>：无序集合，没有重复元素，类似Java中的HashSet</li>
+<li><strong>有序集合</strong>：集合中每个元素关联一个分数，根据分数升序排序，没有重复元素</li>
+</ul>
+<h2 id="Redis常用命令"><a href="#Redis常用命令" class="headerlink" title="Redis常用命令"></a>Redis常用命令</h2><h3 id="字符串操作命令"><a href="#字符串操作命令" class="headerlink" title="字符串操作命令"></a>字符串操作命令</h3><ul>
+<li><code>SET key value</code>：设置指定key的值</li>
+<li><code>GET key</code>：获取指定key的值</li>
+<li><code>SETEX key seconds value</code>：设置指定key的值，并将key的过期时间设置为seconds秒</li>
+<li><code>SETNX key value</code>：只有key不存在时设置key的值</li>
+</ul>
+<h3 id="哈希操作命令"><a href="#哈希操作命令" class="headerlink" title="哈希操作命令"></a>哈希操作命令</h3><p>Redis hash 是一个string类型的 field 和 value 的映射表，hash特别适合用于存储对象，常用命令：</p>
+<ul>
+<li><code>HSET key field value</code> ：将哈希表key中的字段field的值设置为value</li>
+<li><code>HGET key field</code>：获取存储在哈希表中指定字段的值</li>
+<li><code>HDEL key field</code>：删除存储在哈希表中的指定字段</li>
+<li><code>HKEYS key</code>：获取哈希表中所有字段</li>
+<li><code>HVALS key</code>：获取哈希表中所有值</li>
+</ul>
+<h3 id="列表操作命令"><a href="#列表操作命令" class="headerlink" title="列表操作命令"></a>列表操作命令</h3><p>Redis 列表是简单的字符串列表，按照插入顺序排序，常用命令：</p>
+<ul>
+<li><code>LPUSH key value1 [value2]</code>：将一个或多个值插入到列表的头部</li>
+<li><code>LRANGE key start stop</code>：获取列表指定范围内的元素</li>
+<li><code>RPOP key</code>：移除并获取列表最后一个元素</li>
+<li><code>LLEN key</code>：获取列表长度</li>
+</ul>
+<h3 id="集合操作命令"><a href="#集合操作命令" class="headerlink" title="集合操作命令"></a>集合操作命令</h3><p>Redis set 是string类型的无序集合。集合成员是唯一的，集合中不能出现重复的数据，常用命令：</p>
+<ul>
+<li><code>SADD key member1 [member2]</code>：向集合添加一个或多个成员</li>
+<li><code>SMEMBERS key</code>：返回集合中的所有成员</li>
+<li><code>SCARD key</code>：获取集合的成员数</li>
+<li><code>SINTER key1 [key2]</code>：返回给定所有集合的交集</li>
+<li><code>SUNION key1 [key2]</code>：返回所有给定集合的并集</li>
+<li><code>SREM key member1 [member2]</code>：删除集合中一个或多个成员</li>
+</ul>
+<h3 id="有序集合操作命令"><a href="#有序集合操作命令" class="headerlink" title="有序集合操作命令"></a>有序集合操作命令</h3><p>Redis有序集合是string类型元素的集合，且不允许有重复成员。每个元素都会关联一个double类型的分数。常用命令：</p>
+<ul>
+<li><code>ZADD key score1 member1 [score2 member2]</code>：向有序集合添加一个或多个成员</li>
+<li><code>ZRANGE key start stop [WITHSCORES]</code>：通过索引区间返回有序集合中指定区间内的成员</li>
+<li><code>ZINCRBY key increment member</code>：有序集合中对指定成员的分数加上增量 increment</li>
+<li><code>ZREM key member [member ...]</code>：移除有序集合中的一个或多个成员</li>
+</ul>
+<h3 id="通用命令集合"><a href="#通用命令集合" class="headerlink" title="通用命令集合"></a>通用命令集合</h3><p>Redis的通用命令是不分数据类型的，都可以使用的命令：</p>
+<ul>
+<li><code>KEYS pattern</code>：查找所有符合给定模式（pattern）的key</li>
+<li><code>EXIST key</code>：检查给定key是否存在</li>
+<li><code>TYPE key</code>：返回key所存储的值的类型</li>
+<li><code>DEL key</code>：该命令用于在key存在时，删除key</li>
+</ul>
+<h2 id="SpringBoot整合Redis"><a href="#SpringBoot整合Redis" class="headerlink" title="SpringBoot整合Redis"></a>SpringBoot整合Redis</h2><ol>
+<li><p>导入Spring Data Redis 的maven坐标</p>
+<div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-data-redis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p>配置Redis数据源</p>
+<div class="highlight-container" data-rel="Yaml"><figure class="iseeu highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"> <span class="attr">redis:</span></span><br><span class="line">  <span class="attr">host:</span> <span class="string">localhost</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">6379</span></span><br><span class="line">  <span class="attr">password:</span> <span class="number">123456</span></span><br><span class="line">  <span class="attr">database:</span> <span class="number">0</span></span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p>编写配置类，创建RedisTemplate对象</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RedisConfiguration</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> RedisTemplate <span class="title function_">redisTemplate</span><span class="params">(RedisConnectionFactory redisConnectionFactory)</span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;开始创建redis模板对象...&quot;</span>);</span><br><span class="line">        <span class="type">RedisTemplate</span> <span class="variable">redisTemplate</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RedisTemplate</span>();</span><br><span class="line">        <span class="comment">//设置 Redis 的连接工厂对象</span></span><br><span class="line">        redisTemplate.setConnectionFactory(redisConnectionFactory);</span><br><span class="line">        <span class="comment">//设置 Redis 的key序列化器</span></span><br><span class="line">        redisTemplate.setKeySerializer(<span class="keyword">new</span> <span class="title class_">StringRedisSerializer</span>());</span><br><span class="line">        <span class="keyword">return</span> redisTemplate;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p>通过RedisTemplate对象操作Redis，通过上述的配置将RedisTemplate对象自动注入，后续操作接口即可</p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>后端</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>后端</tag>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>全局异常处理器</title>
+    <url>/2023/10/02/%E5%85%A8%E5%B1%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E5%99%A8/</url>
+    <content><![CDATA[<h1 id="全局异常处理器"><a href="#全局异常处理器" class="headerlink" title="全局异常处理器"></a>全局异常处理器</h1><blockquote>
+<p><b style="color:blue">悟已往之不谏，知来者之可追</b>:hash::first_quarter_moon::ant:</p>
+</blockquote>
+<h2 id="处理过程展示"><a href="#处理过程展示" class="headerlink" title="处理过程展示"></a>处理过程展示</h2><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231125992.png"
+                      alt="image-20230923112514872"
+                ></p>
+<h2 id="问题的来由"><a href="#问题的来由" class="headerlink" title="问题的来由"></a>问题的来由</h2><p><strong>已知我有一个用户表用于存储用户的个人信息，并且设置了主键ID和username唯一</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231133064.png"
+                      alt="image-20230923113308037"
+                ></p>
+<p><strong>于是我接着创建一个新用户admin，系统会报错</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231203635.png"
+                      alt="image-20230923120340502"
+                ></p>
+<p><strong>上述错误的没有进行处理，因此当Mapper抛出Duplicate错误的时候，错误将抛出到调用mapper的service层，因为service层也没有做处理，因此错误继续向上抛至调用Service的Controller层，然后框架就会返回一个错误数据【该数据不符合我们返回值的规范，我们返回值规范是一个Result类】</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231213299.png"
+                      alt="image-20230923121310267"
+                ></p>
+<p><strong>为此，定义一个全局异常处理器，捕获异常，并做统一处理</strong>：创建一个类，并添加上<b style="color:blue">@RestControllerAdvice</b>注解，该注解标识这个类是一个全局异常处理器，方法上添加<b style="color:blue">@ExceptionHandler</b>注解说明捕获的异常种类</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RestControllerAdvice</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">GlobalExceptionHandler</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ExceptionHandler(Exception.class)</span></span><br><span class="line">    <span class="keyword">public</span> Result <span class="title function_">ex</span><span class="params">(Exception ex)</span>&#123;</span><br><span class="line">        ex.printStackTrace();			<span class="comment">//显示异常的堆栈信息</span></span><br><span class="line">        <span class="keyword">return</span> Result.error(<span class="string">&quot;对不起,操作失败,请联系管理员...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li>@<code>ExceptionHandler</code>：通过指定注解的value属性，说明要捕获的异常 		</li>
+<li>@<code>RestControllerAdvice</code>：该注解由@ControllerAdvice + @ResponseBody组成，ResponseBody会将返回值转换为JSON传递到前端</li>
+</ul>
+<p><strong>设置完全局异常处理器之后再次发送请求查看结果</strong>可以看到服务端捕获到异常并打印了异常的堆栈信息：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231253097.png"
+                      alt="image-20230923125348842"
+                ></p>
+<p>同时前端接收到的返回值也变成我们想要接收的数据类型</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231255855.png"
+                      alt="image-20230923125513819"
+                ></p>
+]]></content>
+      <categories>
+        <category>常见技术问题</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>后端</tag>
+        <tag>spring全家桶</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>简述PageHelper的原理及使用</title>
     <url>/2023/10/03/PageHelper%E5%8E%9F%E7%90%86%E4%BD%BF%E7%94%A8%E5%8F%8A/</url>
     <content><![CDATA[<h1 id="简述PageHelper的原理及使用"><a href="#简述PageHelper的原理及使用" class="headerlink" title="简述PageHelper的原理及使用"></a>简述PageHelper的原理及使用</h1><h2 id="PageHelper原理"><a href="#PageHelper原理" class="headerlink" title="PageHelper原理"></a>PageHelper原理</h2><p><strong>PageHelper</strong>是<strong>MyBatis</strong>的通用分页插件，通过<strong>mybatis</strong>的<b style="color:red">拦截器</b>实现分页功能，<b style="color:blue">拦截sql查询请求，添加分页语句，最终实现分页查询功能。</b></p>
@@ -471,62 +702,43 @@
       </tags>
   </entry>
   <entry>
-    <title>全局异常处理器</title>
-    <url>/2023/10/02/%E5%85%A8%E5%B1%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E5%99%A8/</url>
-    <content><![CDATA[<h1 id="全局异常处理器"><a href="#全局异常处理器" class="headerlink" title="全局异常处理器"></a>全局异常处理器</h1><blockquote>
-<p><b style="color:blue">悟已往之不谏，知来者之可追</b>:hash::first_quarter_moon::ant:</p>
-</blockquote>
-<h2 id="处理过程展示"><a href="#处理过程展示" class="headerlink" title="处理过程展示"></a>处理过程展示</h2><p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231125992.png"
-                      alt="image-20230923112514872"
-                ></p>
-<h2 id="问题的来由"><a href="#问题的来由" class="headerlink" title="问题的来由"></a>问题的来由</h2><p><strong>已知我有一个用户表用于存储用户的个人信息，并且设置了主键ID和username唯一</strong></p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231133064.png"
-                      alt="image-20230923113308037"
-                ></p>
-<p><strong>于是我接着创建一个新用户admin，系统会报错</strong></p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231203635.png"
-                      alt="image-20230923120340502"
-                ></p>
-<p><strong>上述错误的没有进行处理，因此当Mapper抛出Duplicate错误的时候，错误将抛出到调用mapper的service层，因为service层也没有做处理，因此错误继续向上抛至调用Service的Controller层，然后框架就会返回一个错误数据【该数据不符合我们返回值的规范，我们返回值规范是一个Result类】</strong></p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231213299.png"
-                      alt="image-20230923121310267"
-                ></p>
-<p><strong>为此，定义一个全局异常处理器，捕获异常，并做统一处理</strong>：创建一个类，并添加上<b style="color:blue">@RestControllerAdvice</b>注解，该注解标识这个类是一个全局异常处理器，方法上添加<b style="color:blue">@ExceptionHandler</b>注解说明捕获的异常种类</p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RestControllerAdvice</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">GlobalExceptionHandler</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ExceptionHandler(Exception.class)</span></span><br><span class="line">    <span class="keyword">public</span> Result <span class="title function_">ex</span><span class="params">(Exception ex)</span>&#123;</span><br><span class="line">        ex.printStackTrace();			<span class="comment">//显示异常的堆栈信息</span></span><br><span class="line">        <span class="keyword">return</span> Result.error(<span class="string">&quot;对不起,操作失败,请联系管理员...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
-
-<ul>
-<li>@<code>ExceptionHandler</code>：通过指定注解的value属性，说明要捕获的异常 		</li>
-<li>@<code>RestControllerAdvice</code>：该注解由@ControllerAdvice + @ResponseBody组成，ResponseBody会将返回值转换为JSON传递到前端</li>
+    <title>Spring整合Mybatis/Junit</title>
+    <url>/2023/09/18/Spring%E6%95%B4%E5%90%88MyBatis_Junit/</url>
+    <content><![CDATA[<h1 id="Spring整合Mybatis-Junit"><a href="#Spring整合Mybatis-Junit" class="headerlink" title="Spring整合Mybatis&#x2F;Junit"></a>Spring整合Mybatis&#x2F;Junit</h1><ul>
+<li><h4 id="原生Mybatis的XML配置文件"><a href="#原生Mybatis的XML配置文件" class="headerlink" title="原生Mybatis的XML配置文件"></a><strong>原生Mybatis的XML配置文件</strong></h4></li>
 </ul>
-<p><strong>设置完全局异常处理器之后再次发送请求查看结果</strong>可以看到服务端捕获到异常并打印了异常的堆栈信息：</p>
-<p><img  
+<div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span> ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">configuration</span></span></span><br><span class="line"><span class="meta">        <span class="keyword">PUBLIC</span> <span class="string">&quot;-//mybatis.org//DTD Config 3.0//EN&quot;</span></span></span><br><span class="line"><span class="meta">        <span class="string">&quot;https://mybatis.org/dtd/mybatis-3-config.dtd&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">properties</span> <span class="attr">resource</span>=<span class="string">&quot;jdbc.properties&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">typeAliases</span>&gt;</span></span><br><span class="line">    	<span class="tag">&lt;<span class="name">package</span> <span class="attr">name</span>=<span class="string">&quot;com.itheima.domain&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">typeAliases</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">environments</span> <span class="attr">default</span>=<span class="string">&quot;development&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">environment</span> <span class="attr">id</span>=<span class="string">&quot;development&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">transactionManager</span> <span class="attr">type</span>=<span class="string">&quot;JDBC&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dataSource</span> <span class="attr">type</span>=<span class="string">&quot;POOLED&quot;</span>&gt;</span></span><br><span class="line">                <span class="comment">&lt;!--数据库连接信息--&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;driver&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.Driver&#125;&quot;</span>/&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;url&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.url&#125;&quot;</span>/&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;username&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.username&#125;&quot;</span>/&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;password&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.password&#125;&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dataSource</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">environment</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">environments</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mappers</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--加载sql的映射文件--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">mapper</span> <span class="attr">resource</span>=<span class="string">&quot;UserMapper.xml&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">mappers</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<h2 id="Spring整合MyBatis"><a href="#Spring整合MyBatis" class="headerlink" title="Spring整合MyBatis"></a>Spring整合MyBatis</h2><ol>
+<li><h4 id="第一步：添加对应的坐标"><a href="#第一步：添加对应的坐标" class="headerlink" title="第一步：添加对应的坐标"></a>第一步：<strong>添加对应的坐标</strong></h4><div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- Spring的坐标【Spring技术的核心】 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-context<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.2.10.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- druid数据连接池 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>druid<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.1.16<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- MyBatis的坐标 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.5.6<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- mysql的坐标 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.1.47<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- Spring操作数据库专用的包坐标 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-jdbc<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.2.10.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- Spring整合Mybatis的包坐标【版本号要与mybatis版本对应】 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-spring<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.3.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+</li>
+<li><h4 id="第二步：创建外部配置文件【jdbc-properties】"><a href="#第二步：创建外部配置文件【jdbc-properties】" class="headerlink" title="第二步：创建外部配置文件【jdbc.properties】"></a>第二步：<strong>创建外部配置文件【jdbc.properties】</strong></h4><div class="highlight-container" data-rel="Properties"><figure class="iseeu highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">jdbc.driver</span>=<span class="string">com.mysql.jdbcDriver</span></span><br><span class="line"><span class="attr">jdbc.url</span>=<span class="string">jdbc.mysql://127.0.0.1:3306/spring_db</span></span><br><span class="line"><span class="attr">jdbc.username</span>=<span class="string">root</span></span><br><span class="line"><span class="attr">jdbc.password</span>=<span class="string">123456</span></span><br></pre></td></tr></table></figure></div>
+</li>
+<li><h4 id="第三步：创建数据源配置类【JdbcConfig-java】"><a href="#第三步：创建数据源配置类【JdbcConfig-java】" class="headerlink" title="第三步：创建数据源配置类【JdbcConfig.java】"></a>第三步：<strong>创建数据源配置类【JdbcConfig.java】</strong></h4><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JdbcConfig</span>&#123;</span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;jdbc.driver&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String driver;</span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;jdbc.url&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String url;</span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;jdbc.username&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String username;</span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;jdbc.password&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String password;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> DataSource <span class="title function_">dataSource</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">DruidDataSource</span> <span class="variable">ds</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">DruidDataSource</span>();</span><br><span class="line">        ds.setDriverClassName(driver);</span><br><span class="line">        ds.setUrl(url);</span><br><span class="line">        ds.setUsername(username);</span><br><span class="line">        ds.setPassword(password);</span><br><span class="line">        <span class="keyword">return</span> ds;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+</li>
+<li><h4 id="第四步：创建配置类【SpringConfig-java】"><a href="#第四步：创建配置类【SpringConfig-java】" class="headerlink" title="第四步：创建配置类【SpringConfig.java】"></a>第四步：<strong>创建配置类【SpringConfig.java】</strong></h4><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Configuration</span>						<span class="comment">//声明为Spring的配置类</span></span><br><span class="line"><span class="meta">@ComponentScan(&quot;com.itheima&quot;)</span>					<span class="comment">//bean的扫描</span></span><br><span class="line"><span class="meta">@PropertySource(&quot;classpath:jdbc.properties&quot;)</span>		<span class="comment">//扫描外部配置文件</span></span><br><span class="line"><span class="meta">@Import(&#123;JdbcConfig.class,MybatisConfig.class&#125;)</span>				<span class="comment">//第三方的bean管理</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SpringConfig</span>&#123;&#125;</span><br></pre></td></tr></table></figure></div>
+</li>
+<li><h4 id="第五步：创建一个Mybatis的配置类用于管理第三方-Mybatis-的bean【MybatisConfig-java】代替原生Mybatis的xml配置文件"><a href="#第五步：创建一个Mybatis的配置类用于管理第三方-Mybatis-的bean【MybatisConfig-java】代替原生Mybatis的xml配置文件" class="headerlink" title="第五步：创建一个Mybatis的配置类用于管理第三方(Mybatis)的bean【MybatisConfig.java】代替原生Mybatis的xml配置文件"></a>第五步：<strong>创建一个Mybatis的配置类用于管理第三方(Mybatis)的bean【MybatisConfig.java】代替原生Mybatis的xml配置文件</strong></h4><p><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231253097.png"
-                      alt="image-20230923125348842"
-                ></p>
-<p>同时前端接收到的返回值也变成我们想要接收的数据类型</p>
-<p><img  
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202308021214406.png"
+                      alt="image-20230802121432063"
+                ><br><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309231255855.png"
-                      alt="image-20230923125513819"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202308021215004.png"
+                      alt="image-20230802121512784"
                 ></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MybatisConfig</span>&#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> SqlSessionFactoryBean <span class="title function_">sqlSessionFactory</span><span class="params">(DataSource dataSource)</span>&#123;</span><br><span class="line">        <span class="type">SqlSessionFactoryBean</span> <span class="variable">ssfb</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SqlSessionFactoryBean</span>();</span><br><span class="line">        ssfb.setTypeAliasesPackage(<span class="string">&quot;com.itheima.domian&quot;</span>);<span class="comment">//原生XML配置的&lt;typeAliases&gt;标签</span></span><br><span class="line">        ssfb.setDataSource(dataSource);<span class="comment">//原生XML配置的&lt;dataSource&gt;标签</span></span><br><span class="line">        <span class="keyword">return</span> ssfb;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> MapperScannerConfigurer <span class="title function_">mapperScannerConfiguree</span><span class="params">()</span>&#123;	<span class="comment">//原生XML配置的mapper映射标签</span></span><br><span class="line">        <span class="type">MapperScannerConfigurer</span> <span class="variable">msc</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MapperScannerConfigurer</span>();</span><br><span class="line">        msc.setBasePackage(<span class="string">&quot;com.itheima.dao&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> msc;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
+</ol>
+<h2 id="Spring整合Junit"><a href="#Spring整合Junit" class="headerlink" title="Spring整合Junit"></a>Spring整合Junit</h2><ol>
+<li><h4 id="添加对应的坐标"><a href="#添加对应的坐标" class="headerlink" title="添加对应的坐标"></a>添加对应的坐标</h4><div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.12<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.2.10.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+</li>
+<li><h4 id="创建测试类【MyTestClass-java】"><a href="#创建测试类【MyTestClass-java】" class="headerlink" title="创建测试类【MyTestClass.java】"></a>创建测试类【MyTestClass.java】</h4><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RunWith(SpringJUnit4ClassRunner.class)</span>			<span class="comment">//Spring整合JUnit专用的类加载器</span></span><br><span class="line"><span class="meta">@ContextConfiguration(classes = SpringConfig.class)</span>		<span class="comment">//指定Spring上下文配置</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AccountServiceTest</span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">	<span class="keyword">private</span> MyService myservice;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">myTestOne</span><span class="params">()</span>&#123; <span class="comment">/*函数实现*/</span>  	&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
+</ol>
 ]]></content>
       <categories>
-        <category>常见技术问题</category>
+        <category>后端</category>
       </categories>
       <tags>
         <tag>Java</tag>
@@ -535,22 +747,139 @@
       </tags>
   </entry>
   <entry>
-    <title>测试文章</title>
-    <url>/2023/10/01/%E6%96%87%E7%AB%A0%E5%88%9B%E5%BB%BA%E8%AF%B4%E6%98%8E/</url>
-    <content><![CDATA[<h1 id="测试文章"><a href="#测试文章" class="headerlink" title="测试文章"></a>测试文章</h1><h2 id="文章篇头编辑简介"><a href="#文章篇头编辑简介" class="headerlink" title="文章篇头编辑简介"></a>文章篇头编辑简介</h2><p>使用 <code>cover</code>标签添加图片的链接即可作为文章的首页展示图</p>
-<p>使用 <code>tags</code>给文章添加标签</p>
-<p>使用 <code>categories</code> 来个文章归类</p>
-<p>使用 <code>title</code> 给文章添加标题</p>
-<p>使用 <code>expert</code> 来鬼文章添加首页简要</p>
-<p>使用 <code>date</code> 标注文章发布时间</p>
+    <title>文件上传下载</title>
+    <url>/2023/10/04/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B8%8B%E8%BD%BD/</url>
+    <content><![CDATA[<h1 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h1><h2 id="一、文件上传介绍"><a href="#一、文件上传介绍" class="headerlink" title="一、文件上传介绍"></a><span style="color:purple">一、文件上传介绍</span></h2><p>文件上传，也称为upload，是将本地图片、视频、音频等文件上传到服务器，供其他用户浏览或者下载的过程</p>
+<p>文件上传时，对页面的form表单有如下要求：</p>
+<ul>
+<li><code>method=&quot;post&quot;</code> 							        采用post方式提交数据</li>
+<li><code>enctype=&quot;multipart/form-data&quot; </code>   采用multipart格式上传文件</li>
+<li><code>type=&quot;file&quot;</code>                                       使用input的file控件上传</li>
+</ul>
+<p><strong>举例</strong></p>
+<div class="highlight-container" data-rel="Html"><figure class="iseeu highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">method</span>=<span class="string">&quot;post&quot;</span> <span class="attr">action</span>=<span class="string">&quot;/common/upload&quot;</span> <span class="attr">enctype</span>=<span class="string">&quot;multipart/form-data&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">&quot;myFile&quot;</span> <span class="attr">type</span>=<span class="string">&quot;file&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span> <span class="attr">value</span>=<span class="string">&quot;提交&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>服务端要接收客户端页面上传的文件，通常会使用Apache的两个插件</p>
+<ul>
+<li><code>commons-fileupload</code></li>
+<li><code>commons-io</code></li>
+</ul>
+<p>Spring框架在spring-web包中对文件上传进行了封装，大大简化了服务端代码，我们只需要在Controller的方法中声明一个<code>MultipartFile</code>类型的参数即可接收上传的文件，例如：</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 文件上传</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span> file</span></span><br><span class="line"><span class="comment">* <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">@PostMapping(&quot;/upload&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload</span><span class="params">(MultipartFile file)</span>&#123;</span><br><span class="line">	System.out.println(file);</span><br><span class="line">	<span class="keyword">return</span> Result.success(<span class="literal">null</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="二、文件下载介绍"><a href="#二、文件下载介绍" class="headerlink" title="二、文件下载介绍"></a><span style="color:green">二、文件下载介绍</span></h2><p>文件下载，也称为download，是指将文件从服务器传输到本地计算机的过程</p>
+<p>通过浏览器进行文件下载，通常有两种表现形式：</p>
+<ul>
+<li>以附件形式下载，弹出保存对话框，将文件保存到指定磁盘目录</li>
+<li>直接在浏览器中打开</li>
+</ul>
+<p>通过浏览器进行文件下载，本质上就是服务端将文件以流的形式写回浏览器的过程</p>
+<h2 id="三、文件上传接收代码实现"><a href="#三、文件上传接收代码实现" class="headerlink" title="三、文件上传接收代码实现"></a><span style="color:red">三、文件上传接收代码实现</span></h2><h3 id="前端数据方法代码"><a href="#前端数据方法代码" class="headerlink" title="前端数据方法代码"></a>前端数据方法代码</h3><ul>
+<li>此处调用axios向接口：<code>http://localhost:3000/common/upload</code>发送了表单数据设置表头header为<code>Content-type:multipar/form-data</code>，数据包含：<ol>
+<li><code>username</code>：字符串类型</li>
+<li><code>gender</code>：字符串类型</li>
+<li><code>introduction</code>：字符串类型</li>
+<li><code>avatar</code>：字符串类型</li>
+<li><code>file</code>：文件类型</li>
+</ol>
+</li>
+</ul>
+<center class="half">    
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309150932591.png"
+                      alt="image-20230913170017182" width="330" height="270px"  style="border:solid 2px orange"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309150933147.png"
+                      alt="image-20230913170130306" width="600" height="270px"  style="border:solid 2px orange"
+                >
+</center>
+
+
+<ul>
+<li>打开调试工具查看发送的表单数据，观察发送数据的<code>name</code></li>
+</ul>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309150933419.png"
+                      width="500px" style="border:solid 2px blue"
+                >
+
+<h3 id="后端接口代码实现"><a href="#后端接口代码实现" class="headerlink" title="后端接口代码实现"></a>后端接口代码实现</h3><ul>
+<li><strong><span style="color:blue">第一种写法：</span></strong></li>
+</ul>
+<p>接口的参数对应表单数据的各项name，文件类型使用<code>MultipartFile</code>接收，若接口参数名与前端发送数据的name一致的时候可以不使用注解<code>@RequestParam</code>对应</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span>						<span class="comment">//打印日志</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/common&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CommonController</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/upload&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload</span><span class="params">( <span class="meta">@RequestParam(&quot;username&quot;)</span> String username,</span></span><br><span class="line"><span class="params">                                  <span class="meta">@RequestParam(&quot;gender&quot;)</span> Integer gender,</span></span><br><span class="line"><span class="params">                                  <span class="meta">@RequestParam(&quot;introduction&quot;)</span> String introduction,</span></span><br><span class="line"><span class="params">                                  <span class="meta">@RequestParam(&quot;avatar&quot;)</span> String avatar,</span></span><br><span class="line"><span class="params">                                  <span class="meta">@RequestParam(&quot;file&quot;)</span>MultipartFile file)</span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;更新用户名:&#123;&#125;&quot;</span>,username);</span><br><span class="line">        log.info(<span class="string">&quot;更新性别:&#123;&#125;&quot;</span>,gender == <span class="number">1</span>?<span class="string">&#x27;男&#x27;</span>:gender==<span class="number">0</span>?<span class="string">&quot;女&quot;</span>:<span class="string">&quot;保密&quot;</span>);</span><br><span class="line">        log.info(<span class="string">&quot;用户简介:&#123;&#125;&quot;</span>,introduction);</span><br><span class="line">        log.info(<span class="string">&quot;头像地址:&#123;&#125;&quot;</span>,avatar);</span><br><span class="line">        log.info(<span class="string">&quot;接收到文件:&#123;&#125;&quot;</span>,file.toString());</span><br><span class="line">        <span class="keyword">return</span> Result.success(<span class="string">&quot;接收到上传的数据&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li><strong><span style="color:blue">第二种写法：</span></strong></li>
+</ul>
+<p>考虑到需要接收的表单数据比较到，直接将所有参数写在接口上会显得代码比较繁琐，因此创建一个DTO来封装数据</p>
+<ol>
+<li><p>创建UploadDTO类</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Data</span>					<span class="comment">//对所有的数据创建getter和setter</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span>		<span class="comment">//无参构造函数</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span>		<span class="comment">//有参构造函数</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UploadDTO</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String username;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> gender;</span><br><span class="line">    <span class="keyword">private</span> String introduction;</span><br><span class="line">    <span class="keyword">private</span> String avatar;</span><br><span class="line">    <span class="keyword">private</span> MultipartFile file;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p>使用DTO接收参数</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@PostMapping(&quot;/upload&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload</span><span class="params">(UploadDTO user)</span>&#123;</span><br><span class="line">	log.info(user.getFile().toString());</span><br><span class="line">	<span class="keyword">return</span> Result.success(<span class="string">&quot;接收到上传的数据&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
+</ol>
+<h2 id="四、将上传的文件保存在本地"><a href="#四、将上传的文件保存在本地" class="headerlink" title="四、将上传的文件保存在本地"></a>四、将上传的文件保存在本地</h2><ol>
+<li><p>在配置文件中配置本地的路径，此处我的配置文件为<code>application.yml</code>，设置了基本路径为<code>D:\\Desktop</code></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309151210089.png"
+                      alt="image-20230915121019943"
+                ></p>
+</li>
+<li><p>使用注解<code>@Value</code>接收配置文件的数据，并使用<code>UUID生存随机种子(保证文件名唯一)</code>，将上传文件保存到本地</p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/common&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CommonController</span> &#123;</span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;mystudy.basePath&#125;&quot;)</span>		<span class="comment">//@Value接收配置项数据</span></span><br><span class="line">    <span class="keyword">private</span> String basePath;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/upload&quot;)</span>		<span class="comment">//此处DTO对象描述看上文</span></span><br><span class="line">    <span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload</span><span class="params">(UploadDTO user)</span>&#123;</span><br><span class="line">        <span class="comment">//file是一个零时文件，需要转存到指定位置，否则本次请求完成后文件会删除</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//获取源文件的文件名字</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">originalFilename</span> <span class="operator">=</span> user.getFile().getOriginalFilename();</span><br><span class="line">            <span class="comment">//获取源文件的后缀</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">extension</span> <span class="operator">=</span> originalFilename.substring(originalFilename.lastIndexOf(<span class="string">&quot;.&quot;</span>));</span><br><span class="line">            <span class="comment">//根据UUID生成的随机数加上源文件的后缀名生成新的文件名[唯一不重复]</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">newName</span> <span class="operator">=</span> UUID.randomUUID().toString() + extension;</span><br><span class="line">            </span><br><span class="line">			<span class="comment">//创建一个目录对象</span></span><br><span class="line">            <span class="type">File</span> <span class="variable">dir</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(basePath);</span><br><span class="line">            <span class="comment">//判断当前目录是否存在</span></span><br><span class="line">            <span class="keyword">if</span>(!dir.exists()) dir.mkdirs();</span><br><span class="line">            </span><br><span class="line">            <span class="comment">//将临时文件转存到指定位置</span></span><br><span class="line">            user.getFile().transferTo(<span class="keyword">new</span> <span class="title class_">File</span>(basePath+ newName));</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">			log.error(<span class="string">&quot;文件上传失败：&#123;&#125;&quot;</span>,e);</span><br><span class="line">            <span class="keyword">return</span> Result.error(<span class="string">&quot;文件上传失败...&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> Result.success(<span class="string">&quot;成功接收上传数据&quot;</span>);</span><br><span class="line">&#125;&#125;</span><br></pre></td></tr></table></figure></div></li>
+</ol>
+<h2 id="五、配置文件上传选项"><a href="#五、配置文件上传选项" class="headerlink" title="五、配置文件上传选项"></a>五、配置文件上传选项</h2><ul>
+<li>在SpringBoot中，文件上传，默认单个文件允许最大大小为<code>1M</code>.如果需要上传大文件，则进行如下配置</li>
+</ul>
+<div class="highlight-container" data-rel="Yaml"><figure class="iseeu highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 打开application.yml配置文件</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">servlet:</span></span><br><span class="line">    <span class="attr">multipart:</span></span><br><span class="line">      <span class="attr">max-file-size:</span> <span class="string">10MB</span>				<span class="comment">#配置单个文件最大上传大小</span></span><br><span class="line">      <span class="attr">max-request-size:</span> <span class="string">100MB</span>			<span class="comment">#配置单个请求最大上传大小(一次请求可以上传多个文件)</span></span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="六、文件上传阿里云OSS"><a href="#六、文件上传阿里云OSS" class="headerlink" title="六、文件上传阿里云OSS"></a><span style="color:purple">六、文件上传阿里云OSS</span></h2><h3 id="第一步：导入依赖"><a href="#第一步：导入依赖" class="headerlink" title="第一步：导入依赖"></a>第一步：导入依赖</h3><blockquote>
+<p>官方文档地址：<a class="link"   href="https://help.aliyun.com/zh/oss/developer-reference/java-installation?spm=a2c4g.11186623.0.0.13dc3ba3geaLZ3"  style="color:red;font-weight:800">在这里 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
+</blockquote>
+<ul>
+<li>首先导入阿里云的依赖【Java 9版本以上】</li>
+</ul>
+<div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.aliyun.oss<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>aliyun-sdk-oss<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.15.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.xml.bind<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jaxb-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.3.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.activation<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>activation<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.1.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- no more than 2.3.3--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.glassfish.jaxb<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jaxb-runtime<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.3.3<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<h3 id="第二步：创建数据配置类"><a href="#第二步：创建数据配置类" class="headerlink" title="第二步：创建数据配置类"></a>第二步：创建数据配置类</h3><ol>
+<li><p><strong>现在<code>application.yml</code>文件中写入数据</strong></p>
+<div class="highlight-container" data-rel="Yaml"><figure class="iseeu highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">aliyun:</span></span><br><span class="line">  <span class="attr">oss:</span></span><br><span class="line">    <span class="attr">endpoint:</span> <span class="string">桶子归属地域</span></span><br><span class="line">    <span class="attr">bucketName:</span> <span class="string">桶子的名字</span></span><br><span class="line">    <span class="attr">accessKeyId:</span> <span class="string">自己OSS桶子的accessKeyId</span></span><br><span class="line">    <span class="attr">accessKeySecret:</span> <span class="string">自己桶子的accessKeySecret</span></span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p><strong>创建配置类</strong><code>AliOssProperties</code></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Data</span>					<span class="comment">//为类添加getter/setter</span></span><br><span class="line"><span class="meta">@Component</span>				<span class="comment">//交给IOC管理</span></span><br><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;aliyun.oss&quot;)</span>			<span class="comment">//将上述前缀为aliyun.oss配置数据匹配</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AliOssProperties</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String endpoint;</span><br><span class="line">    <span class="keyword">private</span> String bucketName;</span><br><span class="line">    <span class="keyword">private</span> String accessKeyId;</span><br><span class="line">    <span class="keyword">private</span> String accessKeySecret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p><strong>创建实现对象</strong><code>AliOssUtil</code></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AliOssUtil</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String endpoint;</span><br><span class="line">    <span class="keyword">private</span> String accessKeyId;</span><br><span class="line">    <span class="keyword">private</span> String accessKeySecret;</span><br><span class="line">    <span class="keyword">private</span> String bucketName;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">upload</span><span class="params">(<span class="type">byte</span>[] bytes,String objectName)</span> &#123;</span><br><span class="line">        <span class="type">OSS</span> <span class="variable">ossClient</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">OSSClientBuilder</span>().build(endpoint, accessKeyId, accessKeySecret);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">PutObjectRequest</span> <span class="variable">putObjectRequest</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PutObjectRequest</span>(bucketName, objectName, <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(bytes));</span><br><span class="line">            <span class="type">PutObjectResult</span> <span class="variable">putObjectResult</span> <span class="operator">=</span> ossClient.putObject(putObjectRequest);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (OSSException oe) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;Caught an OSSException, which means your request made it to OSS, &quot;</span></span><br><span class="line">                    + <span class="string">&quot;but was rejected with an error response for some reason.&quot;</span>);</span><br><span class="line">            System.out.println(<span class="string">&quot;Error Message:&quot;</span> + oe.getErrorMessage());</span><br><span class="line">            System.out.println(<span class="string">&quot;Error Code:&quot;</span> + oe.getErrorCode());</span><br><span class="line">            System.out.println(<span class="string">&quot;Request ID:&quot;</span> + oe.getRequestId());</span><br><span class="line">            System.out.println(<span class="string">&quot;Host ID:&quot;</span> + oe.getHostId());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ClientException ce) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;Caught an ClientException, which means the client encountered &quot;</span></span><br><span class="line">                    + <span class="string">&quot;a serious internal problem while trying to communicate with OSS, &quot;</span></span><br><span class="line">                    + <span class="string">&quot;such as not being able to access the network.&quot;</span>);</span><br><span class="line">            System.out.println(<span class="string">&quot;Error Message:&quot;</span> + ce.getMessage());</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (ossClient != <span class="literal">null</span>) &#123;</span><br><span class="line">                ossClient.shutdown();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//文件访问路径规则 https://BucketName.Endpoint/ObjectName</span></span><br><span class="line">        <span class="type">StringBuilder</span> <span class="variable">stringBuilder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>(<span class="string">&quot;https://&quot;</span>);</span><br><span class="line">        stringBuilder</span><br><span class="line">                .append(bucketName)</span><br><span class="line">                .append(<span class="string">&quot;.&quot;</span>)</span><br><span class="line">                .append(endpoint)</span><br><span class="line">                .append(<span class="string">&quot;/&quot;</span>)</span><br><span class="line">                .append(objectName);</span><br><span class="line"></span><br><span class="line">        log.info(<span class="string">&quot;文件上传到:&#123;&#125;&quot;</span>, stringBuilder.toString());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> stringBuilder.toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p><strong>创建实现对象的”工厂”</strong><code>OSSConfiguration</code></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OSSConfiguration</span> &#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line">    <span class="keyword">public</span> AliOssUtil <span class="title function_">aliOssUtil</span><span class="params">(AliOssProperties aliOssProperties)</span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;开始创建阿里云上传工具类对象：&#123;&#125;&quot;</span>,aliOssProperties);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">AliOssUtil</span>(aliOssProperties.getEndpoint(),</span><br><span class="line">                aliOssProperties.getAccessKeyId(),</span><br><span class="line">                aliOssProperties.getAccessKeySecret(),</span><br><span class="line">                aliOssProperties.getBucketName());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
+</ol>
+<h3 id="第三步：后端接口代码实现"><a href="#第三步：后端接口代码实现" class="headerlink" title="第三步：后端接口代码实现"></a>第三步：后端接口代码实现</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 进行文件的云上传【阿里云OSS存储】</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/common&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CommonController</span> &#123;</span><br><span class="line">    <span class="meta">@Autowired</span>				<span class="comment">//将OSS配置类导入</span></span><br><span class="line">    <span class="keyword">private</span> AliOssUtil aliOssUtil;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/upload&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload_OSS</span><span class="params">(UploadDTO user)</span>&#123;<span class="comment">//此处DTO看上文，上文封装了</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//原始的文件名字</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">originalFilename</span> <span class="operator">=</span> user.getFile().getOriginalFilename();</span><br><span class="line">            <span class="comment">//截取文件名的后缀</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">extension</span> <span class="operator">=</span> originalFilename.substring(originalFilename.lastIndexOf(<span class="string">&quot;.&quot;</span>));</span><br><span class="line">            <span class="comment">//构造新的文件名称</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">newName</span> <span class="operator">=</span> UUID.randomUUID().toString() + extension;</span><br><span class="line">            <span class="comment">//获取返回的文件请求路径</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">filePath</span> <span class="operator">=</span> aliOssUtil.upload(user.getFile().getBytes(), newName);</span><br><span class="line">            <span class="keyword">return</span> Result.success(filePath);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;文件上传失败：&#123;&#125;&quot;</span>,e);</span><br><span class="line">            <span class="keyword">return</span> Result.error(<span class="string">&quot;上传文件失败...&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></div>
+
 ]]></content>
       <categories>
-        <category>测试标签1</category>
-        <category>2标签测试</category>
+        <category>常见技术问题</category>
       </categories>
       <tags>
-        <tag>Tag1</tag>
-        <tag>标签2</tag>
+        <tag>Java</tag>
+        <tag>后端</tag>
       </tags>
   </entry>
   <entry>
@@ -683,142 +1012,6 @@
                      data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309272340640.png"
                       alt="image-20230927234052570" style="zoom:50%;" 
                 >
-]]></content>
-      <categories>
-        <category>常见技术问题</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-        <tag>后端</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>文件上传下载</title>
-    <url>/2023/10/04/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B8%8B%E8%BD%BD/</url>
-    <content><![CDATA[<h1 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h1><h2 id="一、文件上传介绍"><a href="#一、文件上传介绍" class="headerlink" title="一、文件上传介绍"></a><span style="color:purple">一、文件上传介绍</span></h2><p>文件上传，也称为upload，是将本地图片、视频、音频等文件上传到服务器，供其他用户浏览或者下载的过程</p>
-<p>文件上传时，对页面的form表单有如下要求：</p>
-<ul>
-<li><code>method=&quot;post&quot;</code> 							        采用post方式提交数据</li>
-<li><code>enctype=&quot;multipart/form-data&quot; </code>   采用multipart格式上传文件</li>
-<li><code>type=&quot;file&quot;</code>                                       使用input的file控件上传</li>
-</ul>
-<p><strong>举例</strong></p>
-<div class="highlight-container" data-rel="Html"><figure class="iseeu highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">method</span>=<span class="string">&quot;post&quot;</span> <span class="attr">action</span>=<span class="string">&quot;/common/upload&quot;</span> <span class="attr">enctype</span>=<span class="string">&quot;multipart/form-data&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">&quot;myFile&quot;</span> <span class="attr">type</span>=<span class="string">&quot;file&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span> <span class="attr">value</span>=<span class="string">&quot;提交&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
-
-
-
-<p>服务端要接收客户端页面上传的文件，通常会使用Apache的两个插件</p>
-<ul>
-<li><code>commons-fileupload</code></li>
-<li><code>commons-io</code></li>
-</ul>
-<p>Spring框架在spring-web包中对文件上传进行了封装，大大简化了服务端代码，我们只需要在Controller的方法中声明一个<code>MultipartFile</code>类型的参数即可接收上传的文件，例如：</p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 文件上传</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span> file</span></span><br><span class="line"><span class="comment">* <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">@PostMapping(&quot;/upload&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload</span><span class="params">(MultipartFile file)</span>&#123;</span><br><span class="line">	System.out.println(file);</span><br><span class="line">	<span class="keyword">return</span> Result.success(<span class="literal">null</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
-
-
-
-<h2 id="二、文件下载介绍"><a href="#二、文件下载介绍" class="headerlink" title="二、文件下载介绍"></a><span style="color:green">二、文件下载介绍</span></h2><p>文件下载，也称为download，是指将文件从服务器传输到本地计算机的过程</p>
-<p>通过浏览器进行文件下载，通常有两种表现形式：</p>
-<ul>
-<li>以附件形式下载，弹出保存对话框，将文件保存到指定磁盘目录</li>
-<li>直接在浏览器中打开</li>
-</ul>
-<p>通过浏览器进行文件下载，本质上就是服务端将文件以流的形式写回浏览器的过程</p>
-<h2 id="三、文件上传接收代码实现"><a href="#三、文件上传接收代码实现" class="headerlink" title="三、文件上传接收代码实现"></a><span style="color:red">三、文件上传接收代码实现</span></h2><h3 id="前端数据方法代码"><a href="#前端数据方法代码" class="headerlink" title="前端数据方法代码"></a>前端数据方法代码</h3><ul>
-<li>此处调用axios向接口：<code>http://localhost:3000/common/upload</code>发送了表单数据设置表头header为<code>Content-type:multipar/form-data</code>，数据包含：<ol>
-<li><code>username</code>：字符串类型</li>
-<li><code>gender</code>：字符串类型</li>
-<li><code>introduction</code>：字符串类型</li>
-<li><code>avatar</code>：字符串类型</li>
-<li><code>file</code>：文件类型</li>
-</ol>
-</li>
-</ul>
-<center class="half">    
-    <img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309150932591.png"
-                      alt="image-20230913170017182" width="330" height="270px"  style="border:solid 2px orange"
-                >
-    <img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309150933147.png"
-                      alt="image-20230913170130306" width="600" height="270px"  style="border:solid 2px orange"
-                >
-</center>
-
-
-<ul>
-<li>打开调试工具查看发送的表单数据，观察发送数据的<code>name</code></li>
-</ul>
-<img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309150933419.png"
-                      width="500px" style="border:solid 2px blue"
-                >
-
-<h3 id="后端接口代码实现"><a href="#后端接口代码实现" class="headerlink" title="后端接口代码实现"></a>后端接口代码实现</h3><ul>
-<li><strong><span style="color:blue">第一种写法：</span></strong></li>
-</ul>
-<p>接口的参数对应表单数据的各项name，文件类型使用<code>MultipartFile</code>接收，若接口参数名与前端发送数据的name一致的时候可以不使用注解<code>@RequestParam</code>对应</p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span>						<span class="comment">//打印日志</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/common&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CommonController</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/upload&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload</span><span class="params">( <span class="meta">@RequestParam(&quot;username&quot;)</span> String username,</span></span><br><span class="line"><span class="params">                                  <span class="meta">@RequestParam(&quot;gender&quot;)</span> Integer gender,</span></span><br><span class="line"><span class="params">                                  <span class="meta">@RequestParam(&quot;introduction&quot;)</span> String introduction,</span></span><br><span class="line"><span class="params">                                  <span class="meta">@RequestParam(&quot;avatar&quot;)</span> String avatar,</span></span><br><span class="line"><span class="params">                                  <span class="meta">@RequestParam(&quot;file&quot;)</span>MultipartFile file)</span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;更新用户名:&#123;&#125;&quot;</span>,username);</span><br><span class="line">        log.info(<span class="string">&quot;更新性别:&#123;&#125;&quot;</span>,gender == <span class="number">1</span>?<span class="string">&#x27;男&#x27;</span>:gender==<span class="number">0</span>?<span class="string">&quot;女&quot;</span>:<span class="string">&quot;保密&quot;</span>);</span><br><span class="line">        log.info(<span class="string">&quot;用户简介:&#123;&#125;&quot;</span>,introduction);</span><br><span class="line">        log.info(<span class="string">&quot;头像地址:&#123;&#125;&quot;</span>,avatar);</span><br><span class="line">        log.info(<span class="string">&quot;接收到文件:&#123;&#125;&quot;</span>,file.toString());</span><br><span class="line">        <span class="keyword">return</span> Result.success(<span class="string">&quot;接收到上传的数据&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
-
-<ul>
-<li><strong><span style="color:blue">第二种写法：</span></strong></li>
-</ul>
-<p>考虑到需要接收的表单数据比较到，直接将所有参数写在接口上会显得代码比较繁琐，因此创建一个DTO来封装数据</p>
-<ol>
-<li><p>创建UploadDTO类</p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Data</span>					<span class="comment">//对所有的数据创建getter和setter</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span>		<span class="comment">//无参构造函数</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span>		<span class="comment">//有参构造函数</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UploadDTO</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String username;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> gender;</span><br><span class="line">    <span class="keyword">private</span> String introduction;</span><br><span class="line">    <span class="keyword">private</span> String avatar;</span><br><span class="line">    <span class="keyword">private</span> MultipartFile file;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
-</li>
-<li><p>使用DTO接收参数</p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@PostMapping(&quot;/upload&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload</span><span class="params">(UploadDTO user)</span>&#123;</span><br><span class="line">	log.info(user.getFile().toString());</span><br><span class="line">	<span class="keyword">return</span> Result.success(<span class="string">&quot;接收到上传的数据&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
-</ol>
-<h2 id="四、将上传的文件保存在本地"><a href="#四、将上传的文件保存在本地" class="headerlink" title="四、将上传的文件保存在本地"></a>四、将上传的文件保存在本地</h2><ol>
-<li><p>在配置文件中配置本地的路径，此处我的配置文件为<code>application.yml</code>，设置了基本路径为<code>D:\\Desktop</code></p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309151210089.png"
-                      alt="image-20230915121019943"
-                ></p>
-</li>
-<li><p>使用注解<code>@Value</code>接收配置文件的数据，并使用<code>UUID生存随机种子(保证文件名唯一)</code>，将上传文件保存到本地</p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/common&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CommonController</span> &#123;</span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;mystudy.basePath&#125;&quot;)</span>		<span class="comment">//@Value接收配置项数据</span></span><br><span class="line">    <span class="keyword">private</span> String basePath;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/upload&quot;)</span>		<span class="comment">//此处DTO对象描述看上文</span></span><br><span class="line">    <span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload</span><span class="params">(UploadDTO user)</span>&#123;</span><br><span class="line">        <span class="comment">//file是一个零时文件，需要转存到指定位置，否则本次请求完成后文件会删除</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//获取源文件的文件名字</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">originalFilename</span> <span class="operator">=</span> user.getFile().getOriginalFilename();</span><br><span class="line">            <span class="comment">//获取源文件的后缀</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">extension</span> <span class="operator">=</span> originalFilename.substring(originalFilename.lastIndexOf(<span class="string">&quot;.&quot;</span>));</span><br><span class="line">            <span class="comment">//根据UUID生成的随机数加上源文件的后缀名生成新的文件名[唯一不重复]</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">newName</span> <span class="operator">=</span> UUID.randomUUID().toString() + extension;</span><br><span class="line">            </span><br><span class="line">			<span class="comment">//创建一个目录对象</span></span><br><span class="line">            <span class="type">File</span> <span class="variable">dir</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(basePath);</span><br><span class="line">            <span class="comment">//判断当前目录是否存在</span></span><br><span class="line">            <span class="keyword">if</span>(!dir.exists()) dir.mkdirs();</span><br><span class="line">            </span><br><span class="line">            <span class="comment">//将临时文件转存到指定位置</span></span><br><span class="line">            user.getFile().transferTo(<span class="keyword">new</span> <span class="title class_">File</span>(basePath+ newName));</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">			log.error(<span class="string">&quot;文件上传失败：&#123;&#125;&quot;</span>,e);</span><br><span class="line">            <span class="keyword">return</span> Result.error(<span class="string">&quot;文件上传失败...&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> Result.success(<span class="string">&quot;成功接收上传数据&quot;</span>);</span><br><span class="line">&#125;&#125;</span><br></pre></td></tr></table></figure></div></li>
-</ol>
-<h2 id="五、配置文件上传选项"><a href="#五、配置文件上传选项" class="headerlink" title="五、配置文件上传选项"></a>五、配置文件上传选项</h2><ul>
-<li>在SpringBoot中，文件上传，默认单个文件允许最大大小为<code>1M</code>.如果需要上传大文件，则进行如下配置</li>
-</ul>
-<div class="highlight-container" data-rel="Yaml"><figure class="iseeu highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 打开application.yml配置文件</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">servlet:</span></span><br><span class="line">    <span class="attr">multipart:</span></span><br><span class="line">      <span class="attr">max-file-size:</span> <span class="string">10MB</span>				<span class="comment">#配置单个文件最大上传大小</span></span><br><span class="line">      <span class="attr">max-request-size:</span> <span class="string">100MB</span>			<span class="comment">#配置单个请求最大上传大小(一次请求可以上传多个文件)</span></span><br></pre></td></tr></table></figure></div>
-
-
-
-<h2 id="六、文件上传阿里云OSS"><a href="#六、文件上传阿里云OSS" class="headerlink" title="六、文件上传阿里云OSS"></a><span style="color:purple">六、文件上传阿里云OSS</span></h2><h3 id="第一步：导入依赖"><a href="#第一步：导入依赖" class="headerlink" title="第一步：导入依赖"></a>第一步：导入依赖</h3><blockquote>
-<p>官方文档地址：<a class="link"   href="https://help.aliyun.com/zh/oss/developer-reference/java-installation?spm=a2c4g.11186623.0.0.13dc3ba3geaLZ3"  style="color:red;font-weight:800">在这里 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
-</blockquote>
-<ul>
-<li>首先导入阿里云的依赖【Java 9版本以上】</li>
-</ul>
-<div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.aliyun.oss<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>aliyun-sdk-oss<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.15.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.xml.bind<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jaxb-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.3.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.activation<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>activation<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.1.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- no more than 2.3.3--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.glassfish.jaxb<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jaxb-runtime<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.3.3<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
-
-<h3 id="第二步：创建数据配置类"><a href="#第二步：创建数据配置类" class="headerlink" title="第二步：创建数据配置类"></a>第二步：创建数据配置类</h3><ol>
-<li><p><strong>现在<code>application.yml</code>文件中写入数据</strong></p>
-<div class="highlight-container" data-rel="Yaml"><figure class="iseeu highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">aliyun:</span></span><br><span class="line">  <span class="attr">oss:</span></span><br><span class="line">    <span class="attr">endpoint:</span> <span class="string">桶子归属地域</span></span><br><span class="line">    <span class="attr">bucketName:</span> <span class="string">桶子的名字</span></span><br><span class="line">    <span class="attr">accessKeyId:</span> <span class="string">自己OSS桶子的accessKeyId</span></span><br><span class="line">    <span class="attr">accessKeySecret:</span> <span class="string">自己桶子的accessKeySecret</span></span><br></pre></td></tr></table></figure></div>
-</li>
-<li><p><strong>创建配置类</strong><code>AliOssProperties</code></p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Data</span>					<span class="comment">//为类添加getter/setter</span></span><br><span class="line"><span class="meta">@Component</span>				<span class="comment">//交给IOC管理</span></span><br><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;aliyun.oss&quot;)</span>			<span class="comment">//将上述前缀为aliyun.oss配置数据匹配</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AliOssProperties</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String endpoint;</span><br><span class="line">    <span class="keyword">private</span> String bucketName;</span><br><span class="line">    <span class="keyword">private</span> String accessKeyId;</span><br><span class="line">    <span class="keyword">private</span> String accessKeySecret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
-</li>
-<li><p><strong>创建实现对象</strong><code>AliOssUtil</code></p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AliOssUtil</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String endpoint;</span><br><span class="line">    <span class="keyword">private</span> String accessKeyId;</span><br><span class="line">    <span class="keyword">private</span> String accessKeySecret;</span><br><span class="line">    <span class="keyword">private</span> String bucketName;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">upload</span><span class="params">(<span class="type">byte</span>[] bytes,String objectName)</span> &#123;</span><br><span class="line">        <span class="type">OSS</span> <span class="variable">ossClient</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">OSSClientBuilder</span>().build(endpoint, accessKeyId, accessKeySecret);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">PutObjectRequest</span> <span class="variable">putObjectRequest</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PutObjectRequest</span>(bucketName, objectName, <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(bytes));</span><br><span class="line">            <span class="type">PutObjectResult</span> <span class="variable">putObjectResult</span> <span class="operator">=</span> ossClient.putObject(putObjectRequest);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (OSSException oe) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;Caught an OSSException, which means your request made it to OSS, &quot;</span></span><br><span class="line">                    + <span class="string">&quot;but was rejected with an error response for some reason.&quot;</span>);</span><br><span class="line">            System.out.println(<span class="string">&quot;Error Message:&quot;</span> + oe.getErrorMessage());</span><br><span class="line">            System.out.println(<span class="string">&quot;Error Code:&quot;</span> + oe.getErrorCode());</span><br><span class="line">            System.out.println(<span class="string">&quot;Request ID:&quot;</span> + oe.getRequestId());</span><br><span class="line">            System.out.println(<span class="string">&quot;Host ID:&quot;</span> + oe.getHostId());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ClientException ce) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;Caught an ClientException, which means the client encountered &quot;</span></span><br><span class="line">                    + <span class="string">&quot;a serious internal problem while trying to communicate with OSS, &quot;</span></span><br><span class="line">                    + <span class="string">&quot;such as not being able to access the network.&quot;</span>);</span><br><span class="line">            System.out.println(<span class="string">&quot;Error Message:&quot;</span> + ce.getMessage());</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (ossClient != <span class="literal">null</span>) &#123;</span><br><span class="line">                ossClient.shutdown();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//文件访问路径规则 https://BucketName.Endpoint/ObjectName</span></span><br><span class="line">        <span class="type">StringBuilder</span> <span class="variable">stringBuilder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>(<span class="string">&quot;https://&quot;</span>);</span><br><span class="line">        stringBuilder</span><br><span class="line">                .append(bucketName)</span><br><span class="line">                .append(<span class="string">&quot;.&quot;</span>)</span><br><span class="line">                .append(endpoint)</span><br><span class="line">                .append(<span class="string">&quot;/&quot;</span>)</span><br><span class="line">                .append(objectName);</span><br><span class="line"></span><br><span class="line">        log.info(<span class="string">&quot;文件上传到:&#123;&#125;&quot;</span>, stringBuilder.toString());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> stringBuilder.toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
-</li>
-<li><p><strong>创建实现对象的”工厂”</strong><code>OSSConfiguration</code></p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OSSConfiguration</span> &#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line">    <span class="keyword">public</span> AliOssUtil <span class="title function_">aliOssUtil</span><span class="params">(AliOssProperties aliOssProperties)</span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;开始创建阿里云上传工具类对象：&#123;&#125;&quot;</span>,aliOssProperties);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">AliOssUtil</span>(aliOssProperties.getEndpoint(),</span><br><span class="line">                aliOssProperties.getAccessKeyId(),</span><br><span class="line">                aliOssProperties.getAccessKeySecret(),</span><br><span class="line">                aliOssProperties.getBucketName());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
-</ol>
-<h3 id="第三步：后端接口代码实现"><a href="#第三步：后端接口代码实现" class="headerlink" title="第三步：后端接口代码实现"></a>第三步：后端接口代码实现</h3><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 进行文件的云上传【阿里云OSS存储】</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/common&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CommonController</span> &#123;</span><br><span class="line">    <span class="meta">@Autowired</span>				<span class="comment">//将OSS配置类导入</span></span><br><span class="line">    <span class="keyword">private</span> AliOssUtil aliOssUtil;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/upload&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Result&lt;String&gt; <span class="title function_">upload_OSS</span><span class="params">(UploadDTO user)</span>&#123;<span class="comment">//此处DTO看上文，上文封装了</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//原始的文件名字</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">originalFilename</span> <span class="operator">=</span> user.getFile().getOriginalFilename();</span><br><span class="line">            <span class="comment">//截取文件名的后缀</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">extension</span> <span class="operator">=</span> originalFilename.substring(originalFilename.lastIndexOf(<span class="string">&quot;.&quot;</span>));</span><br><span class="line">            <span class="comment">//构造新的文件名称</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">newName</span> <span class="operator">=</span> UUID.randomUUID().toString() + extension;</span><br><span class="line">            <span class="comment">//获取返回的文件请求路径</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">filePath</span> <span class="operator">=</span> aliOssUtil.upload(user.getFile().getBytes(), newName);</span><br><span class="line">            <span class="keyword">return</span> Result.success(filePath);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;文件上传失败：&#123;&#125;&quot;</span>,e);</span><br><span class="line">            <span class="keyword">return</span> Result.error(<span class="string">&quot;上传文件失败...&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></div>
-
 ]]></content>
       <categories>
         <category>常见技术问题</category>
@@ -1343,6 +1536,25 @@
       </categories>
       <tags>
         <tag>Java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>测试文章</title>
+    <url>/2023/10/01/%E6%96%87%E7%AB%A0%E5%88%9B%E5%BB%BA%E8%AF%B4%E6%98%8E/</url>
+    <content><![CDATA[<h1 id="测试文章"><a href="#测试文章" class="headerlink" title="测试文章"></a>测试文章</h1><h2 id="文章篇头编辑简介"><a href="#文章篇头编辑简介" class="headerlink" title="文章篇头编辑简介"></a>文章篇头编辑简介</h2><p>使用 <code>cover</code>标签添加图片的链接即可作为文章的首页展示图</p>
+<p>使用 <code>tags</code>给文章添加标签</p>
+<p>使用 <code>categories</code> 来个文章归类</p>
+<p>使用 <code>title</code> 给文章添加标题</p>
+<p>使用 <code>expert</code> 来鬼文章添加首页简要</p>
+<p>使用 <code>date</code> 标注文章发布时间</p>
+]]></content>
+      <categories>
+        <category>测试标签1</category>
+        <category>2标签测试</category>
+      </categories>
+      <tags>
+        <tag>Tag1</tag>
+        <tag>标签2</tag>
       </tags>
   </entry>
 </search>

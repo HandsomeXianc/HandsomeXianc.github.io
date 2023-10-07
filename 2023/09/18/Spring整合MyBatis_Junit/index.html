@@ -13,34 +13,28 @@
     
     <!--- Seo Part-->
     
-    <link rel="canonical" href="http://example.com/2023/10/06/开发规范(swagger)/"/>
+    <link rel="canonical" href="http://example.com/2023/09/18/spring整合mybatis_junit/"/>
     <meta name="robots" content="index,follow">
     <meta name="googlebot" content="index,follow">
     <meta name="revisit-after" content="1 days">
     
-        <meta name="description" content="“使用Swagger创建接口文档,实现在线调试后端&quot;">
+        <meta name="description" content="spring整合mybatis的代码...记录">
 <meta property="og:type" content="article">
-<meta property="og:title" content="开发规范(Swagger) + 接口文档">
-<meta property="og:url" content="http://example.com/2023/10/06/%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83(Swagger)/index.html">
+<meta property="og:title" content="Spring整合Mybatis&#x2F;Junit">
+<meta property="og:url" content="http://example.com/2023/09/18/Spring%E6%95%B4%E5%90%88MyBatis_Junit/index.html">
 <meta property="og:site_name" content="MyBlog">
-<meta property="og:description" content="“使用Swagger创建接口文档,实现在线调试后端&quot;">
+<meta property="og:description" content="spring整合mybatis的代码...记录">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309271337049.png">
-<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309271942376.png">
-<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309271947173.png">
-<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309272000975.png">
-<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309272002932.png">
-<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309272049294.png">
-<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309272049750.png">
-<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309272340913.png">
-<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309272340640.png">
-<meta property="article:published_time" content="2023-10-06T04:00:00.000Z">
-<meta property="article:modified_time" content="2023-10-05T12:25:55.781Z">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202308021214406.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202308021215004.png">
+<meta property="article:published_time" content="2023-09-18T04:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-07T14:42:57.927Z">
 <meta property="article:author" content="忘记中二的少年">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="后端">
+<meta property="article:tag" content="spring全家桶">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309271337049.png">
+<meta name="twitter:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202308021214406.png">
     
     
         <!-- Google tag (gtag.js) -->
@@ -62,7 +56,7 @@
     
     <title>
         
-            开发规范(Swagger) + 接口文档 -
+            Spring整合Mybatis/Junit -
         
         橙留香的blog
     </title>
@@ -378,9 +372,9 @@
             
                 
                 
-                <img src="https://w.wallhaven.cc/full/d6/wallhaven-d6d26m.png" alt="开发规范(Swagger) + 接口文档" class="max-w-none"/>
+                <img src="https://w.wallhaven.cc/full/rr/wallhaven-rr65y1.jpg" alt="Spring整合Mybatis/Junit" class="max-w-none"/>
                 
-                <h1 class="article-title-cover">开发规范(Swagger) + 接口文档</h1>
+                <h1 class="article-title-cover">Spring整合Mybatis/Junit</h1>
             
             </div>
             
@@ -402,15 +396,15 @@
                         <div class="article-meta-info">
     <span class="article-date article-meta-item">
         <i class="fa-regular fa-pen-fancy"></i>&nbsp;
-        <span class="desktop">2023-10-06 12:00</span>
-        <span class="mobile">2023-10-06 12:00</span>
+        <span class="desktop">2023-09-18 12:00</span>
+        <span class="mobile">2023-09-18 12:00</span>
         <span class="hover-info">创建</span>
     </span>
     
         <span class="article-date article-meta-item">
             <i class="fa-regular fa-wrench"></i>&nbsp;
-            <span class="desktop">2023-10-05 20:25:55</span>
-            <span class="mobile">2023-10-05 20:25:55</span>
+            <span class="desktop">2023-10-07 22:42:57</span>
+            <span class="mobile">2023-10-07 22:42:57</span>
             <span class="hover-info">更新</span>
         </span>
     
@@ -424,7 +418,7 @@
                     
                         
                         <li>
-                            <a href="/categories/%E5%B8%B8%E8%A7%81%E6%8A%80%E6%9C%AF%E9%97%AE%E9%A2%98/">常见技术问题</a>&nbsp;
+                            <a href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>&nbsp;
                         </li>
                     
                     
@@ -443,6 +437,10 @@
                 
                     <li>
                         | <a href="/tags/%E5%90%8E%E7%AB%AF/">后端</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        | <a href="/tags/spring%E5%85%A8%E5%AE%B6%E6%A1%B6/">spring全家桶</a>&nbsp;
                     </li>
                 
             </ul>
@@ -468,133 +466,38 @@
 
 
         <div class="article-content markdown-body">
-            <h1 id="开发规范-Swagger-接口文档"><a href="#开发规范-Swagger-接口文档" class="headerlink" title="开发规范(Swagger) + 接口文档"></a>开发规范(Swagger) + 接口文档</h1><blockquote>
-<p>归去来兮辞:japan::japanese_goblin::ice_cream:</p>
-</blockquote>
-<h2 id="前后端开发流程"><a href="#前后端开发流程" class="headerlink" title="前后端开发流程"></a>前后端开发流程</h2><p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309271337049.png"
-                      alt="image-20230927133706958"
-                ></p>
-<hr>
-
-<h2 id="Swagger介绍"><a href="#Swagger介绍" class="headerlink" title="Swagger介绍"></a>Swagger介绍</h2><p>使用Swagger只需要按照它的规范去定义接口以及接口相关的信息，就可以做到生成接口文档，以<span style="color:red">及在线接口调试</span>页面</p>
-<p>官网：<a class="link"   target="_blank" rel="noopener" href="https://swagger.io/" >https://swagger.io/ <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
-<p><b style="color:blue">Knife4j</b>是Java MVC框架集成Swagger生成Api文档的增强解决方案</p>
-<hr>
-
-<h2 id="Swagger使用方式"><a href="#Swagger使用方式" class="headerlink" title="Swagger使用方式"></a>Swagger使用方式</h2><p><strong>在这里引入一点小知识</strong></p>
-<p><code>WebMvcConfigurer</code>和<code> WebMvcConfigurationSupport</code> 都是用来配置 <code>Spring MVC</code>的接口，但是它们有一些不同：</p>
-<ol>
-<li><code>WebMvcConfigurer </code>是一个简单的接口，提供了一组回调方法，用于配置 Spring MVC。您可以实现这个接口并覆盖它的回调方法来配置 Spring MVC。</li>
-<li><code>WebMvcConfigurationSupport </code>是一个特殊的抽象类，实现了 WebMvcConfigurer 接口，并且提供了一组默认实现。您可以扩展这个类并覆盖它的方法来配置 Spring MVC。</li>
-</ol>
-<p><strong>总的来说，如果只需要实现一些简单的配置，可以使用 WebMvcConfigurer；如果需要实现更复杂的配置，则可以扩展 WebMvcConfigurationSupport 类。</strong></p>
-<p><strong>下面是我原来的SpringMVC配置类</strong></p>
-<img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309271942376.png"
-                      alt="image-20230927194154159" style="zoom: 80%;" 
-                >
-
-<p>因为需要加入Swagger所以将<strong>implements WebMVCConfigurer</strong>转为<strong>extend WebMvcConfigurationSupport</strong>并继续下述操作</p>
-<ol>
-<li><p><strong>导入knife4j 的maven坐标</strong></p>
-<div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">   <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.github.xiaoymin<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>knife4j-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">   	<span class="tag">&lt;<span class="name">version</span>&gt;</span>4.3.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">2. **在配置类中加入 Knife4j 相关配置**</span><br><span class="line"></span><br><span class="line">   ~~~java</span><br><span class="line">   @Bean</span><br><span class="line">   public Docket docket() &#123;</span><br><span class="line">   	ApiInfo apiInfo = new ApiInfoBuilder()</span><br><span class="line">   		.title(&quot;接口文档标题&quot;)</span><br><span class="line">   		.version(&quot;2.0&quot;)</span><br><span class="line">   		.description(&quot;接口文档描述&quot;)</span><br><span class="line">   		.build();</span><br><span class="line">   	Docket docket = new Docket(DocumentationType.SWAGGER_2)</span><br><span class="line">   		.apiInfo(apiInfo)</span><br><span class="line">   		.select()</span><br><span class="line">           //指定生成接口需要扫描的包</span><br><span class="line">   		.apis(RequestHandlerSelectors.basePackage(&quot;com.sky.controller&quot;))</span><br><span class="line">   		.paths(PathSelectors.any())</span><br><span class="line">   		.build();</span><br><span class="line">   	return docket;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure></div>
-</li>
-<li><p><strong>设置静态资源映射，否则接口文档页面无法访问</strong></p>
-<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 设置静态资源映射</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> registry</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">addResourceHandlers</span><span class="params">(ResourceHandlerRegistry registry)</span> &#123;</span><br><span class="line">    <span class="comment">//doc.html就是我们接口文档的访问路径 </span></span><br><span class="line">    registry.addResourceHandler(<span class="string">&quot;/doc.html&quot;</span>).addResourceLocations(<span class="string">&quot;classpath:/META-INF/resources/&quot;</span>);</span><br><span class="line">    registry.addResourceHandler(<span class="string">&quot;/webjars/**&quot;</span>).addResourceLocations(<span class="string">&quot;classpath:/META-INF/resources/webjars/&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
-</ol>
-<hr>
-
-<p><strong>配置完之后的SpringMVC配置类应该是这样子的</strong></p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309271947173.png"
-                      alt="image-20230927194748964"
-                ></p>
-<p><strong>启动项目测试是否能打开接口文档</strong>，可以看到接口文档配置成功启动，并且知道SpringBoot项目运行在3000端口</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309272000975.png"
-                      alt="image-20230927200044657"
-                ></p>
-<p>随后打开文档页面，打开浏览器<code>http://localhost:3000/doc.html</code>，可以看到文档页面成功生成啦…</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309272002932.png"
-                      alt="image-20230927200225860"
-                ></p>
-<blockquote>
-<p><strong>注意事项</strong>：</p>
-<p>若是打不开页面，检查是否因为</p>
-<ol>
-<li>过滤器导致页面无法访问</li>
-<li>路由重定向？【可能出现，概率小，几乎不存在】</li>
-<li>knife4j没有配置好</li>
-</ol>
-</blockquote>
-<h2 id="Swagger常用注解"><a href="#Swagger常用注解" class="headerlink" title="Swagger常用注解"></a>Swagger常用注解</h2><ul>
-<li><strong>通过注解可以控制生成的接口文档，使接口文档拥有更好的可读性，常用注解如下：</strong></li>
+            <h1 id="Spring整合Mybatis-Junit"><a href="#Spring整合Mybatis-Junit" class="headerlink" title="Spring整合Mybatis&#x2F;Junit"></a>Spring整合Mybatis&#x2F;Junit</h1><ul>
+<li><h4 id="原生Mybatis的XML配置文件"><a href="#原生Mybatis的XML配置文件" class="headerlink" title="原生Mybatis的XML配置文件"></a><strong>原生Mybatis的XML配置文件</strong></h4></li>
 </ul>
-<table>
-<thead>
-<tr>
-<th align="center">注解</th>
-<th align="center">说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center"><code>@Api</code></td>
-<td align="center">用在类上，例如Controller，表示对类的说明</td>
-</tr>
-<tr>
-<td align="center"><code>@ApiModel</code></td>
-<td align="center">用在类上，例如entity、DTO、VO</td>
-</tr>
-<tr>
-<td align="center"><code>@ApiModelProperty</code></td>
-<td align="center">用在属性上，描述属性信息</td>
-</tr>
-<tr>
-<td align="center"><code>ApiOperation</code></td>
-<td align="center">用在方法上，例如Controller的方法，说明方法的用途、作用</td>
-</tr>
-</tbody></table>
-<p><strong>示例：</strong></p>
-<p><b style="color:blue">我对如下类、方法、数据模型、模型元数据进行了Api注解</b></p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309272049294.png"
-                      alt="image-20230927204609455"
-                ></p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309272049750.png"
-                      alt="image-20230927204559391"
-                ></p>
-<p><strong>启动项目，查看接口文档的变化，首先查看不添加注释的API文档</strong></p>
-<img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309272340913.png"
-                      alt="image-20230927234043798" style="zoom: 50%;" 
-                >
+<div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span> ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">configuration</span></span></span><br><span class="line"><span class="meta">        <span class="keyword">PUBLIC</span> <span class="string">&quot;-//mybatis.org//DTD Config 3.0//EN&quot;</span></span></span><br><span class="line"><span class="meta">        <span class="string">&quot;https://mybatis.org/dtd/mybatis-3-config.dtd&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">properties</span> <span class="attr">resource</span>=<span class="string">&quot;jdbc.properties&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">typeAliases</span>&gt;</span></span><br><span class="line">    	<span class="tag">&lt;<span class="name">package</span> <span class="attr">name</span>=<span class="string">&quot;com.itheima.domain&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">typeAliases</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">environments</span> <span class="attr">default</span>=<span class="string">&quot;development&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">environment</span> <span class="attr">id</span>=<span class="string">&quot;development&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">transactionManager</span> <span class="attr">type</span>=<span class="string">&quot;JDBC&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dataSource</span> <span class="attr">type</span>=<span class="string">&quot;POOLED&quot;</span>&gt;</span></span><br><span class="line">                <span class="comment">&lt;!--数据库连接信息--&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;driver&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.Driver&#125;&quot;</span>/&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;url&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.url&#125;&quot;</span>/&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;username&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.username&#125;&quot;</span>/&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;password&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.password&#125;&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dataSource</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">environment</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">environments</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mappers</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--加载sql的映射文件--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">mapper</span> <span class="attr">resource</span>=<span class="string">&quot;UserMapper.xml&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">mappers</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
 
-<p><strong>添加注解后的生成的API文档更容易阅读</strong></p>
-<img  
+<h2 id="Spring整合MyBatis"><a href="#Spring整合MyBatis" class="headerlink" title="Spring整合MyBatis"></a>Spring整合MyBatis</h2><ol>
+<li><h4 id="第一步：添加对应的坐标"><a href="#第一步：添加对应的坐标" class="headerlink" title="第一步：添加对应的坐标"></a>第一步：<strong>添加对应的坐标</strong></h4><div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- Spring的坐标【Spring技术的核心】 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-context<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.2.10.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- druid数据连接池 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>druid<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.1.16<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- MyBatis的坐标 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.5.6<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- mysql的坐标 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.1.47<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- Spring操作数据库专用的包坐标 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-jdbc<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.2.10.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- Spring整合Mybatis的包坐标【版本号要与mybatis版本对应】 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-spring<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.3.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+</li>
+<li><h4 id="第二步：创建外部配置文件【jdbc-properties】"><a href="#第二步：创建外部配置文件【jdbc-properties】" class="headerlink" title="第二步：创建外部配置文件【jdbc.properties】"></a>第二步：<strong>创建外部配置文件【jdbc.properties】</strong></h4><div class="highlight-container" data-rel="Properties"><figure class="iseeu highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">jdbc.driver</span>=<span class="string">com.mysql.jdbcDriver</span></span><br><span class="line"><span class="attr">jdbc.url</span>=<span class="string">jdbc.mysql://127.0.0.1:3306/spring_db</span></span><br><span class="line"><span class="attr">jdbc.username</span>=<span class="string">root</span></span><br><span class="line"><span class="attr">jdbc.password</span>=<span class="string">123456</span></span><br></pre></td></tr></table></figure></div>
+</li>
+<li><h4 id="第三步：创建数据源配置类【JdbcConfig-java】"><a href="#第三步：创建数据源配置类【JdbcConfig-java】" class="headerlink" title="第三步：创建数据源配置类【JdbcConfig.java】"></a>第三步：<strong>创建数据源配置类【JdbcConfig.java】</strong></h4><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JdbcConfig</span>&#123;</span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;jdbc.driver&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String driver;</span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;jdbc.url&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String url;</span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;jdbc.username&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String username;</span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;jdbc.password&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String password;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> DataSource <span class="title function_">dataSource</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">DruidDataSource</span> <span class="variable">ds</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">DruidDataSource</span>();</span><br><span class="line">        ds.setDriverClassName(driver);</span><br><span class="line">        ds.setUrl(url);</span><br><span class="line">        ds.setUsername(username);</span><br><span class="line">        ds.setPassword(password);</span><br><span class="line">        <span class="keyword">return</span> ds;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+</li>
+<li><h4 id="第四步：创建配置类【SpringConfig-java】"><a href="#第四步：创建配置类【SpringConfig-java】" class="headerlink" title="第四步：创建配置类【SpringConfig.java】"></a>第四步：<strong>创建配置类【SpringConfig.java】</strong></h4><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span>						<span class="comment">//声明为Spring的配置类</span></span><br><span class="line"><span class="meta">@ComponentScan(&quot;com.itheima&quot;)</span>					<span class="comment">//bean的扫描</span></span><br><span class="line"><span class="meta">@PropertySource(&quot;classpath:jdbc.properties&quot;)</span>		<span class="comment">//扫描外部配置文件</span></span><br><span class="line"><span class="meta">@Import(&#123;JdbcConfig.class,MybatisConfig.class&#125;)</span>				<span class="comment">//第三方的bean管理</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SpringConfig</span>&#123;&#125;</span><br></pre></td></tr></table></figure></div>
+</li>
+<li><h4 id="第五步：创建一个Mybatis的配置类用于管理第三方-Mybatis-的bean【MybatisConfig-java】代替原生Mybatis的xml配置文件"><a href="#第五步：创建一个Mybatis的配置类用于管理第三方-Mybatis-的bean【MybatisConfig-java】代替原生Mybatis的xml配置文件" class="headerlink" title="第五步：创建一个Mybatis的配置类用于管理第三方(Mybatis)的bean【MybatisConfig.java】代替原生Mybatis的xml配置文件"></a>第五步：<strong>创建一个Mybatis的配置类用于管理第三方(Mybatis)的bean【MybatisConfig.java】代替原生Mybatis的xml配置文件</strong></h4><p><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309272340640.png"
-                      alt="image-20230927234052570" style="zoom:50%;" 
-                >
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202308021214406.png"
+                      alt="image-20230802121432063"
+                ><br><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202308021215004.png"
+                      alt="image-20230802121512784"
+                ></p>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MybatisConfig</span>&#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> SqlSessionFactoryBean <span class="title function_">sqlSessionFactory</span><span class="params">(DataSource dataSource)</span>&#123;</span><br><span class="line">        <span class="type">SqlSessionFactoryBean</span> <span class="variable">ssfb</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SqlSessionFactoryBean</span>();</span><br><span class="line">        ssfb.setTypeAliasesPackage(<span class="string">&quot;com.itheima.domian&quot;</span>);<span class="comment">//原生XML配置的&lt;typeAliases&gt;标签</span></span><br><span class="line">        ssfb.setDataSource(dataSource);<span class="comment">//原生XML配置的&lt;dataSource&gt;标签</span></span><br><span class="line">        <span class="keyword">return</span> ssfb;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> MapperScannerConfigurer <span class="title function_">mapperScannerConfiguree</span><span class="params">()</span>&#123;	<span class="comment">//原生XML配置的mapper映射标签</span></span><br><span class="line">        <span class="type">MapperScannerConfigurer</span> <span class="variable">msc</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MapperScannerConfigurer</span>();</span><br><span class="line">        msc.setBasePackage(<span class="string">&quot;com.itheima.dao&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> msc;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
+</ol>
+<h2 id="Spring整合Junit"><a href="#Spring整合Junit" class="headerlink" title="Spring整合Junit"></a>Spring整合Junit</h2><ol>
+<li><h4 id="添加对应的坐标"><a href="#添加对应的坐标" class="headerlink" title="添加对应的坐标"></a>添加对应的坐标</h4><div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.12<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.2.10.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+</li>
+<li><h4 id="创建测试类【MyTestClass-java】"><a href="#创建测试类【MyTestClass-java】" class="headerlink" title="创建测试类【MyTestClass.java】"></a>创建测试类【MyTestClass.java】</h4><div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RunWith(SpringJUnit4ClassRunner.class)</span>			<span class="comment">//Spring整合JUnit专用的类加载器</span></span><br><span class="line"><span class="meta">@ContextConfiguration(classes = SpringConfig.class)</span>		<span class="comment">//指定Spring上下文配置</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AccountServiceTest</span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">	<span class="keyword">private</span> MyService myservice;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">myTestOne</span><span class="params">()</span>&#123; <span class="comment">/*函数实现*/</span>  	&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></li>
+</ol>
 
         </div>
 
@@ -602,18 +505,18 @@
             <div class="post-copyright-info">
                 <div class="article-copyright-info-container">
     <ul>
-        <li><strong>标题:</strong> 开发规范(Swagger) + 接口文档</li>
+        <li><strong>标题:</strong> Spring整合Mybatis/Junit</li>
         <li><strong>作者:</strong> 忘记中二的少年</li>
         <li><strong>创建于
-                :</strong> 2023-10-06 12:00:00</li>
+                :</strong> 2023-09-18 12:00:00</li>
         
             <li>
                 <strong>更新于
-                    :</strong> 2023-10-05 20:25:55
+                    :</strong> 2023-10-07 22:42:57
             </li>
         
         <li>
-            <strong>链接:</strong> https://github.com/HandsomeXianc/HandsomeXianc.github.io/2023/10/06/开发规范(Swagger)/
+            <strong>链接:</strong> https://github.com/HandsomeXianc/HandsomeXianc.github.io/2023/09/18/Spring整合MyBatis_Junit/
         </li>
         <li>
             <strong>
@@ -641,6 +544,10 @@
                         <a href="/tags/%E5%90%8E%E7%AB%AF/">#后端</a>&nbsp;
                     </li>
                 
+                    <li class="tag-item">
+                        <a href="/tags/spring%E5%85%A8%E5%AE%B6%E6%A1%B6/">#spring全家桶</a>&nbsp;
+                    </li>
+                
             </ul>
         
 
@@ -652,13 +559,13 @@
                     <div class="article-prev">
                         <a class="prev"
                         rel="prev"
-                        href="/2023/10/07/Redis%E5%9F%BA%E7%A1%80/"
+                        href="/2023/09/28/%E8%A7%A3%E5%86%B3Vue3%E8%B7%A8%E5%9F%9F%E9%97%AE%E9%A2%98/"
                         >
                             <span class="left arrow-icon flex justify-center items-center">
                                 <i class="fa-solid fa-chevron-left"></i>
                             </span>
                             <span class="title flex justify-center items-center">
-                                <span class="post-nav-title-item">Redis入门</span>
+                                <span class="post-nav-title-item">解决Vue3跨域问题</span>
                                 <span class="post-nav-item">上一篇</span>
                             </span>
                         </a>
@@ -668,10 +575,10 @@
                     <div class="article-next">
                         <a class="next"
                         rel="next"
-                        href="/2023/10/05/%E7%99%BB%E5%BD%95%E8%AE%A4%E8%AF%81%E3%80%8AJWT+Filter+Interceptor%E3%80%8B/"
+                        href="/2023/09/17/Git%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/"
                         >
                             <span class="title flex justify-center items-center">
-                                <span class="post-nav-title-item">登录认证《JWT+Filter+Interceptor》</span>
+                                <span class="post-nav-title-item">Git操作入门</span>
                                 <span class="post-nav-item">下一篇</span>
                             </span>
                             <span class="right arrow-icon flex justify-center items-center">
@@ -692,8 +599,8 @@
             <div class="post-toc-wrap">
     <div class="post-toc">
         <div class="toc-title">此页目录</div>
-        <div class="page-title">开发规范(Swagger) + 接口文档</div>
-        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83-Swagger-%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3"><span class="nav-text">开发规范(Swagger) + 接口文档</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91%E6%B5%81%E7%A8%8B"><span class="nav-text">前后端开发流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Swagger%E4%BB%8B%E7%BB%8D"><span class="nav-text">Swagger介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Swagger%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="nav-text">Swagger使用方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Swagger%E5%B8%B8%E7%94%A8%E6%B3%A8%E8%A7%A3"><span class="nav-text">Swagger常用注解</span></a></li></ol></li></ol>
+        <div class="page-title">Spring整合Mybatis/Junit</div>
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring%E6%95%B4%E5%90%88Mybatis-Junit"><span class="nav-text">Spring整合Mybatis&#x2F;Junit</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring%E6%95%B4%E5%90%88MyBatis"><span class="nav-text">Spring整合MyBatis</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring%E6%95%B4%E5%90%88Junit"><span class="nav-text">Spring整合Junit</span></a></li></ol></li></ol>
 
     </div>
 </div>
