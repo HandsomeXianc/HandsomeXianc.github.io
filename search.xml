@@ -1557,4 +1557,570 @@
         <tag>标签2</tag>
       </tags>
   </entry>
+  <entry>
+    <title>2021-xv6实验记录(一)</title>
+    <url>/2023/10/11/xv6%E5%AE%9E%E9%AA%8C%E8%AE%B0%E5%BD%95(%E4%B8%80)/</url>
+    <content><![CDATA[<h2 id="一、实验目的："><a href="#一、实验目的：" class="headerlink" title="一、实验目的："></a>一、实验目的：</h2><ol>
+<li>借助Linux操作系统和qemu模拟器完成xv6平台的搭建</li>
+<li>熟悉Linux一些命令的操作，熟悉vim的使用，会借助vim进行一些程序的编写并交入xv6中执行。</li>
+<li>认识操作系统中的一些运行机理例如管道等。</li>
+</ol>
+<h2 id="二、实验内容："><a href="#二、实验内容：" class="headerlink" title="二、实验内容："></a>二、实验内容：</h2><ol>
+<li>完成xv6平台的搭建。</li>
+<li>完成sleep.c程序的编写。</li>
+<li>完成pingpong.c程序的编写。</li>
+<li>完成primes.c程序的编写。</li>
+</ol>
+<h2 id="三、实验平台的搭建【VMWare-Ubuntu-qemu-xv6】"><a href="#三、实验平台的搭建【VMWare-Ubuntu-qemu-xv6】" class="headerlink" title="三、实验平台的搭建【VMWare + Ubuntu + qemu + xv6】"></a>三、实验平台的搭建【VMWare + Ubuntu + qemu + xv6】</h2><ol>
+<li><p><strong>安装VMWare</strong></p>
+<p>官网在这：《<a class="link"   href="https://www.vmware.com/jp.html" >VMWare的官网 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>》。找寻CSDN其他文章，傻瓜式安装即可</p>
+</li>
+<li><p><strong>安装Ubuntu</strong></p>
+<p>这里需要注意，装载的ubuntu镜像文件最好选择最新的20版本，如果选用老版本是无法直接安装qemu直接跑的，可能会有一些奇奇怪怪的问题，所以直接选用最新的版本，点击此处链接《 <a class="link"   href="https://mirrors.aliyun.com/ubuntu-releases/20.04/" >20版本的Ubuntu镜像文件 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>》进去链接下载后缀为iso的文件即可。【配置镜像文件到VMWare还是找CSDN傻瓜式配置即可】</p>
+</li>
+<li><p><strong>安装qemu</strong></p>
+<p>先检测当前Ubuntu的版本是否可用，输入<code>ctrl+alt+T</code>打开终端输入指令</p>
+<div class="highlight-container" data-rel="Cmd"><figure class="iseeu highlight cmd"><table><tr><td class="code"><pre><span class="line">cat /etc/debian_version</span><br></pre></td></tr></table></figure></div>
+
+<p>如果显示的是，就说明没有问题</p>
+<div class="highlight-container" data-rel="Cmd"><figure class="iseeu highlight cmd"><table><tr><td class="code"><pre><span class="line">bullseye/sid</span><br></pre></td></tr></table></figure></div>
+
+<p>若是显示如下，则说明要去更新版本了</p>
+<div class="highlight-container" data-rel="Cmd"><figure class="iseeu highlight cmd"><table><tr><td class="code"><pre><span class="line">buster/...</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>1.升级apt并更换虚拟机的服务器镜像</strong>：输入如下指令</p>
+<div class="highlight-container" data-rel="Cmd"><figure class="iseeu highlight cmd"><table><tr><td class="code"><pre><span class="line">sudo apt update</span><br></pre></td></tr></table></figure></div>
+
+<p><em><strong>2.换阿里的源</strong></em>：在Ubuntu20.04.3桌面版中，点击左下角“显示应用程序”，搜索“软件和更新”，点击进入。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182028585.png"
+                      alt="image-20230918202626239"
+                ></p>
+<p><strong>3.在“软件与更新”界面中的“Ubuntu软件”一栏， 选择“下载自”下拉菜单中的“其他站点”。</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182031280.png"
+                      alt="image-20230918203121201"
+                ></p>
+<p>然后点击“选择最佳服务器”，系统会自动测试下载的服务器，等待一段时间后，选择系统给出的镜像服务器，软件源修改完成。【使用阿里云的够了】</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182034263.png"
+                      alt="image-20230918203337697"
+                ></p>
+<p><strong>4. 使用命令下载前置相关包</strong></p>
+<p>这些包是要运行qemu不可或缺的前置组件[<a class="link"   href="https://zhuanlan.zhihu.com/p/267159664#ref_6" >6] <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>，直接打开命令行终端复制粘贴运行即可安装。注意，这里安装包能否成功运行是和你的ubuntu版本有关系的</p>
+<div class="highlight-container" data-rel="Cmd"><figure class="iseeu highlight cmd"><table><tr><td class="code"><pre><span class="line">sudo apt-get install autoconf automake autotools-dev curl libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>5. 安装riscv64-unknown-elf-gcc</strong></p>
+<div class="highlight-container" data-rel="Cmd"><figure class="iseeu highlight cmd"><table><tr><td class="code"><pre><span class="line">sudo apt install riscv64-unknown-elf-gcc</span><br></pre></td></tr></table></figure></div>
+
+<p><em><strong>6. 安装xv6</strong></em></p>
+<p>检查前面的组件是否安装成功…</p>
+<div class="highlight-container" data-rel="Cmd"><figure class="iseeu highlight cmd"><table><tr><td class="code"><pre><span class="line">riscv64-unknown-elf-gcc --version</span><br><span class="line">qemu-system-riscv64 --version</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>克隆xv6的源码仓库</strong></p>
+<div class="highlight-container" data-rel="Cmd"><figure class="iseeu highlight cmd"><table><tr><td class="code"><pre><span class="line">git clone git://github.com/mit-pdos/xv6-riscv.git</span><br></pre></td></tr></table></figure></div>
+
+<p>7.<strong>使用</strong></p>
+<p>先打开上述步骤中git clone下来的库，名称应该是xv6-riscv，cd进去，然后输入指令：</p>
+<div class="highlight-container" data-rel="Cmd"><figure class="iseeu highlight cmd"><table><tr><td class="code"><pre><span class="line">make</span><br></pre></td></tr></table></figure></div>
+
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182038549.png"
+                      alt="image-20230918203857506" style="zoom: 67%;" 
+                >
+
+<p>输入以后你应该会看到一大堆输出，这里表示我们的xv6系统正在编译</p>
+<p>在这些输出完成以后，输入指令：</p>
+<div class="highlight-container" data-rel="Cmd"><figure class="iseeu highlight cmd"><table><tr><td class="code"><pre><span class="line">make qemu</span><br></pre></td></tr></table></figure></div>
+
+<p>编译我们的qemu系统，输出如下：</p>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182040325.png"
+                      alt="image-20230918204022277" style="zoom:67%;" 
+                >
+
+<p>最后如果看到终端显示出：init: starting sh，如下图：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182041488.png"
+                      alt="image-20230918204114449"
+                ></p>
+<p>这就说明我们的安装成功啦，可以愉快地完成后续的任务了，还可以再输入ls验证一下：</p>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182042046.png"
+                      alt="image-20230918204203012" style="zoom:67%;" 
+                ></li>
+</ol>
+<h2 id="3-1、Sleep（easy）"><a href="#3-1、Sleep（easy）" class="headerlink" title="3.1、Sleep（easy）"></a>3.1、Sleep（easy）</h2><h3 id="编写前提示"><a href="#编写前提示" class="headerlink" title="编写前提示"></a>编写前提示</h3><ul>
+<li>开始编码之前，请阅读xv6手册第一章</li>
+<li>查看文件夹<code>user/</code>中的一些其他程序（例如：<code>user/echo.c</code>、<code>user/grep.c</code>、<code>user/rm.c</code>）了解如何将获得的命令行参数传递给程序</li>
+<li>若用户忘记传递参数，sleep程序应该打印一条错误的提示信息</li>
+<li>命令行参数作为字符串传递，应使用<code>atoi</code>函数将其转为整数（具体查看<b style="color:red">user&#x2F;ulib.c中的atoi函数</b>）</li>
+<li>参阅睡眠系统调用的xv6内核代码<code>kernel/sysproc.c</code>（<strong style="color:red">sys_sleep</strong>函数）</li>
+<li>确保main中调用<code>exit()</code>以退出程序</li>
+</ul>
+<h3 id="编写后提示"><a href="#编写后提示" class="headerlink" title="编写后提示"></a>编写后提示</h3><p>假设你编写的程序名为“sleep.c”。在编写完成后：</p>
+<ol>
+<li>请将<strong>“sleep.c”拷贝至 xv6 源码目录下的 user&#x2F;文件夹下</strong></li>
+<li>然后在 xv6 源码根目录下的 <code>Makefile </code>文件里，找到关键字<b style="color:red">UPROGS&#x3D;\</b>（可能<br>是第 179 行左右）,在其下面列出的多个以<code>&amp;U</code>开头的字符串的下方（可能是<br>第 195 行左右），添加一行<b style="color:red">&amp;U&#x2F;_sleep\</b>，并保存；</li>
+<li>回到 xv6 的源码目录的根目录下，敲<code>make qemu</code>，以让 <code>sleep.c </code>得以编译并<br>在 xv6 内部形成可执行程序；</li>
+<li>顺利进入到 xv6 的终端后，敲<code>“./sleep 5”</code>;</li>
+</ol>
+<h3 id="了解命令行如何传参"><a href="#了解命令行如何传参" class="headerlink" title="了解命令行如何传参"></a>了解命令行如何传参</h3><p><strong>查看源文件 echo 了解一下如何传递参数</strong></p>
+<ul>
+<li>查看此文件了解如何进行传递参数</li>
+</ul>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">//echo.c源文件</span></span><br><span class="line"> </span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kernel/types.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kernel/stat.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;user/user.h&quot;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span>&#123;</span><br><span class="line">  <span class="type">int</span> i;</span><br><span class="line">  <span class="keyword">for</span>(i = <span class="number">1</span>; i &lt; argc; i++)&#123;</span><br><span class="line">    <span class="built_in">write</span>(<span class="number">1</span>, argv[i], <span class="built_in">strlen</span>(argv[i]));</span><br><span class="line">    <span class="keyword">if</span>(i + <span class="number">1</span> &lt; argc)&#123;</span><br><span class="line">      <span class="built_in">write</span>(<span class="number">1</span>, <span class="string">&quot; &quot;</span>, <span class="number">1</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="built_in">write</span>(<span class="number">1</span>, <span class="string">&quot;\n&quot;</span>, <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p>通过上述<code>echo.c</code>源码文件，了解到参数作用：</p>
+<ol>
+<li><code>argc</code>：表示的是命令行<strong>总的参数个数</strong></li>
+<li><code>argv</code>：数组类型，按序保存了接收的所有参数，其中<strong>第 0 个是程序的全名</strong>，之后的参数就是用户输入的参数</li>
+<li><code>write函数</code>：该函数接收三个参数<ul>
+<li>第一个参数：0 表示 stdin，1 表示 stdout ，2 表示 stderr</li>
+<li>第二个参数：输出的内容</li>
+<li>第三个参数：输出内容的长度</li>
+</ul>
+</li>
+</ol>
+<p><strong>在命令行使用echo程序得到结果：</strong></p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">[roc@roclinux ~]$ echo &#x27;Hello World&#x27;			//输入</span><br><span class="line">Hello World										//输出</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h3 id="字符串转为整数（atoi函数）"><a href="#字符串转为整数（atoi函数）" class="headerlink" title="字符串转为整数（atoi函数）"></a>字符串转为整数（atoi函数）</h3><div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// atoi函数的源码</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">atoi</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *s)</span></span>&#123;</span><br><span class="line">  <span class="type">int</span> n;</span><br><span class="line">  n = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">while</span>(<span class="string">&#x27;0&#x27;</span> &lt;= *s &amp;&amp; *s &lt;= <span class="string">&#x27;9&#x27;</span>)</span><br><span class="line">    n = n*<span class="number">10</span> + *s++ - <span class="string">&#x27;0&#x27;</span>;</span><br><span class="line">  <span class="keyword">return</span> n;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h3 id="编写Sleep"><a href="#编写Sleep" class="headerlink" title="编写Sleep"></a>编写Sleep</h3><div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kernel/types.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kernel/stat.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;user/user.h&quot;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="type">int</span></span></span><br><span class="line"><span class="function"><span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span>&#123;</span><br><span class="line">  <span class="keyword">if</span>(argc != <span class="number">2</span>)&#123;				<span class="comment">//上述提到，这是参数总数，第一个是程序名字，第二个开始是用户输入的参数</span></span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="number">2</span>, <span class="string">&quot;Error: please input one parameter..\n&quot;</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="type">int</span> time = <span class="built_in">atoi</span>(argv[<span class="number">1</span>]);</span><br><span class="line">  <span class="built_in">sleep</span>(time);			<span class="comment">//此处是xv内核 sys_sleep 函数的调用</span></span><br><span class="line">  <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<hr>
+
+<h2 id="3-2、pingpong（easy）"><a href="#3-2、pingpong（easy）" class="headerlink" title="3.2、pingpong（easy）"></a>3.2、pingpong（easy）</h2><p>该实验是一个典型的进程间通信应用。它的运行逻辑是：父进程使用<code>fork()</code>系统调用，创建一个子进程，然后使用管道<code>pipe</code>，在两者之间进行通信。</p>
+<h3 id="编写前提示-1"><a href="#编写前提示-1" class="headerlink" title="编写前提示"></a>编写前提示</h3><ul>
+<li>实验之前，建议在网络上了解 <b style="color:blue">fork、pipe、write、read、getpid</b>函数的作用</li>
+<li>使用<b style="color:red">pipe</b>创建管道</li>
+<li>使用<b style="color:red">fork</b>创建子进程</li>
+<li>使用<b style="color:red">read</b>读取pipe，并使用<b style="color:red">write</b>写入pipe</li>
+<li>使用<b style="color:red">getpid</b>查找调用进程的进程ID</li>
+<li>程序编写完成后，参考上述Sleep实验的程序编译部分，把 pingpong 程序放到对应的 xv6<br>源码目录，然后修改 Makefile 文件，再编译运行</li>
+</ul>
+<hr>
+
+<h4 id="fork函数"><a href="#fork函数" class="headerlink" title="fork函数"></a>fork函数</h4><ul>
+<li>fork创建一个子进程并完全复制父进程，且<b style="color:red">子进程是从fork后面的指令开始执行的。</b></li>
+</ul>
+<p>为已存在的进程创建一个子进程，而原进程称为父进程。调用该函数后，内核开始分配新的内存块和内核数据结构给子进程。</p>
+<p><strong>特点：</strong></p>
+<ol>
+<li>调用一次，返回两次并发执行</li>
+<li>有独立使用的地址空间</li>
+<li>函数fork返回值：向父进程返回子进程的ID，向子进程返回 0<ul>
+<li>在父进程中，fork() 返回新创建子进程的进程pid；</li>
+<li>在子进程中，fork() 返回0；</li>
+<li>如果出现错误，fork() 返回一个负值；</li>
+</ul>
+</li>
+<li>不同的进程有一个<strong>唯一</strong>的不同进程pid，通过 getpid() 函数可以知道当前进程pid，可以说我们就是通过这个pid知道当前所在进程。</li>
+</ol>
+<p><strong>fork 调用失败的原因：</strong></p>
+<ol>
+<li>系统中有太多进程。</li>
+<li>实际用户的进程数超过限制。</li>
+</ol>
+<blockquote>
+<p>每个进程各自有<b style="color:red">不同的用户地址空间</b>,任何一个进程的全局变量在另一个进程中都看不到，所以<b style="color:blue">进程之间要交换数据必须通过内核</b>,在内核中开辟一块缓冲区,进程A把数据从用户空间拷到内核缓冲区,进程B再从内核缓冲区把数据读走,内核提供的这种机制称为进程间通信。 </p>
+</blockquote>
+<hr>
+
+<h4 id="pipe函数"><a href="#pipe函数" class="headerlink" title="pipe函数"></a>pipe函数</h4><p><code>pipe()</code> 函数是一个用于创建无名管道</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">pipe</span><span class="params">(<span class="type">int</span> pipefd[<span class="number">2</span>])</span></span>;		<span class="comment">//函数原型</span></span><br></pre></td></tr></table></figure></div>
+
+<p><strong>参数：</strong></p>
+<ul>
+<li><p><code>pipefd[2]</code>：一个整数数组，包含了两个文件描述符。</p>
+<p><strong>文件描述符是操作系统中用于标识和操作文件或I&#x2F;O资源的抽象概念。它是一个非负整数，通常作为索引或句柄，用于访问文件、套接字、管道和其他I&#x2F;O设备。</strong></p>
+</li>
+<li><p><code>pipefd[0]</code> 用于读取，<code>pipefd[1]</code> 用于写入。</p>
+</li>
+</ul>
+<p><strong>返回值：</strong></p>
+<ul>
+<li>成功时返回0。</li>
+<li>失败时返回-1，并设置 <code>errno</code> 来指示错误的原因。</li>
+</ul>
+<p><strong>那么管道如何实现进程间的通信？</strong></p>
+<ol>
+<li>父进程创建管道，得到两个⽂件描述符指向管道的两端</li>
+<li>父进程fork出子进程，⼦进程也有两个⽂件描述符指向同⼀管道。</li>
+<li>《0-读，1-写》父进程关闭pipefd[0],子进程关闭pipefd[1]，即⽗进程关闭管道读端,⼦进程关闭管道写端（因为管道只支持单向通信）。⽗进程可以往管道⾥写,⼦进程可以从管道⾥读,管道是⽤环形队列实现的,数据从写端流⼊从读端流出,这样就实现了进程间通信。</li>
+</ol>
+<p><strong>需要使用的函数已经在前置知识有介绍，知识略浅，需要在网络上了解更多详细知识，此处不在赘述</strong></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kernel/types.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kernel/stat.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;user/user.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc,<span class="type">char</span> *argv[])</span></span>&#123;</span><br><span class="line">    <span class="type">int</span> parent_fd[<span class="number">2</span>];</span><br><span class="line">    <span class="type">int</span> child_fd[<span class="number">2</span>];</span><br><span class="line">    <span class="comment">//调用函数创建管道,并判断是否创建成功</span></span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">pipe</span>(parent_fd) == <span class="number">-1</span>)<span class="built_in">printf</span>(<span class="string">&quot;Error: parernt_pipe not create...&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span>(<span class="built_in">pipe</span>(child_fd) == <span class="number">-1</span>)<span class="built_in">printf</span>(<span class="string">&quot;Error: child_pipe not create...&quot;</span>);</span><br><span class="line">    <span class="comment">//创建子进程,获取进程ID</span></span><br><span class="line">    <span class="type">int</span> pid = fork();</span><br><span class="line">    <span class="comment">//创建数据容器,保存数据</span></span><br><span class="line">    <span class="type">char</span> buf[<span class="number">64</span>];</span><br><span class="line">    <span class="keyword">if</span>(pid == <span class="number">0</span>)&#123;<span class="comment">//获取的PID == 0时为子进程</span></span><br><span class="line">        <span class="built_in">read</span>(parent_fd[<span class="number">0</span>],buf,<span class="number">4</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%d: reacive %s\n&quot;</span>,<span class="built_in">getpid</span>(),buf);</span><br><span class="line">        <span class="built_in">write</span>(child_fd[<span class="number">1</span>],<span class="string">&quot;ping&quot;</span>,<span class="built_in">strlen</span>(<span class="string">&quot;ping&quot;</span>));</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="comment">//PID != 0 时为父进程</span></span><br><span class="line">        <span class="built_in">write</span>(parent_fd[<span class="number">1</span>],<span class="string">&quot;pang&quot;</span>,<span class="built_in">strlen</span>(<span class="string">&quot;pang&quot;</span>));</span><br><span class="line">        <span class="built_in">read</span>(child_fd[<span class="number">0</span>],buf,<span class="number">4</span>);</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;%d: reacive %s\n&quot;</span>,<span class="built_in">getpid</span>(),buf);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">close</span>(parent_fd[<span class="number">0</span>]);</span><br><span class="line">    <span class="built_in">close</span>(parent_fd[<span class="number">1</span>]);</span><br><span class="line">    <span class="built_in">close</span>(child_fd[<span class="number">0</span>]);</span><br><span class="line">    <span class="built_in">close</span>(child_fd[<span class="number">1</span>]);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<blockquote>
+<p><strong>注意进程死锁，上述if - else中的读和写语句要错位，如果两个进程一开始都是读文件，即会造成进程死锁</strong></p>
+</blockquote>
+<h2 id="3-3、质数primes"><a href="#3-3、质数primes" class="headerlink" title="3.3、质数primes"></a>3.3、质数primes</h2><h3 id="筛法思想"><a href="#筛法思想" class="headerlink" title="筛法思想"></a>筛法思想</h3><p>筛法就是将2的倍数，3的倍数，5的倍数等等，一一筛除，剩下的就是素数了。</p>
+<p>创建文件描述符和创建一个管道，再创建一个子进程，子进程把管道的写端口描述符映射到原来的描述符标准输出 1 上。循环通过 write 系统调用把 2 到 35 写入管道。父进程等待子进程把数据写入完毕后，父进程把管道的读端口描述符映射到原来的描述符标准输入 0 上。在编写一个 primes 函数，调用此函数实现递归筛选的过程。</p>
+<p>对于编写 primes 函数。定义两个整型变量，存放从管道获取的数，定义管道描述符数组。从管道中读取数据，第一个数（2，3，5等）一定是素数，直接打印出来，然后创建另一个管道和子进程，子进程通过管道描述符映射，关闭不必要的文件描述符节约资源。再循环读取原管道中的数据，如果该数与原管道的第一个取模后不为 0 ，则重新写入刚刚创建的管道。父进程等待此子进程执行完毕，再次调用重定向函数关闭不必要的文件描述符，再递归调用 primes 函数重复以上筛选过程，即可将管道中所有素数打印出来。</p>
+<h3 id="实验步骤"><a href="#实验步骤" class="headerlink" title="实验步骤"></a>实验步骤</h3><ol>
+<li>父进程A生成【2-35】之间的所有数字，包括2和35</li>
+<li>向A的子进程B进行输出（通过管道）</li>
+<li>B对[2-35]进行筛选，打印出第一个质数2</li>
+<li>B把剩下的数字（通过）通过管道传递给B的子进程C</li>
+<li>C打印出第二个质数，也就是3</li>
+<li>重复（4）和（5）的过程，直到2 - 35 之间的质数全部在终端输出</li>
+</ol>
+<h3 id="一些提示"><a href="#一些提示" class="headerlink" title="一些提示"></a>一些提示</h3><ul>
+<li><p>请小心关闭进程不需要的文件描述符，因为否则，您的程序将在第一个进程达到35之前在资源中运行xv6。</p>
+</li>
+<li><p>一旦第一个进程达到35，它应该等待直到整个管道终止，包括所有子代，孙代为止。因此，仅在打印完所有输出之后以及在所有其他准备工作都退出之后，才应退出主要准备工作。</p>
+</li>
+<li><p>提示：当管道的写侧关闭时，read返回零。</p>
+</li>
+<li><p>将32位<b style="color:blue">（4字节）</b>int直接写入管道是最简单的，而不是使用格式化的ASCII I &#x2F; O。</p>
+</li>
+<li><p>您仅应在需要时才在管道中创建进程。<br>将程序添加到Makefile中的UPROGS。</p>
+</li>
+</ul>
+<blockquote>
+<p>此处选取算法<b style="color:red">埃拉托斯特尼筛法</b>来实现快速筛选质数</p>
+<p>建议在网络上了解上述算法的原理再回来看该程序会更容易理解一点</p>
+</blockquote>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182009125.png"
+                      alt="image-20230918200904069" style="zoom: 67%;" 
+                >
+
+<div class="highlight-container" data-rel="C"><figure class="iseeu highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kernel/types.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kernel/stat.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;user/user.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//用指针的形式，让所有子进程能够读取同一块空间的数据，num记录目前还需要筛选数子的个数</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">solution</span><span class="params">(<span class="type">int</span> *<span class="built_in">array</span>,<span class="type">int</span> num)</span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(num == <span class="number">1</span>)&#123;  <span class="comment">// 筛选到最后一个数字的时候，该数字已经是质数了，所以程序也就结束了</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;prime is %d\n&quot;</span>,*<span class="built_in">array</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">int</span> fd[<span class="number">2</span>], i ,temp;</span><br><span class="line">    <span class="type">int</span> prime = *<span class="built_in">array</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;prime is %d\n&quot;</span>,prime);;</span><br><span class="line">    pipe(fd);</span><br><span class="line">    <span class="keyword">if</span>(fork() == <span class="number">0</span>)&#123;		<span class="comment">//父进程创建一个子进程(一)，子进程循环写入剩余的每一个数字到管道</span></span><br><span class="line">        <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; num; i++)&#123;</span><br><span class="line">            temp = *(<span class="built_in">array</span> + i);</span><br><span class="line">            write(fd[<span class="number">1</span>], (<span class="type">char</span> *)(&amp;temp), <span class="number">4</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    close(fd[<span class="number">1</span>]);</span><br><span class="line">    <span class="keyword">if</span>(fork() == <span class="number">0</span>)&#123;		<span class="comment">//父进程再创建一个子进程（二），子进程读取上面一个子进程写入管道的数据</span></span><br><span class="line">        <span class="type">int</span> count = <span class="number">0</span>;		<span class="comment">//该变量记录本轮没有被筛掉的数字个数</span></span><br><span class="line">        <span class="type">char</span> buffer[<span class="number">4</span>];</span><br><span class="line">        <span class="keyword">while</span>(read(fd[<span class="number">0</span>], buffer, <span class="number">4</span>) != <span class="number">0</span>)&#123;</span><br><span class="line">            temp = *((<span class="type">int</span> *)buffer);</span><br><span class="line">            <span class="keyword">if</span>(temp % prime != <span class="number">0</span>)&#123;</span><br><span class="line">                *<span class="built_in">array</span> = temp;</span><br><span class="line">                <span class="built_in">array</span> = <span class="built_in">array</span> + <span class="number">1</span>;</span><br><span class="line">                count ++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        solution(<span class="built_in">array</span> - count,count);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc,<span class="type">char</span> argv[])</span>&#123;</span><br><span class="line">    <span class="type">int</span> target[<span class="number">34</span>];</span><br><span class="line">    <span class="type">int</span> i = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(;i &lt; <span class="number">34</span>;i++) target[i] = i + <span class="number">2</span>;</span><br><span class="line">    solution(target, <span class="number">34</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+
+
+<h2 id="四、实验心得"><a href="#四、实验心得" class="headerlink" title="四、实验心得"></a>四、实验心得</h2><blockquote>
+<p>安装环境消耗的时间感觉是这次作业中花费时间最长的，其次就是实验中的第三题，递归+子进程+管道通信确实需要耗费时间去思考如何解题。不过也挺好，一步步看源码然后模仿着去操作，体会到了操作系统的奇妙，比起书上的理论知识，实际动手感悟更深。</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>操作系统</category>
+      </categories>
+      <tags>
+        <tag>操作系统</tag>
+        <tag>xv6</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>2021-xv6实验记录(三)</title>
+    <url>/2023/10/11/xv6%E5%AE%9E%E9%AA%8C%E8%AE%B0%E5%BD%95(%E4%B8%89)/</url>
+    <content><![CDATA[<h1 id="2021-xv6实验记录-三"><a href="#2021-xv6实验记录-三" class="headerlink" title="2021-xv6实验记录(三)"></a>2021-xv6实验记录(三)</h1><blockquote>
+<p>本次实验，将进行三个子任务：</p>
+<ol>
+<li>系统调用性能优化</li>
+<li>打印进程 1 的页表</li>
+<li>跟踪进程的内存访问位。</li>
+</ol>
+<p>官方实验指南：<a class="link"  style="color:red"  href="https://pdos.csail.mit.edu/6.828/2021/labs/pgtbl.html" >在这里！！！ <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
+<p>官方参考书：<a class="link"   href="https://pdos.csail.mit.edu/6.828/2021/xv6/book-riscv-rev2.pdf"  style="color:blue">点击此处！！ <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
+</blockquote>
+<h2>开始实验之前首先切换到官方的pgtbl分支</h2>
+
+<div class="highlight-container" data-rel="Shell"><figure class="iseeu highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git fetch</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git checkout pgtbl</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">make clean</span></span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="实验【Speed-up-system-calls】"><a href="#实验【Speed-up-system-calls】" class="headerlink" title="实验【Speed up system calls】"></a>实验【Speed up system calls】</h2><h3 id="一、实验前提示"><a href="#一、实验前提示" class="headerlink" title="一、实验前提示"></a>一、实验前提示</h3><ul>
+<li>在<code>kernel/proc.c</code>文件里的 <code>alloc_proc()</code>函数里，加入对 <code>USYSCALL </code>页面的创建过<br>程（<strong>可以仿照 TRAPFRAME 页面的构建方法来写相关的代码</strong>），并在之后对 usyscall<br>结构体的 pid 成员变量进行赋值</li>
+<li>在<code>kernel/proc.c</code>文件里的 <code>proc_pagetable()</code>里，加入对 <code>USYSCALL</code> 页面的映射过<br>程并赋予适当的权限（<strong>可以仿照 trapframe 和 TRAMPOLINE 的映射方法</strong>）；</li>
+<li>映射的方法用到的核心函数为 <b style="color:red">mappages()</b>;</li>
+<li>在进程退出或者分配内存失败的情况下，<b style="color:blue">记得释放 USYSCALL 和相关的页面</b>，防止<br>内存泄漏（<strong>例如在 freeproc()函数里添加相关的内存撤销&#x2F;回收语句</strong>）；</li>
+<li>根据上述描述，ugetpid()的核心逻辑其实就是在用户层对进程的 USYSCALL 页面进<br>行访问，可以查看 xv6 源码目录下的 user&#x2F;pgtbltest.c 文件是如何对其进行<br>访问的</li>
+</ul>
+<hr>
+
+<p><strong>简述题意：</strong>给系统调用函数<code>ugetpid()</code>提速，方法是给每个进程的单独内存空间里添加一个<code>USYSCALL</code>页面，而里头存放一个系统函数会经常使用的数据，这里专指<code>pid</code>，而我们把<code>pid</code>存放在<code>struct usyscall</code>中。</p>
+<ul>
+<li>通过上述方法，<code>ugetpid()</code>需要用到<code>pid</code>时，会在<strong>用户态</strong>使用<code>USYSCALL</code>页面<strong>直接调用，而不用切换到内核态</strong></li>
+</ul>
+<h3 id="二、实验过程"><a href="#二、实验过程" class="headerlink" title="二、实验过程"></a>二、实验过程</h3><p>首先打开<code>kernel/memlayout.h</code>，可以看到下述代码</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* kernel/memlayout.h */</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> LAB_PGTBL</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> USYSCALL (TRAPFRAME - PGSIZE)  <span class="comment">// USYSCALl = 3FFFFFD000</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">usyscall</span> &#123;</span><br><span class="line">    <span class="type">int</span> pid;  <span class="comment">// Process ID</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure></div>
+
+<p>这个USYSCALL页一定是独立于进程页表的一个页，把定义加到<code>kernel/proc.h</code>中：</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">proc</span>&#123;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">spinlock</span> lock;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">usyscall</span> *usyscall;  		<span class="comment">//新添加的代码</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p>然后去<code>kernel/proc.c</code>中初始化这个页面，<code>allocproc()</code>中会分配一些页，在这个函数里面分配出需要的<code>usyscall</code></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="keyword">struct</span> <span class="title class_">proc</span> * <span class="built_in">allocproc</span>(<span class="type">void</span>)&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">//原有代码</span></span><br><span class="line">    ...</span><br><span class="line">        </span><br><span class="line">    <span class="comment">// 新添加的代码！！</span></span><br><span class="line">    <span class="keyword">if</span> ((p-&gt;usyscall = (<span class="keyword">struct</span> usyscall *)<span class="built_in">kalloc</span>()) == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">freeproc</span>(p);</span><br><span class="line">        <span class="built_in">release</span>(&amp;p-&gt;lock);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// An empty user page table.</span></span><br><span class="line">    p-&gt;pagetable = <span class="built_in">proc_pagetable</span>(p);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p>用户态寻址的时候都要经过页表硬件的翻译，所以<code>usyscall</code>也要映射在进程的<code>pagetable</code>上，刚刚加入的位置的下面就有<code>proc_pagetable(p)</code>用于<code>map page</code>，在<code>kernel/proc.c</code>中加入映射逻辑</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">pagetable_t</span> <span class="title">proc_pagetable</span><span class="params">(<span class="keyword">struct</span> proc *p)</span></span>&#123;</span><br><span class="line">    ...</span><br><span class="line">        </span><br><span class="line">    <span class="comment">//新添加的代码</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">mappages</span>(pagetable, USYSCALL, PGSIZE, (uint64)(p-&gt;usyscall),</span><br><span class="line">                 PTE_R | PTE_U) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">uvmunmap</span>(pagetable, TRAMPOLINE, <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">        <span class="built_in">uvmunmap</span>(pagetable, TRAPFRAME, <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">        <span class="built_in">uvmfree</span>(pagetable, <span class="number">0</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> pagetable;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p>映射完成了之后就要对其进行初始化，回到<code>kernel/proc.c</code>，加入代码</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="keyword">struct</span> <span class="title class_">proc</span> * <span class="built_in">allocproc</span>(<span class="type">void</span>)&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">//新添加的代码</span></span><br><span class="line">    p-&gt;usyscall-&gt;pid = p-&gt;pid;	</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p>根据提示：进程回收的时候，该页面也要释放，在<code>freeproc()</code>中加入释放即可</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> <span class="type">void</span> <span class="title">freeproc</span><span class="params">(<span class="keyword">struct</span> proc*p)</span></span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//新添加的代码</span></span><br><span class="line">    <span class="keyword">if</span> (p-&gt;usyscall) <span class="built_in">kfree</span>((<span class="type">void</span> *)p-&gt;usyscall);</span><br><span class="line">    p-&gt;usyscall = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p>并且在函数<code>proc_freepagetable()</code>中解除映射，不然启动的时候会报<code>freewalk panic</code></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span></span></span><br><span class="line"><span class="function"><span class="title">proc_freepagetable</span><span class="params">(<span class="type">pagetable_t</span> pagetable, uint64 sz)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="comment">//新添加的代码</span></span><br><span class="line">  <span class="built_in">uvmunmap</span>(pagetable, USYSCALL, <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">    </span><br><span class="line">  <span class="built_in">uvmfree</span>(pagetable, sz);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="三、实验结果的验证"><a href="#三、实验结果的验证" class="headerlink" title="三、实验结果的验证"></a>三、实验结果的验证</h3><p>打开终端，make qemu启动xv6系统，检查是否报错，如果没有遇见错误，在 xv6 的终端里敲：<code>pgtbltest </code>或者<code>./pgtbltest</code>，看看是否能够通过对 ugetpid()的调用测试  </p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310111613541.png"
+                      alt="image-20231011161305492"
+                ></p>
+<hr>
+
+
+
+
+
+<h2 id="实验【Print-a-page-table】"><a href="#实验【Print-a-page-table】" class="headerlink" title="实验【Print a page table】"></a>实验【Print a page table】</h2><h3 id="一、实验前提示-1"><a href="#一、实验前提示-1" class="headerlink" title="一、实验前提示"></a>一、实验前提示</h3><ul>
+<li>输出页表功能由 <code>vmprint()</code>函数实现，它的参数只有一个，类型为<br><code>pagetable_t</code>，其定义在<code>kernel/riscv.h</code>的末尾；</li>
+<li>在 <code>kernel/exec.c </code>文件里，在<code>return argc;</code>语句之前，也即是 exec()函数的<br>接近末尾处，加入<b style="color:blue">if(p-&gt;pid&#x3D;&#x3D;1)  vmprint(p-&gt;pagetable)；</b>，以便只打印 pid 为 1 进程页表；</li>
+<li>在 <code>kernel/vm.c</code> 里，找个地方实现<code> vmprint()</code>,它的逻辑就是输出当前进程的<br>页表；</li>
+<li>在文件<code>kernel/vm.c</code>里，有个现有的函数叫做 <code>freewalk()</code>——你的 <strong>vmprint()</strong><br><strong>代码可以参考和借鉴</strong>；</li>
+<li>在文件<code>kernel/riscv.h</code>的末尾，有几个宏定义，在解题的时候会用的上；</li>
+<li>输出内存地址的时候，可以在 printf 里用%p 来格式化指针（地址），它的好<br>看程度和图 3.2 的地址输出一样美丽；</li>
+</ul>
+<h3 id="二、实验过程-1"><a href="#二、实验过程-1" class="headerlink" title="二、实验过程"></a>二、实验过程</h3><p><strong>实验解决思路：递归遍历页表，碰到有效的就遍历进下一层页表</strong></p>
+<p>根据提示在<code>kernel/vm.c</code>文件中添加如下代码</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">vmprintlevel</span><span class="params">(<span class="type">pagetable_t</span> pt, <span class="type">int</span> level)</span> </span>&#123;</span><br><span class="line">    <span class="type">char</span> *delim = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (level == <span class="number">2</span>) delim = <span class="string">&quot;..&quot;</span>;</span><br><span class="line">    <span class="keyword">if</span> (level == <span class="number">1</span>) delim = <span class="string">&quot;.. ..&quot;</span>;</span><br><span class="line">    <span class="keyword">if</span> (level == <span class="number">0</span>) delim = <span class="string">&quot;.. .. ..&quot;</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">512</span>; i++) &#123;</span><br><span class="line">        <span class="type">pte_t</span> pte = pt[i];</span><br><span class="line">        <span class="keyword">if</span> ((pte &amp; PTE_V)) &#123;</span><br><span class="line">            <span class="comment">//  this PTE points to a lower level page table.</span></span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;%s%d: pte %p pa %p\n&quot;</span>, delim, i, pte, <span class="built_in">PTE2PA</span>(pte));</span><br><span class="line">            uint64 child = <span class="built_in">PTE2PA</span>(pte);</span><br><span class="line">            <span class="keyword">if</span> (level != <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="built_in">vmprintlevel</span>((<span class="type">pagetable_t</span>)child, level - <span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">vmprint</span><span class="params">(<span class="type">pagetable_t</span> pt)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;page table %p\n&quot;</span>, pt);</span><br><span class="line">    <span class="built_in">vmprintlevel</span>(pt, <span class="number">2</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p>记得在<code>kernel/defs.h</code>文件中添加函数的声明</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="function"><span class="type">void</span>            <span class="title">vmprintlevel</span><span class="params">(<span class="type">pagetable_t</span> pt, <span class="type">int</span> level)</span></span>;	<span class="comment">//新添加</span></span><br><span class="line"><span class="function"><span class="type">void</span>            <span class="title">vmprint</span><span class="params">(<span class="type">pagetable_t</span> pt)</span></span>;					<span class="comment">//新添加</span></span><br></pre></td></tr></table></figure></div>
+
+<p>写完了函数还要记得在make的时候启动输出因此找到kernel&#x2F;exec.c <code>文件里，在</code>return argc;&#96;语句之前，也即是 exec()函数的<br>接近末尾处，加入<b style="color:blue">if(p-&gt;pid&#x3D;&#x3D;1)  vmprint(p-&gt;pagetable)；</b></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 文件kernel/exec.c</span></span><br><span class="line"><span class="function"><span class="type">int</span></span></span><br><span class="line"><span class="function"><span class="title">exec</span><span class="params">(<span class="type">char</span> *path, <span class="type">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"> ... </span><br><span class="line">  <span class="keyword">if</span>(p-&gt;pid==<span class="number">1</span>) &#123;			<span class="comment">//新添加的代码</span></span><br><span class="line">  	<span class="built_in">vmprint</span>(p-&gt;pagetable);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> argc; <span class="comment">// this ends up in a0, the first argument to main(argc, argv)</span></span><br><span class="line">  ...</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
+
+
+
+<h3 id="三、实验结果的验证-1"><a href="#三、实验结果的验证-1" class="headerlink" title="三、实验结果的验证"></a>三、实验结果的验证</h3><p><span style="color:blue">此时我们在终端使用make qemu启动后可以看到如下效果：</span></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310111605794.png"
+                      alt="image-20231011160530691"
+                ></p>
+<hr>
+
+
+
+
+
+
+
+<h2 id="实验【Detecting-which-pages-have-been-accessed】"><a href="#实验【Detecting-which-pages-have-been-accessed】" class="headerlink" title="实验【Detecting which pages have been accessed】"></a>实验【Detecting which pages have been accessed】</h2><h3 id="一、实验前提示-2"><a href="#一、实验前提示-2" class="headerlink" title="一、实验前提示"></a>一、实验前提示</h3><ul>
+<li>在 <code>kernel/sysproc.c </code>里实现 <code>pgaccess()</code>系统调用，名为<code> sys_pgaccess()</code><br>如果你已经切换到了本 lab 的代码分支，那么该系统调用的声明已经完成，你只<br>需实现该系统调用本体即可；</li>
+<li>有两个内核函数可以用到，分别是：<code>argaddr()</code>和 <code>argint()</code>，它们的作用都是把用<br>户层的系统调用参数通过一个安全的方法导入至内核使用；这两个内核函数的定<br>义在 <code>kernel/syscall.c</code></li>
+<li>因为这里用 <code>bitmask </code>来保存指定页面范围内的访问情况，所以 <code>pgaccess()</code>系统调<br>用在内核层收集完信息后，我们需要把这个信息拷贝回用户层，这里用到的一个<br>函数叫做 <code>copyout()</code>，它的实现在 <code>kernel/vm.c </code>的末尾<strong>（还记得 lab2 中的</strong><br><strong>Sysinfo 吗？）</strong></li>
+<li>可以设定 <code>pgaccess()</code>系统调用所涉及的页面数量最大值，比如 32；</li>
+<li><code>kernel/vm.c </code>文件里的 <code>walk()</code>函数可以在本次任务中发挥较大的用处，它的执行<br>逻辑是：给定一个 VA（Virtual Address），返回其在指定页表内的 L0 级页目录的<br>PTE 地址；你可以用它来检测返回值的对应访问位是否为 1；</li>
+<li>需要在 <code>kernel/riscv.h</code> 里定义页表的访问位，也即<code> PTE_A</code>，否则你的默认页表里<br>没有 <code>PTE_A </code>位可供系统调用查询</li>
+<li>在 pgaccess()执行期间，确保 PTE_A 为 1 的页面在 check 之后置其为 0</li>
+</ul>
+<h3 id="二、实验过程-2"><a href="#二、实验过程-2" class="headerlink" title="二、实验过程"></a>二、实验过程</h3><p><strong>主要思路就是用户调用系统调用的时候，我们去查找页表，获得对应的<code>PTE</code>，然后检查<code>PTE_A</code>(需要自己定义)，然后决定是否在答案设置对应有效位。</strong></p>
+<p>首先我们自己定义<code>PTE_A</code>，打开<code>kernel/riscv.h</code>文件</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PTE_U (1L <span class="string">&lt;&lt; 4) // 1 -&gt;</span> user can access</span></span><br><span class="line">    </span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PTE_A (1L &lt;&lt; 6) <span class="comment">// 改行代码为新添加的内容</span></span></span><br></pre></td></tr></table></figure></div>
+
+<p> 在<code>kernel/sysproc.c</code>中完善<code>sys_pgaccess()</code></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifdef</span> LAB_PGTBL</span></span><br><span class="line"><span class="function">uint64 <span class="title">sys_pgaccess</span><span class="params">(<span class="type">void</span>)</span> </span>&#123;			<span class="comment">//函数体的内容都是新添加的	</span></span><br><span class="line">    <span class="comment">// lab pgtbl: your code here.</span></span><br><span class="line">    uint64 buf;</span><br><span class="line">    <span class="type">int</span> number;</span><br><span class="line">    uint64 ans;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">argaddr</span>(<span class="number">0</span>, &amp;buf) &lt; <span class="number">0</span>) <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">argint</span>(<span class="number">1</span>, &amp;number) &lt; <span class="number">0</span>) <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">argaddr</span>(<span class="number">2</span>, &amp;ans) &lt; <span class="number">0</span>) <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">pgaccess</span>((<span class="type">void</span>*)buf, number, (<span class="type">void</span>*)ans);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure></div>
+
+<p>看到上一步使用了pgaccess函数因此在<code>kernel/defs.h</code>中需要添加声明</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">uint64 <span class="title">pgaccess</span><span class="params">(<span class="type">void</span> *pg, <span class="type">int</span> number, <span class="type">void</span> *store)</span></span>;</span><br></pre></td></tr></table></figure></div>
+
+<p>然后去<code>kernel/proc.c</code>中加入<code>pgaceess()</code>的定义</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">//新添加的函数</span></span><br><span class="line"><span class="function">uint64 <span class="title">pgaccess</span><span class="params">(<span class="type">void</span> *pg, <span class="type">int</span> number, <span class="type">void</span> *store)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">proc</span> *p = <span class="built_in">myproc</span>();</span><br><span class="line">    <span class="keyword">if</span> (p == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">pagetable_t</span> pagetable = p-&gt;pagetable;</span><br><span class="line">    <span class="type">int</span> ans = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; number; i++) &#123;</span><br><span class="line">        <span class="type">pte_t</span> *pte;</span><br><span class="line">        pte = <span class="built_in">walk</span>(pagetable, ((uint64)pg) + (uint64)PGSIZE * i, <span class="number">0</span>);</span><br><span class="line">        <span class="keyword">if</span> (pte != <span class="number">0</span> &amp;&amp; ((*pte) &amp; PTE_A)) &#123;</span><br><span class="line">            ans |= <span class="number">1</span> &lt;&lt; i;</span><br><span class="line">            *pte ^= PTE_A;  <span class="comment">// clear PTE_A</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// copyout</span></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">copyout</span>(pagetable, (uint64)store, (<span class="type">char</span> *)&amp;ans, <span class="built_in">sizeof</span>(<span class="type">int</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p>因为上一步过程使用了一个walk函数因此我们需要在<code>kernel/defs.h</code>中添加walk函数的声明</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">pte_t</span>*          <span class="title">walk</span><span class="params">(<span class="type">pagetable_t</span>,uint64,<span class="type">int</span>)</span></span>;	<span class="comment">//新添加的函数声明</span></span><br></pre></td></tr></table></figure></div>
+
+
+
+<h3 id="三、实验结果的验证-2"><a href="#三、实验结果的验证-2" class="headerlink" title="三、实验结果的验证"></a>三、实验结果的验证</h3><p><b style="color:green">使用命令<code>make grade</code>检测前面三个实验是否完全通过</b></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310111657766.png"
+                      alt="image-20231011165721153"
+                ></p>
+<blockquote>
+<p>注意：需要创建一个文件<code>answers-pgtbl.txt</code>文件用于保存答案否则make grade的时候会在在test answer - pgtbl.txt报错，同时创建了文件之后在里面<strong>随便敲入多个字符</strong>保留答案输出空间即可：</p>
+<p>即：在xv6 - labs - 2021目录下</p>
+<ol>
+<li>touch answers-pgtbl.txt</li>
+<li>vim answers-pgtbl.txt</li>
+<li>随便敲入多个字符即可</li>
+</ol>
+</blockquote>
+]]></content>
+      <categories>
+        <category>操作系统</category>
+      </categories>
+      <tags>
+        <tag>操作系统</tag>
+        <tag>xv6</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>2021-xv6实验记录(二)</title>
+    <url>/2023/10/11/xv6%E5%AE%9E%E9%AA%8C%E8%AE%B0%E5%BD%95(%E4%BA%8C)/</url>
+    <content><![CDATA[<h1 id="xv6实验记录-二"><a href="#xv6实验记录-二" class="headerlink" title="xv6实验记录(二)"></a>xv6实验记录(二)</h1><h2 id="一、实验目的："><a href="#一、实验目的：" class="headerlink" title="一、实验目的："></a>一、实验目的：</h2><ol>
+<li>了解系统调用</li>
+</ol>
+<h2 id="二、实验内容："><a href="#二、实验内容：" class="headerlink" title="二、实验内容："></a>二、实验内容：</h2><ol>
+<li>完成<code>trace()</code>的新系统调用</li>
+<li>完成<code>sysinfo()</code>的新系统调用</li>
+</ol>
+<h2 id="三、实验内容"><a href="#三、实验内容" class="headerlink" title="三、实验内容"></a>三、实验内容</h2><h3 id="1-trace-系统调用的实现"><a href="#1-trace-系统调用的实现" class="headerlink" title="(1)trace()系统调用的实现"></a>(1)trace()系统调用的实现</h3><p><strong>(1)首先切换分支，保存实验记录，并清除编译记录</strong></p>
+<div class="highlight-container" data-rel="Cmd"><figure class="iseeu highlight cmd"><table><tr><td class="code"><pre><span class="line">git checkout syscall</span><br><span class="line">make clean</span><br></pre></td></tr></table></figure></div>
+
+<p>根据实验提示，在MakeFile文件中找到<code>UPROGS</code>并添加<code>$U/_trace\</code>打开<code>user</code>目录可以看到存在一个<code>user/trace.c</code>文件，观察该文件的源码：</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="built_in">trace</span>(<span class="built_in">atoi</span>(argv[<span class="number">1</span>])) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="number">2</span>, <span class="string">&quot;%s: trace failed\n&quot;</span>, argv[<span class="number">0</span>]);</span><br><span class="line">	<span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p>看到这一段代码中存在<code>trace()</code>方法的调用【该方法来自<strong>user.h</strong>】，trace函数接收一个<strong>int</strong> 类型的整数，返回值类型也是<strong>int</strong>，如果执行失败返回值为-1。</p>
+<hr>
+
+
+<p><strong>(2)在<code>user/user.h</code>中添加函数原型</strong></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">trace</span><span class="params">(<span class="type">int</span>)</span></span>;		<span class="comment">//NEW ADD</span></span><br></pre></td></tr></table></figure></div>
+
+<p>在<code>user/usys.pl</code>中添加trace的入口</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="built_in">entry</span>(<span class="string">&quot;trace&quot;</span>);		<span class="comment">//NEW ADD</span></span><br></pre></td></tr></table></figure></div>
+
+<p>在<code>syscall.h</code>中添加宏定义</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> SYS_close 21</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SYS_trace 22 <span class="comment">//NEW ADD</span></span></span><br></pre></td></tr></table></figure></div>
+
+<hr>
+
+
+
+<p><strong>(3)在proc结构体(在<code>kernel/proc.h</code>)里面添加一个新变量用来存储跟踪号，然后在fork()的时候把结构体里新增加的变量也给复制过去，这样就达到了传参的目的。新的变量是不需要加锁的，因为只会被自己所在的进程使用，所以放在<code>char name[16]</code>之后</strong></p>
+<p>修改<code>kernel/proc.h</code>添加变量存储跟踪号</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Per-process state</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">proc</span> &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="comment">// these are private to the process, so p-&gt;lock need not be held.</span></span><br><span class="line">  <span class="comment">// ,,</span></span><br><span class="line">  <span class="type">char</span> name[<span class="number">16</span>];               </span><br><span class="line">  <span class="type">char</span> mask[<span class="number">23</span>];           <span class="comment">//NEW ADD</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></div>
+
+<p>打开<code>kernel/sysproc.c</code>添加一个trace函数的具体实现</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line">uint64				<span class="comment">//新添加的函数定义</span></span><br><span class="line"><span class="built_in">sys_trace</span>(<span class="type">void</span>)&#123;</span><br><span class="line">  <span class="type">int</span> n;</span><br><span class="line">  <span class="keyword">if</span>(<span class="built_in">argint</span>(<span class="number">0</span>, &amp;n) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">proc</span> *p = <span class="built_in">myproc</span>();</span><br><span class="line">  <span class="type">char</span> *mask = p-&gt;mask;</span><br><span class="line">  <span class="type">int</span> i = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">while</span>(i &lt; <span class="number">23</span> &amp;&amp; n &gt; <span class="number">0</span>)&#123;</span><br><span class="line">    <span class="keyword">if</span>(n % <span class="number">2</span>)&#123;</span><br><span class="line">      mask[i++] = <span class="string">&#x27;1&#x27;</span>;</span><br><span class="line">    &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">      mask[i++] = <span class="string">&#x27;0&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    n &gt;&gt;= <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p>打开<code>kernel/proc.c</code>文件修改<code>fork()</code>函数在函数中添加一句 <code>safestrcpy(np-&gt;mask, p-&gt;mask, sizeof(p-&gt;mask));</code>即可</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span></span></span><br><span class="line"><span class="function"><span class="title">fork</span><span class="params">(<span class="type">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="type">int</span> i, pid;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">proc</span> *np;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">proc</span> *p = <span class="built_in">myproc</span>();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Allocate process.</span></span><br><span class="line">  <span class="keyword">if</span>((np = <span class="built_in">allocproc</span>()) == <span class="number">0</span>)&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// Copy user memory from parent to child.</span></span><br><span class="line">  <span class="keyword">if</span>(<span class="built_in">uvmcopy</span>(p-&gt;pagetable, np-&gt;pagetable, p-&gt;sz) &lt; <span class="number">0</span>)&#123;</span><br><span class="line">    <span class="built_in">freeproc</span>(np);</span><br><span class="line">    <span class="built_in">release</span>(&amp;np-&gt;lock);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  np-&gt;sz = p-&gt;sz;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">safestrcpy</span>(np-&gt;mask, p-&gt;mask, <span class="built_in">sizeof</span>(p-&gt;mask));		<span class="comment">//NEW ADD</span></span><br><span class="line">    </span><br><span class="line">  ......</span><br><span class="line">      </span><br></pre></td></tr></table></figure></div>
+
+<p>为了将trace打印出来，修改<code>kernel/syscall.c</code>中的<code>syscall()</code>函数</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">extern</span> uint64 <span class="title">sys_trace</span><span class="params">(<span class="type">void</span>)</span></span>;		<span class="comment">//NEW ADD</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="title">uint64</span> <span class="params">(*syscalls[])</span><span class="params">(<span class="type">void</span>)</span> </span>= &#123;</span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line">  [SYS_close]   sys_close,</span><br><span class="line">  [SYS_trace]   sys_trace, <span class="comment">// NEW ADD</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">char</span> *syscall_names[<span class="number">23</span>] = &#123;<span class="string">&quot;&quot;</span>,<span class="string">&quot;fork&quot;</span>,<span class="string">&quot;exit&quot;</span>,<span class="string">&quot;wait&quot;</span>,<span class="string">&quot;pipe&quot;</span>,<span class="string">&quot;read&quot;</span>,<span class="string">&quot;kill&quot;</span>,</span><br><span class="line">                                <span class="string">&quot;exec&quot;</span>,<span class="string">&quot;fstat&quot;</span>,<span class="string">&quot;chdir&quot;</span>,<span class="string">&quot;dup&quot;</span>,<span class="string">&quot;getpid&quot;</span>,<span class="string">&quot;sbrk&quot;</span>,<span class="string">&quot;sleep&quot;</span>,</span><br><span class="line">                                <span class="string">&quot;uptime&quot;</span>,<span class="string">&quot;open&quot;</span>,<span class="string">&quot;write&quot;</span>,<span class="string">&quot;mknod&quot;</span>,<span class="string">&quot;unlink&quot;</span>,<span class="string">&quot;link&quot;</span>,<span class="string">&quot;mkdir&quot;</span>,</span><br><span class="line">                                <span class="string">&quot;close&quot;</span>,<span class="string">&quot;trace&quot;</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">syscall</span><span class="params">(<span class="type">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="type">int</span> num;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">proc</span> *p = <span class="built_in">myproc</span>();</span><br><span class="line">  <span class="type">char</span>* syscall_name;       <span class="comment">// NEW ADD</span></span><br><span class="line"></span><br><span class="line">  num = p-&gt;trapframe-&gt;a7;</span><br><span class="line">  <span class="keyword">if</span>(num &gt; <span class="number">0</span> &amp;&amp; num &lt; <span class="built_in">NELEM</span>(syscalls) &amp;&amp; syscalls[num]) &#123;</span><br><span class="line">    p-&gt;trapframe-&gt;a0 = syscalls[num]();</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">strlen</span>(p-&gt;mask) &gt; <span class="number">0</span> &amp;&amp; p-&gt;mask[num] == <span class="string">&#x27;1&#x27;</span>)&#123;		<span class="comment">// NEW ADD</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%d: syscall %s -&gt; %d\n&quot;</span>, p-&gt;pid, syscall_names[num],p-&gt;trapframe-&gt;a0); </span><br><span class="line">    &#125;                                                                    </span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d %s: unknown sys call %d\n&quot;</span>,</span><br><span class="line">            p-&gt;pid, p-&gt;name, num);</span><br><span class="line">    p-&gt;trapframe-&gt;a0 = <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>测试效果</strong></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line">trace <span class="number">32</span> grep hello README</span><br><span class="line">trace <span class="number">2147483647</span> grep hello README</span><br></pre></td></tr></table></figure></div>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309251247136.png"
+                      alt="image-20230925124713029"
+                ></p>
+<div class="highlight-container" data-rel="Q"><figure class="iseeu highlight q"><table><tr><td class="code"><pre><span class="line">./grade-lab-syscall trace</span><br></pre></td></tr></table></figure></div>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309251248997.png"
+                      alt="image-20230925124857961"
+                ></p>
+<hr>
+
+
+
+<h3 id="2-sysinfo-系统调用的实现"><a href="#2-sysinfo-系统调用的实现" class="headerlink" title="(2)sysinfo()系统调用的实现"></a>(2)sysinfo()系统调用的实现</h3><p><strong>（1）将<code>$U/_sysinfotest</code>添加到 Makefile 中的 UPROGS</strong></p>
+<p><strong>（2）在<code>user/user.h</code>中声明sysinfo() 函数的原型，您需要预先声明<code>struct sysinfo</code>的存在：</strong>修改<code>user/user.h</code>需要在user.h里再声明一次struct sysinfo的原因是：在参数列表里的参数是看不见本文件外面定义的struct的。</p>
+<div class="highlight-container" data-rel="C"><figure class="iseeu highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">stat</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">rtcdate</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sysinfo</span>;</span>			<span class="comment">//New ADD</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// system calls</span></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">sysinfo</span><span class="params">(<span class="keyword">struct</span> sysinfo *)</span>;			<span class="comment">//NEW ADD</span></span><br></pre></td></tr></table></figure></div>
+
+<p><strong>（3）在<code>user/usys.pl</code>中添加sysinfo的入口</strong></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="built_in">entry</span>(<span class="string">&quot;sysinfo&quot;</span>);		<span class="comment">//NEW ADD</span></span><br></pre></td></tr></table></figure></div>
+
+<p><strong>（4）在<code>syscall.h</code>中添加宏定义</strong></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> SYS_close 21</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SYS_trace 22</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SYS_sysinfo 23</span></span><br></pre></td></tr></table></figure></div>
+
+<p><strong>（5）修改<code>kernel/syscall.c</code>中的<code>syscall()</code>函数</strong></p>
+<div class="highlight-container" data-rel="C"><figure class="iseeu highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">extern</span> uint64 <span class="title function_">sys_info</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">static</span> <span class="title function_">uint64</span> <span class="params">(*syscalls[])</span><span class="params">(<span class="type">void</span>)</span> = &#123;</span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line">[SYS_sysinfo] sys_info,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">char</span>* syscall_names[] = &#123;</span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line">  [SYS_sysinfo] <span class="string">&quot;sys_info&quot;</span>,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>（6）编辑<code>sysproc.c</code>文件，先添加函数体</strong></p>
+<div class="highlight-container" data-rel="C"><figure class="iseeu highlight c"><table><tr><td class="code"><pre><span class="line">uint64 <span class="title function_">sys_info</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>（7）打开<code>sysproc.c</code>文件添加<code>\#include &quot;sysinfo.h&quot;</code></strong></p>
+<p><strong>（8）要获得空闲内存的数目，请向<code>kernel/kalloc.c</code>添加一个函数<code>kfreemem</code></strong></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// get free memory bytes by count freelist</span></span><br><span class="line"><span class="function">uint64 <span class="title">kfreemem</span><span class="params">(<span class="type">void</span>)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">run</span> *r;</span><br><span class="line">  uint64 count = <span class="number">0</span>; </span><br><span class="line">​</span><br><span class="line">  <span class="built_in">acquire</span>(&amp;kmem.lock);</span><br><span class="line">  r = kmem.freelist;</span><br><span class="line">  <span class="keyword">while</span> (r) &#123;</span><br><span class="line">    r = r-&gt;next;</span><br><span class="line">    count++;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">release</span>(&amp;kmem.lock);</span><br><span class="line">  <span class="keyword">return</span> count * PGSIZE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>（9）要获得进程的数量，请在<code>kernel/proc.c</code>中添加一个函数<code>proc_num()</code></strong></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// get the number of processes whose state is not UNUSED</span></span><br><span class="line"><span class="function">uint64 <span class="title">proc_num</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">proc</span> *p;</span><br><span class="line">  uint64 count = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span>(p = proc; p &lt; &amp;proc[NPROC]; p++) &#123;</span><br><span class="line">    <span class="built_in">acquire</span>(&amp;p-&gt;lock);</span><br><span class="line">    <span class="keyword">if</span>(p-&gt;state != UNUSED) &#123;</span><br><span class="line">      count++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">release</span>(&amp;p-&gt;lock);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> count;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>（10）在<code>kernel/defs.h</code>文件中添加函数原型</strong></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">uint64          <span class="title">proc_num</span><span class="params">(<span class="type">void</span>)</span></span>;         <span class="comment">//NEW ADD</span></span><br><span class="line"><span class="function">uint64          <span class="title">kfreemem</span><span class="params">(<span class="type">void</span>)</span></span>;         <span class="comment">//NEW ADD</span></span><br></pre></td></tr></table></figure></div>
+
+<p><strong>（11）修改<code>kernel/sysproc.c</code>文件的<code>sys_info()</code>的函数体</strong></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">uint64 <span class="title">sys_info</span><span class="params">(<span class="type">void</span>)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">sysinfo</span> info;</span><br><span class="line">  uint64 addr;</span><br><span class="line">  info.freemem = <span class="built_in">kfreemem</span>();</span><br><span class="line">  info.nproc = <span class="built_in">proc_num</span>();</span><br><span class="line">  <span class="keyword">if</span>(<span class="built_in">argaddr</span>(<span class="number">0</span>, &amp;addr) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// copy info(kernel space) to addr(user space)</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">copyout</span>(<span class="built_in">myproc</span>()-&gt;pagetable, addr, (<span class="type">char</span> *)&amp;info, <span class="built_in">sizeof</span>(info)) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>测试效果</strong></p>
+<div class="highlight-container" data-rel="Q"><figure class="iseeu highlight q"><table><tr><td class="code"><pre><span class="line">./grade-lab-syscall sysinfo</span><br></pre></td></tr></table></figure></div>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309251307278.png"
+                      alt="image-20230925130757238"
+                ></p>
+<h2 id="四、总测试"><a href="#四、总测试" class="headerlink" title="四、总测试"></a>四、总测试</h2><ul>
+<li>在xv6-lab-2021的目录下新建time.txt文件，之后输入一个整数代表你做实验的时间，单位是小时。之后就可以运行make grade来测试自己的成绩。</li>
+</ul>
+<div class="highlight-container" data-rel="Q"><figure class="iseeu highlight q"><table><tr><td class="code"><pre><span class="line">make grade		<span class="comment">//用来测试自己的实验成绩</span></span><br></pre></td></tr></table></figure></div>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309251314583.png"
+                      alt="image-20230925131445543"
+                ></p>
+<p><strong>如果上述测试失败，检查错误原因是否是因为</strong></p>
+<ol>
+<li><p>trace的<strong>打印格式</strong>有无错误</p>
+</li>
+<li><p>机器<strong>硬件不行</strong>，测试时间长，qemu认为超时【解决方法打开目录下的<code>gradelib.py</code>文件调整timeout时间】</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309251316024.png"
+                      alt="image-20230925131647952"
+                ></p>
+</li>
+</ol>
+<blockquote>
+<p><b style="color:red">实验心得</b>：</p>
+<p>在Xv6操作系统中完成新增系统调用 <code>trace()</code> 和 <code>sysinfo()</code> 的的实现不仅让我更深入地理解了操作系统内核的工作方式，还提供了一种方法来收集有关系统状态和进程信息的数据。查看源码的过程令我头疼的同时也令我切实的学会了一些东西，了解了系统的部分运行效果</p>
+<p>首先，实现 <code>trace()</code> 调用允许用户程序追踪其他进程的系统调用和退出情况。我学到了如何在进程控制块（PCB）中存储额外的信息，以便程序可以访问。这个经验提高了我对内核数据结构的理解</p>
+<p>另一个 <code>sysinfo()</code> 系统调用，提供了关于系统整体状态的信息，系统启动时间、总的调用次数等。实现这个系统调用，我了解了操作系统内核如何维护系统状态信息，并且学会了如何将这些信息传递给用户程序。这对于监控系统性能和行为非常有用。</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>操作系统</category>
+      </categories>
+      <tags>
+        <tag>操作系统</tag>
+        <tag>xv6</tag>
+      </tags>
+  </entry>
 </search>

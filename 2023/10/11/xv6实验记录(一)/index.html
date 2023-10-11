@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="Hexo Theme Redefine">
+    
+    <meta name="author" content="忘记中二的少年">
+    <!-- preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    
+    <!--- Seo Part-->
+    
+    <link rel="canonical" href="http://example.com/2023/10/11/xv6实验记录(一)/"/>
+    <meta name="robots" content="index,follow">
+    <meta name="googlebot" content="index,follow">
+    <meta name="revisit-after" content="1 days">
+    
+        <meta name="description" content="“2023年scnu操作系统实验(一)&quot;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2021-xv6实验记录(一)">
+<meta property="og:url" content="http://example.com/2023/10/11/xv6%E5%AE%9E%E9%AA%8C%E8%AE%B0%E5%BD%95(%E4%B8%80)/index.html">
+<meta property="og:site_name" content="MyBlog">
+<meta property="og:description" content="“2023年scnu操作系统实验(一)&quot;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182028585.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182031280.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182034263.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182038549.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182040325.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182041488.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182042046.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182009125.png">
+<meta property="article:published_time" content="2023-10-11T09:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-11T09:13:23.089Z">
+<meta property="article:author" content="忘记中二的少年">
+<meta property="article:tag" content="操作系统">
+<meta property="article:tag" content="xv6">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182028585.png">
+    
+    
+        <!-- Google tag (gtag.js) -->
+        <script src="https://www.googletagmanager.com/gtag/js?id="></script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', '');
+        </script>
+    
+    <!--- Icon Part-->
+    <link rel="icon" type="image/png" href="/images/avatar.png" sizes="192x192">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/avatar.png">
+    <meta name="theme-color" content="#f051d8">
+    <link rel="shortcut icon" href="/images/avatar.png">
+    <!--- Page Info-->
+    
+    <title>
+        
+            2021-xv6实验记录(一) -
+        
+        橙留香的blog
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    
+        
+<link rel="stylesheet" href="/assets/build/styles.css">
+
+    
+
+    
+<link rel="stylesheet" href="/fonts/fonts.css">
+
+    
+<link rel="stylesheet" href="/fonts/Satoshi/satoshi.css">
+
+    
+<link rel="stylesheet" href="/fonts/Chillax/chillax.css">
+
+    <!--- Font Part-->
+    
+    
+    
+    
+
+    <!--- Inject Part-->
+    
+    <script id="hexo-configurations">
+    window.config = {"hostname":"example.com","root":"/","language":"zh-CN","path":"search.xml"};
+    window.theme = {"articles":{"style":{"font_size":"16px","line_height":1.5,"image_border_radius":"14px","image_alignment":"center","image_caption":false,"link_icon":true},"word_count":{"enable":true,"count":true,"min2read":true},"author_label":{"enable":true,"auto":false,"list":[]},"code_block":{"copy":true,"style":"mac","font":{"enable":false,"family":null,"url":null}},"toc":{"enable":true,"max_depth":3,"number":false,"expand":true,"init_open":true},"copyright":true,"lazyload":true,"recommendation":{"enable":false,"title":"推荐阅读","limit":3,"mobile_limit":2,"placeholder":"/images/wallhaven-wqery6-light.webp","skip_dirs":[]}},"colors":{"primary":"#f051d8","secondary":null},"global":{"fonts":{"chinese":{"enable":false,"family":null,"url":null},"english":{"enable":false,"family":null,"url":null}},"content_max_width":"1000px","sidebar_width":"210px","hover":{"shadow":true,"scale":false},"scroll_progress":{"bar":true,"percentage":true},"website_counter":{"url":"https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js","enable":true,"site_pv":true,"site_uv":true,"post_pv":true},"single_page":true,"open_graph":true,"google_analytics":{"enable":true,"id":null}},"home_banner":{"enable":true,"style":"fixed","image":{"light":"/images/background-light.jpg","dark":"/images/background-dark.jpg"},"title":"欢迎来到我的个人空间","subtitle":{"text":["此处记录着我的学习轨迹","吾日三省吾身"],"hitokoto":{"enable":false,"api":"https://v1.hitokoto.cn"},"typing_speed":100,"backing_speed":80,"starting_delay":500,"backing_delay":1500,"loop":true,"smart_backspace":true},"text_color":{"light":"#fff","dark":"#750fd4"},"text_style":{"title_size":"4rem","subtitle_size":"1.7rem","line_height":1.3},"custom_font":{"enable":false,"family":null,"url":null},"social_links":{"enable":false,"links":{"github":null,"instagram":null,"zhihu":null,"twitter":null,"email":null},"qrs":{"weixin":null}}},"plugins":{"feed":{"enable":false},"aplayer":{"enable":true,"type":"fixed","audios":[{"name":"小胡同","artist":"郑润泽","url":"https://music.163.com/song/media/outer/url?id=1926623288.mp3","cover":"https://w.wallhaven.cc/full/gp/wallhaven-gpdozd.jpg"},{"name":"怪就怪天气","artist":"OneOne / xxxmiracle / Zy","url":"https://music.163.com/song/media/outer/url?id=2069713612.mp3","cover":"https://w.wallhaven.cc/full/1p/wallhaven-1p2yev.jpg"},{"name":"瞬","artist":"郑润泽","url":"https://music.163.com/song/media/outer/url?id=2063864551.mp3","cover":"https://w.wallhaven.cc/full/l8/wallhaven-l8ddyq.jpg"}]},"mermaid":{"enable":false,"version":"9.3.0"}},"version":"2.5.0","navbar":{"auto_hide":false,"color":{"left":"#f78736","right":"#367df7","transparency":35},"links":{"Home":{"path":"/","icon":"fa-regular fa-house"},"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"CSDN":{"path":"https://blog.csdn.net/weixin_64340669","icon":"fa-regular fa-chart-bar"},"About":{"icon":"fa-regular fa-user","submenus":{"Me":"/about","Github":"https://github.com/HandsomeXianc","Blog":"https://iui.su/1878/","Friends":"https://ohevan.com"}}},"search":{"enable":true,"preload":true}},"page_templates":{"friends_column":2,"tags_style":"blur"},"home":{"sidebar":{"enable":true,"position":"left","first_item":"menu","announcement":"<b style=\"background-image:linear-gradient(to right top,#ff09e2,#ff0092,#ff5a4c,#ff9800,#d6c300,#b3d61a,#82e743,#00f671,#00f797,#00f7b7,#00f6d1,#06f3e4); -webkit-background-clip:text; color:transparent;\"> 然后给自己定个小目标:先写10年代码,之后再写20年吧</b>","links":{"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"Tags":{"path":"/tags","icon":"fa-regular fa-tags"},"Categories":{"path":"/categories","icon":"fa-regular fa-folder"}}},"article_date_format":"auto","categories":{"enable":true,"limit":3},"tags":{"enable":true,"limit":3}},"footerStart":"2023/10/1 12:00:00"};
+    window.lang_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 个月前","year":"%s 年前"};
+    window.data = {"masonry":false};
+  </script>
+    
+    <!--- Fontawesome Part-->
+    
+<link rel="stylesheet" href="/fontawesome/fontawesome.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/brands.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/solid.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/regular.min.css">
+
+    
+    
+    
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+        <span class="scroll-progress-bar"></span>
+    
+
+    
+        <span class="pjax-progress-bar"></span>
+        <span class="swup-progress-icon">
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+        </span>
+    
+</div>
+
+
+<main class="page-container" id="swup">
+
+    
+
+    <div class="main-content-container">
+
+
+        <div class="main-content-header">
+            <header class="navbar-container">
+    
+    <div class="navbar-content">
+        <div class="left">
+            
+                <a class="logo-image" href="/">
+                    <img src="/images/avatar.png">
+                </a>
+            
+            <a class="logo-title" href="/">
+                
+                橙留香的blog
+                
+            </a>
+        </div>
+
+        <div class="right">
+            <!-- PC -->
+            <div class="desktop">
+                <ul class="navbar-list">
+                    
+                        
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class="" 
+                                    href="/"  >
+                                    
+                                        
+                                            <i class="fa-regular fa-house"></i>
+                                        
+                                        首页
+                                    
+                                </a>
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class="" 
+                                    href="/archives"  >
+                                    
+                                        
+                                            <i class="fa-regular fa-archive"></i>
+                                        
+                                        归档
+                                    
+                                </a>
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class="" 
+                                    target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_64340669"  >
+                                    
+                                        
+                                            <i class="fa-regular fa-chart-bar"></i>
+                                        
+                                        CSDN
+                                    
+                                </a>
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class="has-dropdown" 
+                                    href="#" onClick="return false;">
+                                    
+                                        
+                                            <i class="fa-regular fa-user"></i>
+                                        
+                                        关于&nbsp;<i class="fa-solid fa-chevron-down"></i>
+                                    
+                                </a>
+                                <!-- Submenu -->
+                                
+                                    <ul class="sub-menu">
+                                    
+                                        <li>
+                                        <a href="/about">ME
+                                        </a>
+                                        </li>
+                                    
+                                        <li>
+                                        <a target="_blank" rel="noopener" href="https://github.com/HandsomeXianc">GITHUB
+                                        </a>
+                                        </li>
+                                    
+                                        <li>
+                                        <a target="_blank" rel="noopener" href="https://iui.su/1878/">BLOG
+                                        </a>
+                                        </li>
+                                    
+                                        <li>
+                                        <a target="_blank" rel="noopener" href="https://ohevan.com">友情链接
+                                        </a>
+                                        </li>
+                                    
+                                    </ul>
+                                
+                            </li>
+                    
+                    
+                        <li class="navbar-item search search-popup-trigger">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <!-- Mobile -->
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fa-solid fa-magnifying-glass"></i></div>
+                
+                <div class="icon-item navbar-bar">
+                    <div class="navbar-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile drawer -->
+    <div class="navbar-drawer w-full absolute top-0 left-0 bg-background-color">
+        <ul class="drawer-navbar-list flex flex-col justify-start items-center">
+            
+                
+                    <li class="drawer-navbar-item text-base my-1.5 flex justify-center items-center">
+                        <a class="rounded-3xl py-1.5 px-5 hover:border hover:!text-primary active:!text-primary group " 
+                        href="/"  >
+                             
+                                
+                                    <i class="fa-regular fa-house"></i>
+                                
+                                首页
+                            
+                        </a>
+                    </li>
+                    <!-- Submenu -->
+                    
+            
+                
+                    <li class="drawer-navbar-item text-base my-1.5 flex justify-center items-center">
+                        <a class="rounded-3xl py-1.5 px-5 hover:border hover:!text-primary active:!text-primary group " 
+                        href="/archives"  >
+                             
+                                
+                                    <i class="fa-regular fa-archive"></i>
+                                
+                                归档
+                            
+                        </a>
+                    </li>
+                    <!-- Submenu -->
+                    
+            
+                
+                    <li class="drawer-navbar-item text-base my-1.5 flex justify-center items-center">
+                        <a class="rounded-3xl py-1.5 px-5 hover:border hover:!text-primary active:!text-primary group " 
+                        target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_64340669"  >
+                             
+                                
+                                    <i class="fa-regular fa-chart-bar"></i>
+                                
+                                CSDN
+                            
+                        </a>
+                    </li>
+                    <!-- Submenu -->
+                    
+            
+                
+                    <li class="drawer-navbar-item text-base my-1.5 flex justify-center items-center">
+                        <a class="rounded-3xl py-1.5 px-5 hover:border hover:!text-primary active:!text-primary group has-dropdown" 
+                        href="#" onClick="return false;">
+                            
+                                
+                                    <i class="fa-regular fa-user"></i>
+                                
+                                关于&nbsp;<i class="group-hover:rotate-180 transition-transform fa-solid fa-chevron-down"></i>
+                            
+                        </a>
+                    </li>
+                    <!-- Submenu -->
+                              
+                        
+                            <li class="drawer-navbar-item text-base flex justify-center items-center hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                <a class="py-0.5" href="/about">ME</a>
+                            </li>
+                        
+                            <li class="drawer-navbar-item text-base flex justify-center items-center hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                <a class="py-0.5" target="_blank" rel="noopener" href="https://github.com/HandsomeXianc">GITHUB</a>
+                            </li>
+                        
+                            <li class="drawer-navbar-item text-base flex justify-center items-center hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                <a class="py-0.5" target="_blank" rel="noopener" href="https://iui.su/1878/">BLOG</a>
+                            </li>
+                        
+                            <li class="drawer-navbar-item text-base flex justify-center items-center hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                <a class="py-0.5" target="_blank" rel="noopener" href="https://ohevan.com">友情链接</a>
+                            </li>
+                        
+                    
+            
+
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="main-content-body">
+
+            
+
+            <div class="main-content">
+
+                
+                    <div class="post-page-container">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            
+                
+                
+                <img src="https://w.wallhaven.cc/full/vq/wallhaven-vq2gjl.png" alt="2021-xv6实验记录(一)" class="max-w-none"/>
+                
+                <h1 class="article-title-cover">2021-xv6实验记录(一)</h1>
+            
+            </div>
+            
+                    
+        
+        
+            <div class="article-header flex flex-row gap-2 items-center">
+                <div class="avatar w-[46px] h-[46px] flex-shrink-0 rounded-medium border border-border-color p-[1px]">
+                    <img src="/images/avatar.png">
+                </div>
+                <div class="info flex flex-col justify-between">
+                    <div class="author flex items-center">
+                        <span class="name text-default-text-color text-lg font-semibold">忘记中二的少年</span>
+                        
+                            <span class="author-label ml-1.5 text-xs px-2 py-0.5 rounded-small text-third-text-color border border-shadow-color-1">Lv2</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fa-regular fa-pen-fancy"></i>&nbsp;
+        <span class="desktop">2023-10-11 17:00</span>
+        <span class="mobile">2023-10-11 17:00</span>
+        <span class="hover-info">创建</span>
+    </span>
+    
+        <span class="article-date article-meta-item">
+            <i class="fa-regular fa-wrench"></i>&nbsp;
+            <span class="desktop">2023-10-11 17:13:23</span>
+            <span class="mobile">2023-10-11 17:13:23</span>
+            <span class="hover-info">更新</span>
+        </span>
+    
+
+    
+        <span class="article-categories article-meta-item">
+            <i class="fa-regular fa-folders"></i>&nbsp;
+            <ul>
+                
+                
+                    
+                        
+                        <li>
+                            <a href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>&nbsp;
+                        </li>
+                    
+                    
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fa-regular fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        | <a href="/tags/xv6/">xv6</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fa-regular fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        
+
+
+        <div class="article-content markdown-body">
+            <h2 id="一、实验目的："><a href="#一、实验目的：" class="headerlink" title="一、实验目的："></a>一、实验目的：</h2><ol>
+<li>借助Linux操作系统和qemu模拟器完成xv6平台的搭建</li>
+<li>熟悉Linux一些命令的操作，熟悉vim的使用，会借助vim进行一些程序的编写并交入xv6中执行。</li>
+<li>认识操作系统中的一些运行机理例如管道等。</li>
+</ol>
+<h2 id="二、实验内容："><a href="#二、实验内容：" class="headerlink" title="二、实验内容："></a>二、实验内容：</h2><ol>
+<li>完成xv6平台的搭建。</li>
+<li>完成sleep.c程序的编写。</li>
+<li>完成pingpong.c程序的编写。</li>
+<li>完成primes.c程序的编写。</li>
+</ol>
+<h2 id="三、实验平台的搭建【VMWare-Ubuntu-qemu-xv6】"><a href="#三、实验平台的搭建【VMWare-Ubuntu-qemu-xv6】" class="headerlink" title="三、实验平台的搭建【VMWare + Ubuntu + qemu + xv6】"></a>三、实验平台的搭建【VMWare + Ubuntu + qemu + xv6】</h2><ol>
+<li><p><strong>安装VMWare</strong></p>
+<p>官网在这：《<a class="link"   target="_blank" rel="noopener" href="https://www.vmware.com/jp.html" >VMWare的官网 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>》。找寻CSDN其他文章，傻瓜式安装即可</p>
+</li>
+<li><p><strong>安装Ubuntu</strong></p>
+<p>这里需要注意，装载的ubuntu镜像文件最好选择最新的20版本，如果选用老版本是无法直接安装qemu直接跑的，可能会有一些奇奇怪怪的问题，所以直接选用最新的版本，点击此处链接《 <a class="link"   target="_blank" rel="noopener" href="https://mirrors.aliyun.com/ubuntu-releases/20.04/" >20版本的Ubuntu镜像文件 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>》进去链接下载后缀为iso的文件即可。【配置镜像文件到VMWare还是找CSDN傻瓜式配置即可】</p>
+</li>
+<li><p><strong>安装qemu</strong></p>
+<p>先检测当前Ubuntu的版本是否可用，输入<code>ctrl+alt+T</code>打开终端输入指令</p>
+<div class="highlight-container" data-rel="Cmd"><figure class="iseeu highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /etc/debian_version</span><br></pre></td></tr></table></figure></div>
+
+<p>如果显示的是，就说明没有问题</p>
+<div class="highlight-container" data-rel="Cmd"><figure class="iseeu highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bullseye/sid</span><br></pre></td></tr></table></figure></div>
+
+<p>若是显示如下，则说明要去更新版本了</p>
+<div class="highlight-container" data-rel="Cmd"><figure class="iseeu highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">buster/...</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>1.升级apt并更换虚拟机的服务器镜像</strong>：输入如下指令</p>
+<div class="highlight-container" data-rel="Cmd"><figure class="iseeu highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt update</span><br></pre></td></tr></table></figure></div>
+
+<p><em><strong>2.换阿里的源</strong></em>：在Ubuntu20.04.3桌面版中，点击左下角“显示应用程序”，搜索“软件和更新”，点击进入。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182028585.png"
+                      alt="image-20230918202626239"
+                ></p>
+<p><strong>3.在“软件与更新”界面中的“Ubuntu软件”一栏， 选择“下载自”下拉菜单中的“其他站点”。</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182031280.png"
+                      alt="image-20230918203121201"
+                ></p>
+<p>然后点击“选择最佳服务器”，系统会自动测试下载的服务器，等待一段时间后，选择系统给出的镜像服务器，软件源修改完成。【使用阿里云的够了】</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182034263.png"
+                      alt="image-20230918203337697"
+                ></p>
+<p><strong>4. 使用命令下载前置相关包</strong></p>
+<p>这些包是要运行qemu不可或缺的前置组件[<a class="link"   target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/267159664#ref_6" >6] <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>，直接打开命令行终端复制粘贴运行即可安装。注意，这里安装包能否成功运行是和你的ubuntu版本有关系的</p>
+<div class="highlight-container" data-rel="Cmd"><figure class="iseeu highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install autoconf automake autotools-dev curl libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>5. 安装riscv64-unknown-elf-gcc</strong></p>
+<div class="highlight-container" data-rel="Cmd"><figure class="iseeu highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install riscv64-unknown-elf-gcc</span><br></pre></td></tr></table></figure></div>
+
+<p><em><strong>6. 安装xv6</strong></em></p>
+<p>检查前面的组件是否安装成功…</p>
+<div class="highlight-container" data-rel="Cmd"><figure class="iseeu highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">riscv64-unknown-elf-gcc --version</span><br><span class="line">qemu-system-riscv64 --version</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>克隆xv6的源码仓库</strong></p>
+<div class="highlight-container" data-rel="Cmd"><figure class="iseeu highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone git://github.com/mit-pdos/xv6-riscv.git</span><br></pre></td></tr></table></figure></div>
+
+<p>7.<strong>使用</strong></p>
+<p>先打开上述步骤中git clone下来的库，名称应该是xv6-riscv，cd进去，然后输入指令：</p>
+<div class="highlight-container" data-rel="Cmd"><figure class="iseeu highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make</span><br></pre></td></tr></table></figure></div>
+
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182038549.png"
+                      alt="image-20230918203857506" style="zoom: 67%;" 
+                >
+
+<p>输入以后你应该会看到一大堆输出，这里表示我们的xv6系统正在编译</p>
+<p>在这些输出完成以后，输入指令：</p>
+<div class="highlight-container" data-rel="Cmd"><figure class="iseeu highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make qemu</span><br></pre></td></tr></table></figure></div>
+
+<p>编译我们的qemu系统，输出如下：</p>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182040325.png"
+                      alt="image-20230918204022277" style="zoom:67%;" 
+                >
+
+<p>最后如果看到终端显示出：init: starting sh，如下图：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182041488.png"
+                      alt="image-20230918204114449"
+                ></p>
+<p>这就说明我们的安装成功啦，可以愉快地完成后续的任务了，还可以再输入ls验证一下：</p>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182042046.png"
+                      alt="image-20230918204203012" style="zoom:67%;" 
+                ></li>
+</ol>
+<h2 id="3-1、Sleep（easy）"><a href="#3-1、Sleep（easy）" class="headerlink" title="3.1、Sleep（easy）"></a>3.1、Sleep（easy）</h2><h3 id="编写前提示"><a href="#编写前提示" class="headerlink" title="编写前提示"></a>编写前提示</h3><ul>
+<li>开始编码之前，请阅读xv6手册第一章</li>
+<li>查看文件夹<code>user/</code>中的一些其他程序（例如：<code>user/echo.c</code>、<code>user/grep.c</code>、<code>user/rm.c</code>）了解如何将获得的命令行参数传递给程序</li>
+<li>若用户忘记传递参数，sleep程序应该打印一条错误的提示信息</li>
+<li>命令行参数作为字符串传递，应使用<code>atoi</code>函数将其转为整数（具体查看<b style="color:red">user&#x2F;ulib.c中的atoi函数</b>）</li>
+<li>参阅睡眠系统调用的xv6内核代码<code>kernel/sysproc.c</code>（<strong style="color:red">sys_sleep</strong>函数）</li>
+<li>确保main中调用<code>exit()</code>以退出程序</li>
+</ul>
+<h3 id="编写后提示"><a href="#编写后提示" class="headerlink" title="编写后提示"></a>编写后提示</h3><p>假设你编写的程序名为“sleep.c”。在编写完成后：</p>
+<ol>
+<li>请将<strong>“sleep.c”拷贝至 xv6 源码目录下的 user&#x2F;文件夹下</strong></li>
+<li>然后在 xv6 源码根目录下的 <code>Makefile </code>文件里，找到关键字<b style="color:red">UPROGS&#x3D;\</b>（可能<br>是第 179 行左右）,在其下面列出的多个以<code>&amp;U</code>开头的字符串的下方（可能是<br>第 195 行左右），添加一行<b style="color:red">&amp;U&#x2F;_sleep\</b>，并保存；</li>
+<li>回到 xv6 的源码目录的根目录下，敲<code>make qemu</code>，以让 <code>sleep.c </code>得以编译并<br>在 xv6 内部形成可执行程序；</li>
+<li>顺利进入到 xv6 的终端后，敲<code>“./sleep 5”</code>;</li>
+</ol>
+<h3 id="了解命令行如何传参"><a href="#了解命令行如何传参" class="headerlink" title="了解命令行如何传参"></a>了解命令行如何传参</h3><p><strong>查看源文件 echo 了解一下如何传递参数</strong></p>
+<ul>
+<li>查看此文件了解如何进行传递参数</li>
+</ul>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//echo.c源文件</span></span><br><span class="line"> </span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kernel/types.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kernel/stat.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;user/user.h&quot;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span>&#123;</span><br><span class="line">  <span class="type">int</span> i;</span><br><span class="line">  <span class="keyword">for</span>(i = <span class="number">1</span>; i &lt; argc; i++)&#123;</span><br><span class="line">    <span class="built_in">write</span>(<span class="number">1</span>, argv[i], <span class="built_in">strlen</span>(argv[i]));</span><br><span class="line">    <span class="keyword">if</span>(i + <span class="number">1</span> &lt; argc)&#123;</span><br><span class="line">      <span class="built_in">write</span>(<span class="number">1</span>, <span class="string">&quot; &quot;</span>, <span class="number">1</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="built_in">write</span>(<span class="number">1</span>, <span class="string">&quot;\n&quot;</span>, <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p>通过上述<code>echo.c</code>源码文件，了解到参数作用：</p>
+<ol>
+<li><code>argc</code>：表示的是命令行<strong>总的参数个数</strong></li>
+<li><code>argv</code>：数组类型，按序保存了接收的所有参数，其中<strong>第 0 个是程序的全名</strong>，之后的参数就是用户输入的参数</li>
+<li><code>write函数</code>：该函数接收三个参数<ul>
+<li>第一个参数：0 表示 stdin，1 表示 stdout ，2 表示 stderr</li>
+<li>第二个参数：输出的内容</li>
+<li>第三个参数：输出内容的长度</li>
+</ul>
+</li>
+</ol>
+<p><strong>在命令行使用echo程序得到结果：</strong></p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[roc@roclinux ~]$ echo &#x27;Hello World&#x27;			//输入</span><br><span class="line">Hello World										//输出</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h3 id="字符串转为整数（atoi函数）"><a href="#字符串转为整数（atoi函数）" class="headerlink" title="字符串转为整数（atoi函数）"></a>字符串转为整数（atoi函数）</h3><div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// atoi函数的源码</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">atoi</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *s)</span></span>&#123;</span><br><span class="line">  <span class="type">int</span> n;</span><br><span class="line">  n = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">while</span>(<span class="string">&#x27;0&#x27;</span> &lt;= *s &amp;&amp; *s &lt;= <span class="string">&#x27;9&#x27;</span>)</span><br><span class="line">    n = n*<span class="number">10</span> + *s++ - <span class="string">&#x27;0&#x27;</span>;</span><br><span class="line">  <span class="keyword">return</span> n;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h3 id="编写Sleep"><a href="#编写Sleep" class="headerlink" title="编写Sleep"></a>编写Sleep</h3><div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kernel/types.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kernel/stat.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;user/user.h&quot;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="type">int</span></span></span><br><span class="line"><span class="function"><span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span>&#123;</span><br><span class="line">  <span class="keyword">if</span>(argc != <span class="number">2</span>)&#123;				<span class="comment">//上述提到，这是参数总数，第一个是程序名字，第二个开始是用户输入的参数</span></span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="number">2</span>, <span class="string">&quot;Error: please input one parameter..\n&quot;</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="type">int</span> time = <span class="built_in">atoi</span>(argv[<span class="number">1</span>]);</span><br><span class="line">  <span class="built_in">sleep</span>(time);			<span class="comment">//此处是xv内核 sys_sleep 函数的调用</span></span><br><span class="line">  <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<hr>
+
+<h2 id="3-2、pingpong（easy）"><a href="#3-2、pingpong（easy）" class="headerlink" title="3.2、pingpong（easy）"></a>3.2、pingpong（easy）</h2><p>该实验是一个典型的进程间通信应用。它的运行逻辑是：父进程使用<code>fork()</code>系统调用，创建一个子进程，然后使用管道<code>pipe</code>，在两者之间进行通信。</p>
+<h3 id="编写前提示-1"><a href="#编写前提示-1" class="headerlink" title="编写前提示"></a>编写前提示</h3><ul>
+<li>实验之前，建议在网络上了解 <b style="color:blue">fork、pipe、write、read、getpid</b>函数的作用</li>
+<li>使用<b style="color:red">pipe</b>创建管道</li>
+<li>使用<b style="color:red">fork</b>创建子进程</li>
+<li>使用<b style="color:red">read</b>读取pipe，并使用<b style="color:red">write</b>写入pipe</li>
+<li>使用<b style="color:red">getpid</b>查找调用进程的进程ID</li>
+<li>程序编写完成后，参考上述Sleep实验的程序编译部分，把 pingpong 程序放到对应的 xv6<br>源码目录，然后修改 Makefile 文件，再编译运行</li>
+</ul>
+<hr>
+
+<h4 id="fork函数"><a href="#fork函数" class="headerlink" title="fork函数"></a>fork函数</h4><ul>
+<li>fork创建一个子进程并完全复制父进程，且<b style="color:red">子进程是从fork后面的指令开始执行的。</b></li>
+</ul>
+<p>为已存在的进程创建一个子进程，而原进程称为父进程。调用该函数后，内核开始分配新的内存块和内核数据结构给子进程。</p>
+<p><strong>特点：</strong></p>
+<ol>
+<li>调用一次，返回两次并发执行</li>
+<li>有独立使用的地址空间</li>
+<li>函数fork返回值：向父进程返回子进程的ID，向子进程返回 0<ul>
+<li>在父进程中，fork() 返回新创建子进程的进程pid；</li>
+<li>在子进程中，fork() 返回0；</li>
+<li>如果出现错误，fork() 返回一个负值；</li>
+</ul>
+</li>
+<li>不同的进程有一个<strong>唯一</strong>的不同进程pid，通过 getpid() 函数可以知道当前进程pid，可以说我们就是通过这个pid知道当前所在进程。</li>
+</ol>
+<p><strong>fork 调用失败的原因：</strong></p>
+<ol>
+<li>系统中有太多进程。</li>
+<li>实际用户的进程数超过限制。</li>
+</ol>
+<blockquote>
+<p>每个进程各自有<b style="color:red">不同的用户地址空间</b>,任何一个进程的全局变量在另一个进程中都看不到，所以<b style="color:blue">进程之间要交换数据必须通过内核</b>,在内核中开辟一块缓冲区,进程A把数据从用户空间拷到内核缓冲区,进程B再从内核缓冲区把数据读走,内核提供的这种机制称为进程间通信。 </p>
+</blockquote>
+<hr>
+
+<h4 id="pipe函数"><a href="#pipe函数" class="headerlink" title="pipe函数"></a>pipe函数</h4><p><code>pipe()</code> 函数是一个用于创建无名管道</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">pipe</span><span class="params">(<span class="type">int</span> pipefd[<span class="number">2</span>])</span></span>;		<span class="comment">//函数原型</span></span><br></pre></td></tr></table></figure></div>
+
+<p><strong>参数：</strong></p>
+<ul>
+<li><p><code>pipefd[2]</code>：一个整数数组，包含了两个文件描述符。</p>
+<p><strong>文件描述符是操作系统中用于标识和操作文件或I&#x2F;O资源的抽象概念。它是一个非负整数，通常作为索引或句柄，用于访问文件、套接字、管道和其他I&#x2F;O设备。</strong></p>
+</li>
+<li><p><code>pipefd[0]</code> 用于读取，<code>pipefd[1]</code> 用于写入。</p>
+</li>
+</ul>
+<p><strong>返回值：</strong></p>
+<ul>
+<li>成功时返回0。</li>
+<li>失败时返回-1，并设置 <code>errno</code> 来指示错误的原因。</li>
+</ul>
+<p><strong>那么管道如何实现进程间的通信？</strong></p>
+<ol>
+<li>父进程创建管道，得到两个⽂件描述符指向管道的两端</li>
+<li>父进程fork出子进程，⼦进程也有两个⽂件描述符指向同⼀管道。</li>
+<li>《0-读，1-写》父进程关闭pipefd[0],子进程关闭pipefd[1]，即⽗进程关闭管道读端,⼦进程关闭管道写端（因为管道只支持单向通信）。⽗进程可以往管道⾥写,⼦进程可以从管道⾥读,管道是⽤环形队列实现的,数据从写端流⼊从读端流出,这样就实现了进程间通信。</li>
+</ol>
+<p><strong>需要使用的函数已经在前置知识有介绍，知识略浅，需要在网络上了解更多详细知识，此处不在赘述</strong></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kernel/types.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kernel/stat.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;user/user.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc,<span class="type">char</span> *argv[])</span></span>&#123;</span><br><span class="line">    <span class="type">int</span> parent_fd[<span class="number">2</span>];</span><br><span class="line">    <span class="type">int</span> child_fd[<span class="number">2</span>];</span><br><span class="line">    <span class="comment">//调用函数创建管道,并判断是否创建成功</span></span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">pipe</span>(parent_fd) == <span class="number">-1</span>)<span class="built_in">printf</span>(<span class="string">&quot;Error: parernt_pipe not create...&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span>(<span class="built_in">pipe</span>(child_fd) == <span class="number">-1</span>)<span class="built_in">printf</span>(<span class="string">&quot;Error: child_pipe not create...&quot;</span>);</span><br><span class="line">    <span class="comment">//创建子进程,获取进程ID</span></span><br><span class="line">    <span class="type">int</span> pid = fork();</span><br><span class="line">    <span class="comment">//创建数据容器,保存数据</span></span><br><span class="line">    <span class="type">char</span> buf[<span class="number">64</span>];</span><br><span class="line">    <span class="keyword">if</span>(pid == <span class="number">0</span>)&#123;<span class="comment">//获取的PID == 0时为子进程</span></span><br><span class="line">        <span class="built_in">read</span>(parent_fd[<span class="number">0</span>],buf,<span class="number">4</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%d: reacive %s\n&quot;</span>,<span class="built_in">getpid</span>(),buf);</span><br><span class="line">        <span class="built_in">write</span>(child_fd[<span class="number">1</span>],<span class="string">&quot;ping&quot;</span>,<span class="built_in">strlen</span>(<span class="string">&quot;ping&quot;</span>));</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="comment">//PID != 0 时为父进程</span></span><br><span class="line">        <span class="built_in">write</span>(parent_fd[<span class="number">1</span>],<span class="string">&quot;pang&quot;</span>,<span class="built_in">strlen</span>(<span class="string">&quot;pang&quot;</span>));</span><br><span class="line">        <span class="built_in">read</span>(child_fd[<span class="number">0</span>],buf,<span class="number">4</span>);</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;%d: reacive %s\n&quot;</span>,<span class="built_in">getpid</span>(),buf);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">close</span>(parent_fd[<span class="number">0</span>]);</span><br><span class="line">    <span class="built_in">close</span>(parent_fd[<span class="number">1</span>]);</span><br><span class="line">    <span class="built_in">close</span>(child_fd[<span class="number">0</span>]);</span><br><span class="line">    <span class="built_in">close</span>(child_fd[<span class="number">1</span>]);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<blockquote>
+<p><strong>注意进程死锁，上述if - else中的读和写语句要错位，如果两个进程一开始都是读文件，即会造成进程死锁</strong></p>
+</blockquote>
+<h2 id="3-3、质数primes"><a href="#3-3、质数primes" class="headerlink" title="3.3、质数primes"></a>3.3、质数primes</h2><h3 id="筛法思想"><a href="#筛法思想" class="headerlink" title="筛法思想"></a>筛法思想</h3><p>筛法就是将2的倍数，3的倍数，5的倍数等等，一一筛除，剩下的就是素数了。</p>
+<p>创建文件描述符和创建一个管道，再创建一个子进程，子进程把管道的写端口描述符映射到原来的描述符标准输出 1 上。循环通过 write 系统调用把 2 到 35 写入管道。父进程等待子进程把数据写入完毕后，父进程把管道的读端口描述符映射到原来的描述符标准输入 0 上。在编写一个 primes 函数，调用此函数实现递归筛选的过程。</p>
+<p>对于编写 primes 函数。定义两个整型变量，存放从管道获取的数，定义管道描述符数组。从管道中读取数据，第一个数（2，3，5等）一定是素数，直接打印出来，然后创建另一个管道和子进程，子进程通过管道描述符映射，关闭不必要的文件描述符节约资源。再循环读取原管道中的数据，如果该数与原管道的第一个取模后不为 0 ，则重新写入刚刚创建的管道。父进程等待此子进程执行完毕，再次调用重定向函数关闭不必要的文件描述符，再递归调用 primes 函数重复以上筛选过程，即可将管道中所有素数打印出来。</p>
+<h3 id="实验步骤"><a href="#实验步骤" class="headerlink" title="实验步骤"></a>实验步骤</h3><ol>
+<li>父进程A生成【2-35】之间的所有数字，包括2和35</li>
+<li>向A的子进程B进行输出（通过管道）</li>
+<li>B对[2-35]进行筛选，打印出第一个质数2</li>
+<li>B把剩下的数字（通过）通过管道传递给B的子进程C</li>
+<li>C打印出第二个质数，也就是3</li>
+<li>重复（4）和（5）的过程，直到2 - 35 之间的质数全部在终端输出</li>
+</ol>
+<h3 id="一些提示"><a href="#一些提示" class="headerlink" title="一些提示"></a>一些提示</h3><ul>
+<li><p>请小心关闭进程不需要的文件描述符，因为否则，您的程序将在第一个进程达到35之前在资源中运行xv6。</p>
+</li>
+<li><p>一旦第一个进程达到35，它应该等待直到整个管道终止，包括所有子代，孙代为止。因此，仅在打印完所有输出之后以及在所有其他准备工作都退出之后，才应退出主要准备工作。</p>
+</li>
+<li><p>提示：当管道的写侧关闭时，read返回零。</p>
+</li>
+<li><p>将32位<b style="color:blue">（4字节）</b>int直接写入管道是最简单的，而不是使用格式化的ASCII I &#x2F; O。</p>
+</li>
+<li><p>您仅应在需要时才在管道中创建进程。<br>将程序添加到Makefile中的UPROGS。</p>
+</li>
+</ul>
+<blockquote>
+<p>此处选取算法<b style="color:red">埃拉托斯特尼筛法</b>来实现快速筛选质数</p>
+<p>建议在网络上了解上述算法的原理再回来看该程序会更容易理解一点</p>
+</blockquote>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309182009125.png"
+                      alt="image-20230918200904069" style="zoom: 67%;" 
+                >
+
+<div class="highlight-container" data-rel="C"><figure class="iseeu highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kernel/types.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kernel/stat.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;user/user.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//用指针的形式，让所有子进程能够读取同一块空间的数据，num记录目前还需要筛选数子的个数</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">solution</span><span class="params">(<span class="type">int</span> *<span class="built_in">array</span>,<span class="type">int</span> num)</span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(num == <span class="number">1</span>)&#123;  <span class="comment">// 筛选到最后一个数字的时候，该数字已经是质数了，所以程序也就结束了</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;prime is %d\n&quot;</span>,*<span class="built_in">array</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">int</span> fd[<span class="number">2</span>], i ,temp;</span><br><span class="line">    <span class="type">int</span> prime = *<span class="built_in">array</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;prime is %d\n&quot;</span>,prime);;</span><br><span class="line">    pipe(fd);</span><br><span class="line">    <span class="keyword">if</span>(fork() == <span class="number">0</span>)&#123;		<span class="comment">//父进程创建一个子进程(一)，子进程循环写入剩余的每一个数字到管道</span></span><br><span class="line">        <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; num; i++)&#123;</span><br><span class="line">            temp = *(<span class="built_in">array</span> + i);</span><br><span class="line">            write(fd[<span class="number">1</span>], (<span class="type">char</span> *)(&amp;temp), <span class="number">4</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    close(fd[<span class="number">1</span>]);</span><br><span class="line">    <span class="keyword">if</span>(fork() == <span class="number">0</span>)&#123;		<span class="comment">//父进程再创建一个子进程（二），子进程读取上面一个子进程写入管道的数据</span></span><br><span class="line">        <span class="type">int</span> count = <span class="number">0</span>;		<span class="comment">//该变量记录本轮没有被筛掉的数字个数</span></span><br><span class="line">        <span class="type">char</span> buffer[<span class="number">4</span>];</span><br><span class="line">        <span class="keyword">while</span>(read(fd[<span class="number">0</span>], buffer, <span class="number">4</span>) != <span class="number">0</span>)&#123;</span><br><span class="line">            temp = *((<span class="type">int</span> *)buffer);</span><br><span class="line">            <span class="keyword">if</span>(temp % prime != <span class="number">0</span>)&#123;</span><br><span class="line">                *<span class="built_in">array</span> = temp;</span><br><span class="line">                <span class="built_in">array</span> = <span class="built_in">array</span> + <span class="number">1</span>;</span><br><span class="line">                count ++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        solution(<span class="built_in">array</span> - count,count);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc,<span class="type">char</span> argv[])</span>&#123;</span><br><span class="line">    <span class="type">int</span> target[<span class="number">34</span>];</span><br><span class="line">    <span class="type">int</span> i = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(;i &lt; <span class="number">34</span>;i++) target[i] = i + <span class="number">2</span>;</span><br><span class="line">    solution(target, <span class="number">34</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+
+
+<h2 id="四、实验心得"><a href="#四、实验心得" class="headerlink" title="四、实验心得"></a>四、实验心得</h2><blockquote>
+<p>安装环境消耗的时间感觉是这次作业中花费时间最长的，其次就是实验中的第三题，递归+子进程+管道通信确实需要耗费时间去思考如何解题。不过也挺好，一步步看源码然后模仿着去操作，体会到了操作系统的奇妙，比起书上的理论知识，实际动手感悟更深。</p>
+</blockquote>
+
+        </div>
+
+        
+            <div class="post-copyright-info">
+                <div class="article-copyright-info-container">
+    <ul>
+        <li><strong>标题:</strong> 2021-xv6实验记录(一)</li>
+        <li><strong>作者:</strong> 忘记中二的少年</li>
+        <li><strong>创建于
+                :</strong> 2023-10-11 17:00:00</li>
+        
+            <li>
+                <strong>更新于
+                    :</strong> 2023-10-11 17:13:23
+            </li>
+        
+        <li>
+            <strong>链接:</strong> https://github.com/HandsomeXianc/HandsomeXianc.github.io/2023/10/11/xv6实验记录(一)/
+        </li>
+        <li>
+            <strong>
+                版权声明:
+            </strong>
+            
+            本文章采用 <a class="license" target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0</a> 进行许可。
+            
+
+        </li>
+    </ul>
+</div>
+
+            </div>
+        
+
+        
+            <ul class="post-tags-box">
+                
+                    <li class="tag-item">
+                        <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>&nbsp;
+                    </li>
+                
+                    <li class="tag-item">
+                        <a href="/tags/xv6/">#xv6</a>&nbsp;
+                    </li>
+                
+            </ul>
+        
+
+        
+
+        
+            <div class="article-nav">
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                        rel="next"
+                        href="/2023/10/11/xv6%E5%AE%9E%E9%AA%8C%E8%AE%B0%E5%BD%95(%E4%B8%89)/"
+                        >
+                            <span class="title flex justify-center items-center">
+                                <span class="post-nav-title-item">2021-xv6实验记录(三)</span>
+                                <span class="post-nav-item">下一篇</span>
+                            </span>
+                            <span class="right arrow-icon flex justify-center items-center">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+
+        
+    </div>
+
+    
+        <div class="toc-content-container">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <div class="toc-title">此页目录</div>
+        <div class="page-title">2021-xv6实验记录(一)</div>
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%AE%9E%E9%AA%8C%E7%9B%AE%E7%9A%84%EF%BC%9A"><span class="nav-text">一、实验目的：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%AE%9E%E9%AA%8C%E5%86%85%E5%AE%B9%EF%BC%9A"><span class="nav-text">二、实验内容：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%AE%9E%E9%AA%8C%E5%B9%B3%E5%8F%B0%E7%9A%84%E6%90%AD%E5%BB%BA%E3%80%90VMWare-Ubuntu-qemu-xv6%E3%80%91"><span class="nav-text">三、实验平台的搭建【VMWare + Ubuntu + qemu + xv6】</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1%E3%80%81Sleep%EF%BC%88easy%EF%BC%89"><span class="nav-text">3.1、Sleep（easy）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E5%86%99%E5%89%8D%E6%8F%90%E7%A4%BA"><span class="nav-text">编写前提示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E5%86%99%E5%90%8E%E6%8F%90%E7%A4%BA"><span class="nav-text">编写后提示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%86%E8%A7%A3%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%A6%82%E4%BD%95%E4%BC%A0%E5%8F%82"><span class="nav-text">了解命令行如何传参</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E8%BD%AC%E4%B8%BA%E6%95%B4%E6%95%B0%EF%BC%88atoi%E5%87%BD%E6%95%B0%EF%BC%89"><span class="nav-text">字符串转为整数（atoi函数）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E5%86%99Sleep"><span class="nav-text">编写Sleep</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2%E3%80%81pingpong%EF%BC%88easy%EF%BC%89"><span class="nav-text">3.2、pingpong（easy）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E5%86%99%E5%89%8D%E6%8F%90%E7%A4%BA-1"><span class="nav-text">编写前提示</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-3%E3%80%81%E8%B4%A8%E6%95%B0primes"><span class="nav-text">3.3、质数primes</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AD%9B%E6%B3%95%E6%80%9D%E6%83%B3"><span class="nav-text">筛法思想</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E6%AD%A5%E9%AA%A4"><span class="nav-text">实验步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E4%BA%9B%E6%8F%90%E7%A4%BA"><span class="nav-text">一些提示</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%AE%9E%E9%AA%8C%E5%BF%83%E5%BE%97"><span class="nav-text">四、实验心得</span></a></li></ol>
+
+    </div>
+</div>
+        </div>
+    
+</div>
+
+
+
+                
+
+            </div>
+
+            
+
+        </div>
+
+        <div class="main-content-footer">
+            <footer class="footer mt-5 py-5 h-auto text-base text-third-text-color relative border-t-2 border-t-border-color">
+    <div class="info-container py-3 text-center">
+        
+            <div class="customize-info my-1"><b style=" background-image:linear-gradient(to right bottom,#ff09e2,#aa80ff,#00afff,#00ccff,#00dfff,#00daff,#00d4ff,#00cfff,#00b0ff,#008cff,#0061ff,#2006f3); -webkit-background-clip:text; color:transparent; font-size:20px;">大鹏一日同风起 扶摇直上九万里</b></div>
+        
+        <div class="text-center">
+            &copy;
+            
+              <span>2023</span>
+              -
+            
+            2023&nbsp;&nbsp;<i class="fa-solid fa-heart fa-beat" style="--fa-animation-duration: 0.5s; color: #f54545"></i>&nbsp;&nbsp;<a href="/">忘记中二的少年</a>
+        </div>
+        
+            <script data-swup-reload-script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="relative text-center lg:absolute lg:right-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-right">
+                
+                    <span id="busuanzi_container_site_uv" class="lg:!block">
+                        <span class="text-sm">访问人数</span>
+                        <span id="busuanzi_value_site_uv"></span>
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv" class="lg:!block">
+                        <span class="text-sm">总访问量</span>
+                        <span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="relative text-center lg:absolute lg:left-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-left">
+            <span class="lg:block text-sm">由 <?xml version="1.0" encoding="utf-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg class="relative top-[2px] inline-block align-baseline" version="1.1" id="圖層_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="1rem" height="1rem" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve"><path fill="#0E83CD" d="M256.4,25.8l-200,115.5L56,371.5l199.6,114.7l200-115.5l0.4-230.2L256.4,25.8z M349,354.6l-18.4,10.7l-18.6-11V275H200v79.6l-18.4,10.7l-18.6-11v-197l18.5-10.6l18.5,10.8V237h112v-79.6l18.5-10.6l18.5,10.8V354.6z"/></svg><a target="_blank" class="text-base" href="https://hexo.io">爱</a> 驱动</span>
+            <span class="text-sm lg:block">魔改theme&nbsp;<a class="text-base" target="_blank" href="https://github.com/EvanNotFound/hexo-theme-redefine">Redefine v2.5.0</a></span>
+        </div>
+        
+        
+            <div>
+                博客已运行 <span class="odometer" id="runtime_days" ></span> 天 <span class="odometer" id="runtime_hours"></span> 小时 <span class="odometer" id="runtime_minutes"></span> 分钟 <span class="odometer" id="runtime_seconds"></span> 秒
+            </div>
+        
+        
+            <script data-swup-reload-script>
+                try {
+                    function odometer_init() {
+                    const elements = document.querySelectorAll('.odometer');
+                    elements.forEach(el => {
+                        new Odometer({
+                            el,
+                            format: '( ddd).dd',
+                            duration: 200
+                        });
+                    });
+                    }
+                    odometer_init();
+                } catch (error) {}
+            </script>
+        
+        
+        
+    </div>  
+</footer>
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="article-tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="right-bottom-tools page-aside-toggle">
+                <i class="fa-regular fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-side-tools-container">
+        <div class="side-tools-container">
+    <ul class="hidden-tools-list">
+        <li class="right-bottom-tools tool-font-adjust-plus flex justify-center items-center">
+            <i class="fa-regular fa-magnifying-glass-plus"></i>
+        </li>
+
+        <li class="right-bottom-tools tool-font-adjust-minus flex justify-center items-center">
+            <i class="fa-regular fa-magnifying-glass-minus"></i>
+        </li>
+
+        <li class="right-bottom-tools tool-dark-light-toggle flex justify-center items-center">
+            <i class="fa-regular fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="right-bottom-tools tool-scroll-to-bottom flex justify-center items-center">
+            <i class="fa-regular fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="visible-tools-list">
+        <li class="right-bottom-tools toggle-tools-list flex justify-center items-center">
+            <i class="fa-regular fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="right-bottom-tools tool-scroll-to-top flex justify-center items-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+        
+    </ul>
+</div>
+
+    </div>
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fa-solid fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="搜索..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa-solid fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa-solid fa-spinner fa-spin-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+    
+<script src="/js/libs/Swup.min.js"></script>
+
+<script src="/js/libs/SwupSlideTheme.min.js"></script>
+
+<script src="/js/libs/SwupScriptsPlugin.min.js"></script>
+
+<script src="/js/libs/SwupProgressPlugin.min.js"></script>
+
+<script src="/js/libs/SwupScrollPlugin.min.js"></script>
+
+<script src="/js/libs/SwupPreloadPlugin.min.js"></script>
+
+<script>
+    const swup = new Swup({
+        plugins: [
+            new SwupScriptsPlugin({
+                optin: true,
+            }),
+            new SwupProgressPlugin(),
+            new SwupScrollPlugin({
+                offset: 80,
+            }),
+            new SwupSlideTheme({
+                mainElement: ".main-content-body",
+            }),
+            new SwupPreloadPlugin(),
+        ],
+        containers: ["#swup"],
+    });
+</script>
+
+
+
+
+
+
+
+<script src="/js/tools/imageViewer.js" type="module"></script>
+
+<script src="/js/utils.js" type="module"></script>
+
+<script src="/js/main.js" type="module"></script>
+
+<script src="/js/layouts/navbarShrink.js" type="module"></script>
+
+<script src="/js/tools/scrollTopBottom.js" type="module"></script>
+
+<script src="/js/tools/lightDarkSwitch.js" type="module"></script>
+
+<script src="/js/layouts/categoryList.js" type="module"></script>
+
+
+
+    
+<script src="/js/tools/localSearch.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/tools/codeBlock.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/layouts/lazyload.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/tools/runtime.js"></script>
+
+    
+<script src="/js/libs/odometer.min.js"></script>
+
+    
+<link rel="stylesheet" href="/assets/odometer-theme-minimal.css">
+
+
+
+
+  
+<script src="/js/libs/Typed.min.js"></script>
+
+  
+<script src="/js/plugins/typed.js" type="module"></script>
+
+
+
+
+
+
+
+<div class="post-scripts" data-swup-reload-script>
+    
+        
+<script src="/js/libs/anime.min.js"></script>
+
+        
+<script src="/js/tools/tocToggle.js" type="module"></script>
+
+<script src="/js/layouts/toc.js" type="module"></script>
+
+<script src="/js/plugins/tabs.js" type="module"></script>
+
+    
+</div>
+
+
+    <div id="aplayer"></div>
+
+<script src="/js/libs/APlayer.min.js"></script>
+
+
+<script src="/js/plugins/aplayer.js"></script>
+
+
+</body>
+</html>

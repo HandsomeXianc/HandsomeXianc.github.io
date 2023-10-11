@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="Hexo Theme Redefine">
+    
+    <meta name="author" content="忘记中二的少年">
+    <!-- preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    
+    <!--- Seo Part-->
+    
+    <link rel="canonical" href="http://example.com/2023/10/11/xv6实验记录(二)/"/>
+    <meta name="robots" content="index,follow">
+    <meta name="googlebot" content="index,follow">
+    <meta name="revisit-after" content="1 days">
+    
+        <meta name="description" content="“2023年scnu操作系统实验(二)&quot;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2021-xv6实验记录(二)">
+<meta property="og:url" content="http://example.com/2023/10/11/xv6%E5%AE%9E%E9%AA%8C%E8%AE%B0%E5%BD%95(%E4%BA%8C)/index.html">
+<meta property="og:site_name" content="MyBlog">
+<meta property="og:description" content="“2023年scnu操作系统实验(二)&quot;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309251247136.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309251248997.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309251307278.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309251314583.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309251316024.png">
+<meta property="article:published_time" content="2023-10-11T09:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-11T09:15:02.849Z">
+<meta property="article:author" content="忘记中二的少年">
+<meta property="article:tag" content="操作系统">
+<meta property="article:tag" content="xv6">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309251247136.png">
+    
+    
+        <!-- Google tag (gtag.js) -->
+        <script src="https://www.googletagmanager.com/gtag/js?id="></script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', '');
+        </script>
+    
+    <!--- Icon Part-->
+    <link rel="icon" type="image/png" href="/images/avatar.png" sizes="192x192">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/avatar.png">
+    <meta name="theme-color" content="#f051d8">
+    <link rel="shortcut icon" href="/images/avatar.png">
+    <!--- Page Info-->
+    
+    <title>
+        
+            2021-xv6实验记录(二) -
+        
+        橙留香的blog
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    
+        
+<link rel="stylesheet" href="/assets/build/styles.css">
+
+    
+
+    
+<link rel="stylesheet" href="/fonts/fonts.css">
+
+    
+<link rel="stylesheet" href="/fonts/Satoshi/satoshi.css">
+
+    
+<link rel="stylesheet" href="/fonts/Chillax/chillax.css">
+
+    <!--- Font Part-->
+    
+    
+    
+    
+
+    <!--- Inject Part-->
+    
+    <script id="hexo-configurations">
+    window.config = {"hostname":"example.com","root":"/","language":"zh-CN","path":"search.xml"};
+    window.theme = {"articles":{"style":{"font_size":"16px","line_height":1.5,"image_border_radius":"14px","image_alignment":"center","image_caption":false,"link_icon":true},"word_count":{"enable":true,"count":true,"min2read":true},"author_label":{"enable":true,"auto":false,"list":[]},"code_block":{"copy":true,"style":"mac","font":{"enable":false,"family":null,"url":null}},"toc":{"enable":true,"max_depth":3,"number":false,"expand":true,"init_open":true},"copyright":true,"lazyload":true,"recommendation":{"enable":false,"title":"推荐阅读","limit":3,"mobile_limit":2,"placeholder":"/images/wallhaven-wqery6-light.webp","skip_dirs":[]}},"colors":{"primary":"#f051d8","secondary":null},"global":{"fonts":{"chinese":{"enable":false,"family":null,"url":null},"english":{"enable":false,"family":null,"url":null}},"content_max_width":"1000px","sidebar_width":"210px","hover":{"shadow":true,"scale":false},"scroll_progress":{"bar":true,"percentage":true},"website_counter":{"url":"https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js","enable":true,"site_pv":true,"site_uv":true,"post_pv":true},"single_page":true,"open_graph":true,"google_analytics":{"enable":true,"id":null}},"home_banner":{"enable":true,"style":"fixed","image":{"light":"/images/background-light.jpg","dark":"/images/background-dark.jpg"},"title":"欢迎来到我的个人空间","subtitle":{"text":["此处记录着我的学习轨迹","吾日三省吾身"],"hitokoto":{"enable":false,"api":"https://v1.hitokoto.cn"},"typing_speed":100,"backing_speed":80,"starting_delay":500,"backing_delay":1500,"loop":true,"smart_backspace":true},"text_color":{"light":"#fff","dark":"#750fd4"},"text_style":{"title_size":"4rem","subtitle_size":"1.7rem","line_height":1.3},"custom_font":{"enable":false,"family":null,"url":null},"social_links":{"enable":false,"links":{"github":null,"instagram":null,"zhihu":null,"twitter":null,"email":null},"qrs":{"weixin":null}}},"plugins":{"feed":{"enable":false},"aplayer":{"enable":true,"type":"fixed","audios":[{"name":"小胡同","artist":"郑润泽","url":"https://music.163.com/song/media/outer/url?id=1926623288.mp3","cover":"https://w.wallhaven.cc/full/gp/wallhaven-gpdozd.jpg"},{"name":"怪就怪天气","artist":"OneOne / xxxmiracle / Zy","url":"https://music.163.com/song/media/outer/url?id=2069713612.mp3","cover":"https://w.wallhaven.cc/full/1p/wallhaven-1p2yev.jpg"},{"name":"瞬","artist":"郑润泽","url":"https://music.163.com/song/media/outer/url?id=2063864551.mp3","cover":"https://w.wallhaven.cc/full/l8/wallhaven-l8ddyq.jpg"}]},"mermaid":{"enable":false,"version":"9.3.0"}},"version":"2.5.0","navbar":{"auto_hide":false,"color":{"left":"#f78736","right":"#367df7","transparency":35},"links":{"Home":{"path":"/","icon":"fa-regular fa-house"},"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"CSDN":{"path":"https://blog.csdn.net/weixin_64340669","icon":"fa-regular fa-chart-bar"},"About":{"icon":"fa-regular fa-user","submenus":{"Me":"/about","Github":"https://github.com/HandsomeXianc","Blog":"https://iui.su/1878/","Friends":"https://ohevan.com"}}},"search":{"enable":true,"preload":true}},"page_templates":{"friends_column":2,"tags_style":"blur"},"home":{"sidebar":{"enable":true,"position":"left","first_item":"menu","announcement":"<b style=\"background-image:linear-gradient(to right top,#ff09e2,#ff0092,#ff5a4c,#ff9800,#d6c300,#b3d61a,#82e743,#00f671,#00f797,#00f7b7,#00f6d1,#06f3e4); -webkit-background-clip:text; color:transparent;\"> 然后给自己定个小目标:先写10年代码,之后再写20年吧</b>","links":{"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"Tags":{"path":"/tags","icon":"fa-regular fa-tags"},"Categories":{"path":"/categories","icon":"fa-regular fa-folder"}}},"article_date_format":"auto","categories":{"enable":true,"limit":3},"tags":{"enable":true,"limit":3}},"footerStart":"2023/10/1 12:00:00"};
+    window.lang_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 个月前","year":"%s 年前"};
+    window.data = {"masonry":false};
+  </script>
+    
+    <!--- Fontawesome Part-->
+    
+<link rel="stylesheet" href="/fontawesome/fontawesome.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/brands.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/solid.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/regular.min.css">
+
+    
+    
+    
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+        <span class="scroll-progress-bar"></span>
+    
+
+    
+        <span class="pjax-progress-bar"></span>
+        <span class="swup-progress-icon">
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+        </span>
+    
+</div>
+
+
+<main class="page-container" id="swup">
+
+    
+
+    <div class="main-content-container">
+
+
+        <div class="main-content-header">
+            <header class="navbar-container">
+    
+    <div class="navbar-content">
+        <div class="left">
+            
+                <a class="logo-image" href="/">
+                    <img src="/images/avatar.png">
+                </a>
+            
+            <a class="logo-title" href="/">
+                
+                橙留香的blog
+                
+            </a>
+        </div>
+
+        <div class="right">
+            <!-- PC -->
+            <div class="desktop">
+                <ul class="navbar-list">
+                    
+                        
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class="" 
+                                    href="/"  >
+                                    
+                                        
+                                            <i class="fa-regular fa-house"></i>
+                                        
+                                        首页
+                                    
+                                </a>
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class="" 
+                                    href="/archives"  >
+                                    
+                                        
+                                            <i class="fa-regular fa-archive"></i>
+                                        
+                                        归档
+                                    
+                                </a>
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class="" 
+                                    target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_64340669"  >
+                                    
+                                        
+                                            <i class="fa-regular fa-chart-bar"></i>
+                                        
+                                        CSDN
+                                    
+                                </a>
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class="has-dropdown" 
+                                    href="#" onClick="return false;">
+                                    
+                                        
+                                            <i class="fa-regular fa-user"></i>
+                                        
+                                        关于&nbsp;<i class="fa-solid fa-chevron-down"></i>
+                                    
+                                </a>
+                                <!-- Submenu -->
+                                
+                                    <ul class="sub-menu">
+                                    
+                                        <li>
+                                        <a href="/about">ME
+                                        </a>
+                                        </li>
+                                    
+                                        <li>
+                                        <a target="_blank" rel="noopener" href="https://github.com/HandsomeXianc">GITHUB
+                                        </a>
+                                        </li>
+                                    
+                                        <li>
+                                        <a target="_blank" rel="noopener" href="https://iui.su/1878/">BLOG
+                                        </a>
+                                        </li>
+                                    
+                                        <li>
+                                        <a target="_blank" rel="noopener" href="https://ohevan.com">友情链接
+                                        </a>
+                                        </li>
+                                    
+                                    </ul>
+                                
+                            </li>
+                    
+                    
+                        <li class="navbar-item search search-popup-trigger">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <!-- Mobile -->
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fa-solid fa-magnifying-glass"></i></div>
+                
+                <div class="icon-item navbar-bar">
+                    <div class="navbar-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile drawer -->
+    <div class="navbar-drawer w-full absolute top-0 left-0 bg-background-color">
+        <ul class="drawer-navbar-list flex flex-col justify-start items-center">
+            
+                
+                    <li class="drawer-navbar-item text-base my-1.5 flex justify-center items-center">
+                        <a class="rounded-3xl py-1.5 px-5 hover:border hover:!text-primary active:!text-primary group " 
+                        href="/"  >
+                             
+                                
+                                    <i class="fa-regular fa-house"></i>
+                                
+                                首页
+                            
+                        </a>
+                    </li>
+                    <!-- Submenu -->
+                    
+            
+                
+                    <li class="drawer-navbar-item text-base my-1.5 flex justify-center items-center">
+                        <a class="rounded-3xl py-1.5 px-5 hover:border hover:!text-primary active:!text-primary group " 
+                        href="/archives"  >
+                             
+                                
+                                    <i class="fa-regular fa-archive"></i>
+                                
+                                归档
+                            
+                        </a>
+                    </li>
+                    <!-- Submenu -->
+                    
+            
+                
+                    <li class="drawer-navbar-item text-base my-1.5 flex justify-center items-center">
+                        <a class="rounded-3xl py-1.5 px-5 hover:border hover:!text-primary active:!text-primary group " 
+                        target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_64340669"  >
+                             
+                                
+                                    <i class="fa-regular fa-chart-bar"></i>
+                                
+                                CSDN
+                            
+                        </a>
+                    </li>
+                    <!-- Submenu -->
+                    
+            
+                
+                    <li class="drawer-navbar-item text-base my-1.5 flex justify-center items-center">
+                        <a class="rounded-3xl py-1.5 px-5 hover:border hover:!text-primary active:!text-primary group has-dropdown" 
+                        href="#" onClick="return false;">
+                            
+                                
+                                    <i class="fa-regular fa-user"></i>
+                                
+                                关于&nbsp;<i class="group-hover:rotate-180 transition-transform fa-solid fa-chevron-down"></i>
+                            
+                        </a>
+                    </li>
+                    <!-- Submenu -->
+                              
+                        
+                            <li class="drawer-navbar-item text-base flex justify-center items-center hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                <a class="py-0.5" href="/about">ME</a>
+                            </li>
+                        
+                            <li class="drawer-navbar-item text-base flex justify-center items-center hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                <a class="py-0.5" target="_blank" rel="noopener" href="https://github.com/HandsomeXianc">GITHUB</a>
+                            </li>
+                        
+                            <li class="drawer-navbar-item text-base flex justify-center items-center hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                <a class="py-0.5" target="_blank" rel="noopener" href="https://iui.su/1878/">BLOG</a>
+                            </li>
+                        
+                            <li class="drawer-navbar-item text-base flex justify-center items-center hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                <a class="py-0.5" target="_blank" rel="noopener" href="https://ohevan.com">友情链接</a>
+                            </li>
+                        
+                    
+            
+
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="main-content-body">
+
+            
+
+            <div class="main-content">
+
+                
+                    <div class="post-page-container">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            
+                
+                
+                <img src="https://w.wallhaven.cc/full/yx/wallhaven-yx9dvd.jpg" alt="2021-xv6实验记录(二)" class="max-w-none"/>
+                
+                <h1 class="article-title-cover">2021-xv6实验记录(二)</h1>
+            
+            </div>
+            
+                    
+        
+        
+            <div class="article-header flex flex-row gap-2 items-center">
+                <div class="avatar w-[46px] h-[46px] flex-shrink-0 rounded-medium border border-border-color p-[1px]">
+                    <img src="/images/avatar.png">
+                </div>
+                <div class="info flex flex-col justify-between">
+                    <div class="author flex items-center">
+                        <span class="name text-default-text-color text-lg font-semibold">忘记中二的少年</span>
+                        
+                            <span class="author-label ml-1.5 text-xs px-2 py-0.5 rounded-small text-third-text-color border border-shadow-color-1">Lv2</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fa-regular fa-pen-fancy"></i>&nbsp;
+        <span class="desktop">2023-10-11 17:00</span>
+        <span class="mobile">2023-10-11 17:00</span>
+        <span class="hover-info">创建</span>
+    </span>
+    
+        <span class="article-date article-meta-item">
+            <i class="fa-regular fa-wrench"></i>&nbsp;
+            <span class="desktop">2023-10-11 17:15:02</span>
+            <span class="mobile">2023-10-11 17:15:02</span>
+            <span class="hover-info">更新</span>
+        </span>
+    
+
+    
+        <span class="article-categories article-meta-item">
+            <i class="fa-regular fa-folders"></i>&nbsp;
+            <ul>
+                
+                
+                    
+                        
+                        <li>
+                            <a href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>&nbsp;
+                        </li>
+                    
+                    
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fa-regular fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        | <a href="/tags/xv6/">xv6</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fa-regular fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        
+
+
+        <div class="article-content markdown-body">
+            <h1 id="xv6实验记录-二"><a href="#xv6实验记录-二" class="headerlink" title="xv6实验记录(二)"></a>xv6实验记录(二)</h1><h2 id="一、实验目的："><a href="#一、实验目的：" class="headerlink" title="一、实验目的："></a>一、实验目的：</h2><ol>
+<li>了解系统调用</li>
+</ol>
+<h2 id="二、实验内容："><a href="#二、实验内容：" class="headerlink" title="二、实验内容："></a>二、实验内容：</h2><ol>
+<li>完成<code>trace()</code>的新系统调用</li>
+<li>完成<code>sysinfo()</code>的新系统调用</li>
+</ol>
+<h2 id="三、实验内容"><a href="#三、实验内容" class="headerlink" title="三、实验内容"></a>三、实验内容</h2><h3 id="1-trace-系统调用的实现"><a href="#1-trace-系统调用的实现" class="headerlink" title="(1)trace()系统调用的实现"></a>(1)trace()系统调用的实现</h3><p><strong>(1)首先切换分支，保存实验记录，并清除编译记录</strong></p>
+<div class="highlight-container" data-rel="Cmd"><figure class="iseeu highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git checkout syscall</span><br><span class="line">make clean</span><br></pre></td></tr></table></figure></div>
+
+<p>根据实验提示，在MakeFile文件中找到<code>UPROGS</code>并添加<code>$U/_trace\</code>打开<code>user</code>目录可以看到存在一个<code>user/trace.c</code>文件，观察该文件的源码：</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="built_in">trace</span>(<span class="built_in">atoi</span>(argv[<span class="number">1</span>])) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="number">2</span>, <span class="string">&quot;%s: trace failed\n&quot;</span>, argv[<span class="number">0</span>]);</span><br><span class="line">	<span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p>看到这一段代码中存在<code>trace()</code>方法的调用【该方法来自<strong>user.h</strong>】，trace函数接收一个<strong>int</strong> 类型的整数，返回值类型也是<strong>int</strong>，如果执行失败返回值为-1。</p>
+<hr>
+
+
+<p><strong>(2)在<code>user/user.h</code>中添加函数原型</strong></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">trace</span><span class="params">(<span class="type">int</span>)</span></span>;		<span class="comment">//NEW ADD</span></span><br></pre></td></tr></table></figure></div>
+
+<p>在<code>user/usys.pl</code>中添加trace的入口</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">entry</span>(<span class="string">&quot;trace&quot;</span>);		<span class="comment">//NEW ADD</span></span><br></pre></td></tr></table></figure></div>
+
+<p>在<code>syscall.h</code>中添加宏定义</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> SYS_close 21</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SYS_trace 22 <span class="comment">//NEW ADD</span></span></span><br></pre></td></tr></table></figure></div>
+
+<hr>
+
+
+
+<p><strong>(3)在proc结构体(在<code>kernel/proc.h</code>)里面添加一个新变量用来存储跟踪号，然后在fork()的时候把结构体里新增加的变量也给复制过去，这样就达到了传参的目的。新的变量是不需要加锁的，因为只会被自己所在的进程使用，所以放在<code>char name[16]</code>之后</strong></p>
+<p>修改<code>kernel/proc.h</code>添加变量存储跟踪号</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Per-process state</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">proc</span> &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="comment">// these are private to the process, so p-&gt;lock need not be held.</span></span><br><span class="line">  <span class="comment">// ,,</span></span><br><span class="line">  <span class="type">char</span> name[<span class="number">16</span>];               </span><br><span class="line">  <span class="type">char</span> mask[<span class="number">23</span>];           <span class="comment">//NEW ADD</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></div>
+
+<p>打开<code>kernel/sysproc.c</code>添加一个trace函数的具体实现</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">uint64				<span class="comment">//新添加的函数定义</span></span><br><span class="line"><span class="built_in">sys_trace</span>(<span class="type">void</span>)&#123;</span><br><span class="line">  <span class="type">int</span> n;</span><br><span class="line">  <span class="keyword">if</span>(<span class="built_in">argint</span>(<span class="number">0</span>, &amp;n) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">proc</span> *p = <span class="built_in">myproc</span>();</span><br><span class="line">  <span class="type">char</span> *mask = p-&gt;mask;</span><br><span class="line">  <span class="type">int</span> i = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">while</span>(i &lt; <span class="number">23</span> &amp;&amp; n &gt; <span class="number">0</span>)&#123;</span><br><span class="line">    <span class="keyword">if</span>(n % <span class="number">2</span>)&#123;</span><br><span class="line">      mask[i++] = <span class="string">&#x27;1&#x27;</span>;</span><br><span class="line">    &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">      mask[i++] = <span class="string">&#x27;0&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    n &gt;&gt;= <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p>打开<code>kernel/proc.c</code>文件修改<code>fork()</code>函数在函数中添加一句 <code>safestrcpy(np-&gt;mask, p-&gt;mask, sizeof(p-&gt;mask));</code>即可</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span></span></span><br><span class="line"><span class="function"><span class="title">fork</span><span class="params">(<span class="type">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="type">int</span> i, pid;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">proc</span> *np;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">proc</span> *p = <span class="built_in">myproc</span>();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Allocate process.</span></span><br><span class="line">  <span class="keyword">if</span>((np = <span class="built_in">allocproc</span>()) == <span class="number">0</span>)&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// Copy user memory from parent to child.</span></span><br><span class="line">  <span class="keyword">if</span>(<span class="built_in">uvmcopy</span>(p-&gt;pagetable, np-&gt;pagetable, p-&gt;sz) &lt; <span class="number">0</span>)&#123;</span><br><span class="line">    <span class="built_in">freeproc</span>(np);</span><br><span class="line">    <span class="built_in">release</span>(&amp;np-&gt;lock);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  np-&gt;sz = p-&gt;sz;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">safestrcpy</span>(np-&gt;mask, p-&gt;mask, <span class="built_in">sizeof</span>(p-&gt;mask));		<span class="comment">//NEW ADD</span></span><br><span class="line">    </span><br><span class="line">  ......</span><br><span class="line">      </span><br></pre></td></tr></table></figure></div>
+
+<p>为了将trace打印出来，修改<code>kernel/syscall.c</code>中的<code>syscall()</code>函数</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">extern</span> uint64 <span class="title">sys_trace</span><span class="params">(<span class="type">void</span>)</span></span>;		<span class="comment">//NEW ADD</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="title">uint64</span> <span class="params">(*syscalls[])</span><span class="params">(<span class="type">void</span>)</span> </span>= &#123;</span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line">  [SYS_close]   sys_close,</span><br><span class="line">  [SYS_trace]   sys_trace, <span class="comment">// NEW ADD</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">char</span> *syscall_names[<span class="number">23</span>] = &#123;<span class="string">&quot;&quot;</span>,<span class="string">&quot;fork&quot;</span>,<span class="string">&quot;exit&quot;</span>,<span class="string">&quot;wait&quot;</span>,<span class="string">&quot;pipe&quot;</span>,<span class="string">&quot;read&quot;</span>,<span class="string">&quot;kill&quot;</span>,</span><br><span class="line">                                <span class="string">&quot;exec&quot;</span>,<span class="string">&quot;fstat&quot;</span>,<span class="string">&quot;chdir&quot;</span>,<span class="string">&quot;dup&quot;</span>,<span class="string">&quot;getpid&quot;</span>,<span class="string">&quot;sbrk&quot;</span>,<span class="string">&quot;sleep&quot;</span>,</span><br><span class="line">                                <span class="string">&quot;uptime&quot;</span>,<span class="string">&quot;open&quot;</span>,<span class="string">&quot;write&quot;</span>,<span class="string">&quot;mknod&quot;</span>,<span class="string">&quot;unlink&quot;</span>,<span class="string">&quot;link&quot;</span>,<span class="string">&quot;mkdir&quot;</span>,</span><br><span class="line">                                <span class="string">&quot;close&quot;</span>,<span class="string">&quot;trace&quot;</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">syscall</span><span class="params">(<span class="type">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="type">int</span> num;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">proc</span> *p = <span class="built_in">myproc</span>();</span><br><span class="line">  <span class="type">char</span>* syscall_name;       <span class="comment">// NEW ADD</span></span><br><span class="line"></span><br><span class="line">  num = p-&gt;trapframe-&gt;a7;</span><br><span class="line">  <span class="keyword">if</span>(num &gt; <span class="number">0</span> &amp;&amp; num &lt; <span class="built_in">NELEM</span>(syscalls) &amp;&amp; syscalls[num]) &#123;</span><br><span class="line">    p-&gt;trapframe-&gt;a0 = syscalls[num]();</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">strlen</span>(p-&gt;mask) &gt; <span class="number">0</span> &amp;&amp; p-&gt;mask[num] == <span class="string">&#x27;1&#x27;</span>)&#123;		<span class="comment">// NEW ADD</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%d: syscall %s -&gt; %d\n&quot;</span>, p-&gt;pid, syscall_names[num],p-&gt;trapframe-&gt;a0); </span><br><span class="line">    &#125;                                                                    </span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d %s: unknown sys call %d\n&quot;</span>,</span><br><span class="line">            p-&gt;pid, p-&gt;name, num);</span><br><span class="line">    p-&gt;trapframe-&gt;a0 = <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>测试效果</strong></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">trace <span class="number">32</span> grep hello README</span><br><span class="line">trace <span class="number">2147483647</span> grep hello README</span><br></pre></td></tr></table></figure></div>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309251247136.png"
+                      alt="image-20230925124713029"
+                ></p>
+<div class="highlight-container" data-rel="Q"><figure class="iseeu highlight q"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./grade-lab-syscall trace</span><br></pre></td></tr></table></figure></div>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309251248997.png"
+                      alt="image-20230925124857961"
+                ></p>
+<hr>
+
+
+
+<h3 id="2-sysinfo-系统调用的实现"><a href="#2-sysinfo-系统调用的实现" class="headerlink" title="(2)sysinfo()系统调用的实现"></a>(2)sysinfo()系统调用的实现</h3><p><strong>（1）将<code>$U/_sysinfotest</code>添加到 Makefile 中的 UPROGS</strong></p>
+<p><strong>（2）在<code>user/user.h</code>中声明sysinfo() 函数的原型，您需要预先声明<code>struct sysinfo</code>的存在：</strong>修改<code>user/user.h</code>需要在user.h里再声明一次struct sysinfo的原因是：在参数列表里的参数是看不见本文件外面定义的struct的。</p>
+<div class="highlight-container" data-rel="C"><figure class="iseeu highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">stat</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">rtcdate</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sysinfo</span>;</span>			<span class="comment">//New ADD</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// system calls</span></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">sysinfo</span><span class="params">(<span class="keyword">struct</span> sysinfo *)</span>;			<span class="comment">//NEW ADD</span></span><br></pre></td></tr></table></figure></div>
+
+<p><strong>（3）在<code>user/usys.pl</code>中添加sysinfo的入口</strong></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">entry</span>(<span class="string">&quot;sysinfo&quot;</span>);		<span class="comment">//NEW ADD</span></span><br></pre></td></tr></table></figure></div>
+
+<p><strong>（4）在<code>syscall.h</code>中添加宏定义</strong></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> SYS_close 21</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SYS_trace 22</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SYS_sysinfo 23</span></span><br></pre></td></tr></table></figure></div>
+
+<p><strong>（5）修改<code>kernel/syscall.c</code>中的<code>syscall()</code>函数</strong></p>
+<div class="highlight-container" data-rel="C"><figure class="iseeu highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extern</span> uint64 <span class="title function_">sys_info</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">static</span> <span class="title function_">uint64</span> <span class="params">(*syscalls[])</span><span class="params">(<span class="type">void</span>)</span> = &#123;</span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line">[SYS_sysinfo] sys_info,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">char</span>* syscall_names[] = &#123;</span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line">  [SYS_sysinfo] <span class="string">&quot;sys_info&quot;</span>,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>（6）编辑<code>sysproc.c</code>文件，先添加函数体</strong></p>
+<div class="highlight-container" data-rel="C"><figure class="iseeu highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">uint64 <span class="title function_">sys_info</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>（7）打开<code>sysproc.c</code>文件添加<code>\#include &quot;sysinfo.h&quot;</code></strong></p>
+<p><strong>（8）要获得空闲内存的数目，请向<code>kernel/kalloc.c</code>添加一个函数<code>kfreemem</code></strong></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// get free memory bytes by count freelist</span></span><br><span class="line"><span class="function">uint64 <span class="title">kfreemem</span><span class="params">(<span class="type">void</span>)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">run</span> *r;</span><br><span class="line">  uint64 count = <span class="number">0</span>; </span><br><span class="line">​</span><br><span class="line">  <span class="built_in">acquire</span>(&amp;kmem.lock);</span><br><span class="line">  r = kmem.freelist;</span><br><span class="line">  <span class="keyword">while</span> (r) &#123;</span><br><span class="line">    r = r-&gt;next;</span><br><span class="line">    count++;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">release</span>(&amp;kmem.lock);</span><br><span class="line">  <span class="keyword">return</span> count * PGSIZE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>（9）要获得进程的数量，请在<code>kernel/proc.c</code>中添加一个函数<code>proc_num()</code></strong></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// get the number of processes whose state is not UNUSED</span></span><br><span class="line"><span class="function">uint64 <span class="title">proc_num</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">proc</span> *p;</span><br><span class="line">  uint64 count = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span>(p = proc; p &lt; &amp;proc[NPROC]; p++) &#123;</span><br><span class="line">    <span class="built_in">acquire</span>(&amp;p-&gt;lock);</span><br><span class="line">    <span class="keyword">if</span>(p-&gt;state != UNUSED) &#123;</span><br><span class="line">      count++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">release</span>(&amp;p-&gt;lock);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> count;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>（10）在<code>kernel/defs.h</code>文件中添加函数原型</strong></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">uint64          <span class="title">proc_num</span><span class="params">(<span class="type">void</span>)</span></span>;         <span class="comment">//NEW ADD</span></span><br><span class="line"><span class="function">uint64          <span class="title">kfreemem</span><span class="params">(<span class="type">void</span>)</span></span>;         <span class="comment">//NEW ADD</span></span><br></pre></td></tr></table></figure></div>
+
+<p><strong>（11）修改<code>kernel/sysproc.c</code>文件的<code>sys_info()</code>的函数体</strong></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">uint64 <span class="title">sys_info</span><span class="params">(<span class="type">void</span>)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">sysinfo</span> info;</span><br><span class="line">  uint64 addr;</span><br><span class="line">  info.freemem = <span class="built_in">kfreemem</span>();</span><br><span class="line">  info.nproc = <span class="built_in">proc_num</span>();</span><br><span class="line">  <span class="keyword">if</span>(<span class="built_in">argaddr</span>(<span class="number">0</span>, &amp;addr) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// copy info(kernel space) to addr(user space)</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">copyout</span>(<span class="built_in">myproc</span>()-&gt;pagetable, addr, (<span class="type">char</span> *)&amp;info, <span class="built_in">sizeof</span>(info)) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>测试效果</strong></p>
+<div class="highlight-container" data-rel="Q"><figure class="iseeu highlight q"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./grade-lab-syscall sysinfo</span><br></pre></td></tr></table></figure></div>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309251307278.png"
+                      alt="image-20230925130757238"
+                ></p>
+<h2 id="四、总测试"><a href="#四、总测试" class="headerlink" title="四、总测试"></a>四、总测试</h2><ul>
+<li>在xv6-lab-2021的目录下新建time.txt文件，之后输入一个整数代表你做实验的时间，单位是小时。之后就可以运行make grade来测试自己的成绩。</li>
+</ul>
+<div class="highlight-container" data-rel="Q"><figure class="iseeu highlight q"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make grade		<span class="comment">//用来测试自己的实验成绩</span></span><br></pre></td></tr></table></figure></div>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309251314583.png"
+                      alt="image-20230925131445543"
+                ></p>
+<p><strong>如果上述测试失败，检查错误原因是否是因为</strong></p>
+<ol>
+<li><p>trace的<strong>打印格式</strong>有无错误</p>
+</li>
+<li><p>机器<strong>硬件不行</strong>，测试时间长，qemu认为超时【解决方法打开目录下的<code>gradelib.py</code>文件调整timeout时间】</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202309251316024.png"
+                      alt="image-20230925131647952"
+                ></p>
+</li>
+</ol>
+<blockquote>
+<p><b style="color:red">实验心得</b>：</p>
+<p>在Xv6操作系统中完成新增系统调用 <code>trace()</code> 和 <code>sysinfo()</code> 的的实现不仅让我更深入地理解了操作系统内核的工作方式，还提供了一种方法来收集有关系统状态和进程信息的数据。查看源码的过程令我头疼的同时也令我切实的学会了一些东西，了解了系统的部分运行效果</p>
+<p>首先，实现 <code>trace()</code> 调用允许用户程序追踪其他进程的系统调用和退出情况。我学到了如何在进程控制块（PCB）中存储额外的信息，以便程序可以访问。这个经验提高了我对内核数据结构的理解</p>
+<p>另一个 <code>sysinfo()</code> 系统调用，提供了关于系统整体状态的信息，系统启动时间、总的调用次数等。实现这个系统调用，我了解了操作系统内核如何维护系统状态信息，并且学会了如何将这些信息传递给用户程序。这对于监控系统性能和行为非常有用。</p>
+</blockquote>
+
+        </div>
+
+        
+            <div class="post-copyright-info">
+                <div class="article-copyright-info-container">
+    <ul>
+        <li><strong>标题:</strong> 2021-xv6实验记录(二)</li>
+        <li><strong>作者:</strong> 忘记中二的少年</li>
+        <li><strong>创建于
+                :</strong> 2023-10-11 17:00:00</li>
+        
+            <li>
+                <strong>更新于
+                    :</strong> 2023-10-11 17:15:02
+            </li>
+        
+        <li>
+            <strong>链接:</strong> https://github.com/HandsomeXianc/HandsomeXianc.github.io/2023/10/11/xv6实验记录(二)/
+        </li>
+        <li>
+            <strong>
+                版权声明:
+            </strong>
+            
+            本文章采用 <a class="license" target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0</a> 进行许可。
+            
+
+        </li>
+    </ul>
+</div>
+
+            </div>
+        
+
+        
+            <ul class="post-tags-box">
+                
+                    <li class="tag-item">
+                        <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>&nbsp;
+                    </li>
+                
+                    <li class="tag-item">
+                        <a href="/tags/xv6/">#xv6</a>&nbsp;
+                    </li>
+                
+            </ul>
+        
+
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                        rel="prev"
+                        href="/2023/10/11/xv6%E5%AE%9E%E9%AA%8C%E8%AE%B0%E5%BD%95(%E4%B8%89)/"
+                        >
+                            <span class="left arrow-icon flex justify-center items-center">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex justify-center items-center">
+                                <span class="post-nav-title-item">2021-xv6实验记录(三)</span>
+                                <span class="post-nav-item">上一篇</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                        rel="next"
+                        href="/2023/10/07/Redis%E5%9F%BA%E7%A1%80/"
+                        >
+                            <span class="title flex justify-center items-center">
+                                <span class="post-nav-title-item">Redis入门</span>
+                                <span class="post-nav-item">下一篇</span>
+                            </span>
+                            <span class="right arrow-icon flex justify-center items-center">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+
+        
+    </div>
+
+    
+        <div class="toc-content-container">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <div class="toc-title">此页目录</div>
+        <div class="page-title">2021-xv6实验记录(二)</div>
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#xv6%E5%AE%9E%E9%AA%8C%E8%AE%B0%E5%BD%95-%E4%BA%8C"><span class="nav-text">xv6实验记录(二)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%AE%9E%E9%AA%8C%E7%9B%AE%E7%9A%84%EF%BC%9A"><span class="nav-text">一、实验目的：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%AE%9E%E9%AA%8C%E5%86%85%E5%AE%B9%EF%BC%9A"><span class="nav-text">二、实验内容：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%AE%9E%E9%AA%8C%E5%86%85%E5%AE%B9"><span class="nav-text">三、实验内容</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-trace-%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-text">(1)trace()系统调用的实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-sysinfo-%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-text">(2)sysinfo()系统调用的实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%80%BB%E6%B5%8B%E8%AF%95"><span class="nav-text">四、总测试</span></a></li></ol></li></ol>
+
+    </div>
+</div>
+        </div>
+    
+</div>
+
+
+
+                
+
+            </div>
+
+            
+
+        </div>
+
+        <div class="main-content-footer">
+            <footer class="footer mt-5 py-5 h-auto text-base text-third-text-color relative border-t-2 border-t-border-color">
+    <div class="info-container py-3 text-center">
+        
+            <div class="customize-info my-1"><b style=" background-image:linear-gradient(to right bottom,#ff09e2,#aa80ff,#00afff,#00ccff,#00dfff,#00daff,#00d4ff,#00cfff,#00b0ff,#008cff,#0061ff,#2006f3); -webkit-background-clip:text; color:transparent; font-size:20px;">大鹏一日同风起 扶摇直上九万里</b></div>
+        
+        <div class="text-center">
+            &copy;
+            
+              <span>2023</span>
+              -
+            
+            2023&nbsp;&nbsp;<i class="fa-solid fa-heart fa-beat" style="--fa-animation-duration: 0.5s; color: #f54545"></i>&nbsp;&nbsp;<a href="/">忘记中二的少年</a>
+        </div>
+        
+            <script data-swup-reload-script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="relative text-center lg:absolute lg:right-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-right">
+                
+                    <span id="busuanzi_container_site_uv" class="lg:!block">
+                        <span class="text-sm">访问人数</span>
+                        <span id="busuanzi_value_site_uv"></span>
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv" class="lg:!block">
+                        <span class="text-sm">总访问量</span>
+                        <span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="relative text-center lg:absolute lg:left-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-left">
+            <span class="lg:block text-sm">由 <?xml version="1.0" encoding="utf-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg class="relative top-[2px] inline-block align-baseline" version="1.1" id="圖層_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="1rem" height="1rem" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve"><path fill="#0E83CD" d="M256.4,25.8l-200,115.5L56,371.5l199.6,114.7l200-115.5l0.4-230.2L256.4,25.8z M349,354.6l-18.4,10.7l-18.6-11V275H200v79.6l-18.4,10.7l-18.6-11v-197l18.5-10.6l18.5,10.8V237h112v-79.6l18.5-10.6l18.5,10.8V354.6z"/></svg><a target="_blank" class="text-base" href="https://hexo.io">爱</a> 驱动</span>
+            <span class="text-sm lg:block">魔改theme&nbsp;<a class="text-base" target="_blank" href="https://github.com/EvanNotFound/hexo-theme-redefine">Redefine v2.5.0</a></span>
+        </div>
+        
+        
+            <div>
+                博客已运行 <span class="odometer" id="runtime_days" ></span> 天 <span class="odometer" id="runtime_hours"></span> 小时 <span class="odometer" id="runtime_minutes"></span> 分钟 <span class="odometer" id="runtime_seconds"></span> 秒
+            </div>
+        
+        
+            <script data-swup-reload-script>
+                try {
+                    function odometer_init() {
+                    const elements = document.querySelectorAll('.odometer');
+                    elements.forEach(el => {
+                        new Odometer({
+                            el,
+                            format: '( ddd).dd',
+                            duration: 200
+                        });
+                    });
+                    }
+                    odometer_init();
+                } catch (error) {}
+            </script>
+        
+        
+        
+    </div>  
+</footer>
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="article-tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="right-bottom-tools page-aside-toggle">
+                <i class="fa-regular fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-side-tools-container">
+        <div class="side-tools-container">
+    <ul class="hidden-tools-list">
+        <li class="right-bottom-tools tool-font-adjust-plus flex justify-center items-center">
+            <i class="fa-regular fa-magnifying-glass-plus"></i>
+        </li>
+
+        <li class="right-bottom-tools tool-font-adjust-minus flex justify-center items-center">
+            <i class="fa-regular fa-magnifying-glass-minus"></i>
+        </li>
+
+        <li class="right-bottom-tools tool-dark-light-toggle flex justify-center items-center">
+            <i class="fa-regular fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="right-bottom-tools tool-scroll-to-bottom flex justify-center items-center">
+            <i class="fa-regular fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="visible-tools-list">
+        <li class="right-bottom-tools toggle-tools-list flex justify-center items-center">
+            <i class="fa-regular fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="right-bottom-tools tool-scroll-to-top flex justify-center items-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+        
+    </ul>
+</div>
+
+    </div>
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fa-solid fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="搜索..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa-solid fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa-solid fa-spinner fa-spin-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+    
+<script src="/js/libs/Swup.min.js"></script>
+
+<script src="/js/libs/SwupSlideTheme.min.js"></script>
+
+<script src="/js/libs/SwupScriptsPlugin.min.js"></script>
+
+<script src="/js/libs/SwupProgressPlugin.min.js"></script>
+
+<script src="/js/libs/SwupScrollPlugin.min.js"></script>
+
+<script src="/js/libs/SwupPreloadPlugin.min.js"></script>
+
+<script>
+    const swup = new Swup({
+        plugins: [
+            new SwupScriptsPlugin({
+                optin: true,
+            }),
+            new SwupProgressPlugin(),
+            new SwupScrollPlugin({
+                offset: 80,
+            }),
+            new SwupSlideTheme({
+                mainElement: ".main-content-body",
+            }),
+            new SwupPreloadPlugin(),
+        ],
+        containers: ["#swup"],
+    });
+</script>
+
+
+
+
+
+
+
+<script src="/js/tools/imageViewer.js" type="module"></script>
+
+<script src="/js/utils.js" type="module"></script>
+
+<script src="/js/main.js" type="module"></script>
+
+<script src="/js/layouts/navbarShrink.js" type="module"></script>
+
+<script src="/js/tools/scrollTopBottom.js" type="module"></script>
+
+<script src="/js/tools/lightDarkSwitch.js" type="module"></script>
+
+<script src="/js/layouts/categoryList.js" type="module"></script>
+
+
+
+    
+<script src="/js/tools/localSearch.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/tools/codeBlock.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/layouts/lazyload.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/tools/runtime.js"></script>
+
+    
+<script src="/js/libs/odometer.min.js"></script>
+
+    
+<link rel="stylesheet" href="/assets/odometer-theme-minimal.css">
+
+
+
+
+  
+<script src="/js/libs/Typed.min.js"></script>
+
+  
+<script src="/js/plugins/typed.js" type="module"></script>
+
+
+
+
+
+
+
+<div class="post-scripts" data-swup-reload-script>
+    
+        
+<script src="/js/libs/anime.min.js"></script>
+
+        
+<script src="/js/tools/tocToggle.js" type="module"></script>
+
+<script src="/js/layouts/toc.js" type="module"></script>
+
+<script src="/js/plugins/tabs.js" type="module"></script>
+
+    
+</div>
+
+
+    <div id="aplayer"></div>
+
+<script src="/js/libs/APlayer.min.js"></script>
+
+
+<script src="/js/plugins/aplayer.js"></script>
+
+
+</body>
+</html>
