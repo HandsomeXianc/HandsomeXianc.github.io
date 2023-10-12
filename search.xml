@@ -2123,4 +2123,184 @@
         <tag>xv6</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Eureka快速入门案例</title>
+    <url>/2023/10/13/Eureka%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E6%A1%88%E4%BE%8B/</url>
+    <content><![CDATA[<h2 id="一、模块了解"><a href="#一、模块了解" class="headerlink" title="一、模块了解"></a>一、模块了解</h2><p>此处有<code>UserController</code>在<code>user-service</code>模块下，该<code>Controller</code>实现接收路径参数<code>&#123;id&#125;</code>并返回数据库查询到的<code>user</code>数据，向<code>localhost:8082/user/1</code>即可查询到<code>id = 1</code>的user信息</p>
+<center class="half">    
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310121935297.png"
+                      width="700"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310121938764.png"
+                      width="200"
+                >
+</center>
+
+<p>同时有<code>OrderController</code>在<code>order-service</code>模块下，该<code>Controller</code>可以实现接收路径参数<code>&#123;orderId&#125;</code>并返回数据库的查询内容，向<code>localhost:8080/order/101</code>可以查询到数据</p>
+<center class="half">    
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310121927799.png"
+                      width="700"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310121930746.png"
+                      width="200"
+                >
+</center>
+
+
+
+<h2 id="二、工具类RestTemplate引入"><a href="#二、工具类RestTemplate引入" class="headerlink" title="二、工具类RestTemplate引入"></a>二、工具类RestTemplate引入</h2><p><strong>我们可以看到在上述结果返回的order数据中有一项是user的信息：</strong></p>
+<ol>
+<li><strong>那么两个模块如何进行通信使得order能够获取到user的信息并封装返回呢？</strong></li>
+<li>因为order需要获取到user的数据，因此需要在order-service的启动类中获取到一个<strong>工具类【RestTemplate】</strong>用于<strong>向user端发送http请求</strong>【<strong>类似于前端发送ajax请求</strong>】</li>
+</ol>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310121945655.png"
+                      alt="image-20231012194520311"
+                ></p>
+<p>那么现在既然有了可以发送http请求的工具类，我们就可以令<code>order-service</code>向<code>user-service</code>发送请求获取数据</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310121948322.png"
+                      alt="image-20231012194819910"
+                ></p>
+<p>此时我们再次请求刚刚的链接地址获取order的数据<code>localhost:8080/order/101</code>，可以看到此时成功的封装到了user的数据，也就证明我们的<code>order-service</code>模块成功向<code>user-service</code>模块发送请求并获取到了数据</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310121950090.png"
+                      alt="image-20231012195057979"
+                ></p>
+<p>既然这样就可以做到模块分离并获取数据，那Eureka的存在是为了什么呢？仔细想想：在order-service模块发送请求的时候请求地址的url是<strong>固定</strong>写死的把？那岂不是模块order-service只能固定的获取<code>url = localhost:8082/user</code>的<code>user-service</code>数据吗？若是某一天该user-service服务挂掉了岂不是全部与该url有请求关系的模块都出现问题？并且要是一瞬间有大量的请求请求到同一个地址上的服务器，那么这台服务器也能保证不出现问题？</p>
+<p>因此，一般会有多个user-service但是不同地址的url地址的服务模块同时运行。</p>
+<p><strong>即：多台服务器维护同一个数据库A，当需要使用到该数据库A时，可以访问不同的服务器，而不是单一的服务器。</strong></p>
+<p><strong>Eureka的作用就是维护这样多台服务器并且能够将请求平均的转发到这些服务器，避免一台服务器的访问量突然暴增</strong></p>
+<p><strong>那么既然要使用到Eureka技术，请看接下来的快速入门代码操作</strong></p>
+<h2 id="三、搭建Eureka服务"><a href="#三、搭建Eureka服务" class="headerlink" title="三、搭建Eureka服务"></a>三、搭建Eureka服务</h2><p>我们首先再创建一个模块用于搭建Eureka服务，此处将该模块称为【eureka-server】</p>
+<p>既然要使用该技术，首先得引入pom坐标</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310122004550.png"
+                      alt="image-20231012200445165"
+                ></p>
+<p>然后在<code>application.yml</code>文件中对Eureka进行配置</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310122008430.png"
+                      alt="image-20231012200827191"
+                ></p>
+<p>要令springboot能够使用识别到Eureka则需要在启动类上添加注解<code>@EnableEurekaServer</code></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310122010489.png"
+                      alt="image-20231012201043215"
+                ></p>
+<p>然后我们启动服务，并在浏览器输入我们刚刚配置的服务地址<code>localhost:10086</code>，可以看到如下画面就证明Eureka注册成功</p>
+<p>并且注意到在 注册的名字就是我们在配置项application.yml中配置的name</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310122013339.png"
+                      alt="image-20231012201327189"
+                ></p>
+<h2 id="四、服务注册到Eureka"><a href="#四、服务注册到Eureka" class="headerlink" title="四、服务注册到Eureka"></a>四、服务注册到Eureka</h2><p>现在有了Eureka，我们就可以运行多个user-service服务【注册】供order-service服务使用了。首先要将这两个模块注册到Eureka，那么就要将坐标<code>spring-cloud-starter-netflix-eureka-client</code>引入二者的pom文件，并编写application.yml配置文件</p>
+<div class="highlight-container" data-rel="Yaml"><figure class="iseeu highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">orderservice</span> </span><br><span class="line"><span class="attr">eureka:</span></span><br><span class="line">  <span class="attr">client:</span></span><br><span class="line">    <span class="attr">service-url:</span></span><br><span class="line">      <span class="attr">defaultZone:</span> <span class="string">http://127.0.0.1:10086/eureka/</span></span><br></pre></td></tr></table></figure></div>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310122020051.png"
+                      alt="image-20231012202005789"
+                ></p>
+<div class="highlight-container" data-rel="Yaml"><figure class="iseeu highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">orderservice</span> </span><br><span class="line"><span class="attr">eureka:</span></span><br><span class="line">  <span class="attr">client:</span></span><br><span class="line">    <span class="attr">service-url:</span></span><br><span class="line">      <span class="attr">defaultZone:</span> <span class="string">http://127.0.0.1:10086/eureka/</span></span><br></pre></td></tr></table></figure></div>
+
+
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310122335432.png"
+                      alt="image-20231012233552318"
+                ></p>
+<p>再次启动服务查看上述的<code>order-service</code>与<code>user-service</code>模块成功注册到Eureka</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310122340895.png"
+                      alt="image-20231012234043852"
+                ></p>
+<p>idea如何在一台主机上运行两个同样的<code>user-service</code>服务呢？首先我们将<code>user-service</code>运行，然后查看service面板，点击右键选中<code>Copy Configuration</code></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310122342440.png"
+                      alt="image-20231012234230361"
+                ></p>
+<p>配置面板中更换Name，并且在<strong>VM Option配置项中将服务换一个端口运行</strong>【<strong>此处选择8081</strong>】点击OK即可</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310122342189.png"
+                      alt="image-20231012234253145"
+                ></p>
+<p>查看service，并打开Eureka管理面板，可以看到8081和8082端口的服务都成功注册了</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310122345483.png"
+                      alt="image-20231012234517362"
+                ></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310122346126.png"
+                      alt="image-20231012234619083"
+                ></p>
+<p>两个user-service的成功注册代表着我们可以让order-service模块随机的选择一个user-service的端口发起请求获取数据，但是需要开启负载均衡【只需要在order-service的RestTemplate的Bean获取类上加上注释<code>LoadBalanced</code>】即可</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310122348778.png"
+                      alt="image-20231012234831665"
+                ></p>
+<h2 id="五、服务的发现"><a href="#五、服务的发现" class="headerlink" title="五、服务的发现"></a>五、服务的发现</h2><p>同时修改代码，用注册的user-service的服务名来替代原来的 ip + 端口。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310122352242.png"
+                      alt="image-20231012235226039"
+                ></p>
+<p>再次发送请求<code>localhost:8080/order/101</code>可以看到还是成功获取到数据说明上述配置是成功的。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310122355477.png"
+                      alt="image-20231012235524439"
+                ></p>
+]]></content>
+      <categories>
+        <category>后端</category>
+      </categories>
+      <tags>
+        <tag>后端</tag>
+        <tag>Eureka</tag>
+      </tags>
+  </entry>
 </search>
