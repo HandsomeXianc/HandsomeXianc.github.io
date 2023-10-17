@@ -3066,4 +3066,214 @@
         <tag>微服务</tag>
       </tags>
   </entry>
+  <entry>
+    <title>DNS抓包分析</title>
+    <url>/2023/10/17/DNS%E6%8A%93%E5%8C%85%E5%88%86%E6%9E%90/</url>
+    <content><![CDATA[<h2 id="一、DNS概述"><a href="#一、DNS概述" class="headerlink" title="一、DNS概述"></a>一、DNS概述</h2><p>DNS（Domain Name System，域名系统）是互联网上是一种层次结构的基于域的命名方式和实现这种命名方式的分布式数据库，其中记录了<b style="color:red">各种主机域名与 IP 地址的对应关系</b>，能够使用户更加方便的访问网站。用户可以直接输入域名登录网站，DNS会将<b style="color:blue">域名解析成IP地址</b>，然后用户根据这个IP地址找到相应的网站，从而访问到域名对应的网站，通过主机名获取到主机名对应IP地址的过程叫作域名解析。</p>
+<h2 id="二、DNS报文格式"><a href="#二、DNS报文格式" class="headerlink" title="二、DNS报文格式"></a>二、DNS报文格式</h2><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310171205746.png"
+                      alt="image-20231017120458631"
+                ></p>
+<h2 id="三、报文标志字段格式"><a href="#三、报文标志字段格式" class="headerlink" title="三、报文标志字段格式"></a>三、报文标志字段格式</h2><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310171950379.png"
+                      alt="image-20231017185950150"
+                ></p>
+<ul>
+<li><strong>QR (Query&#x2F;Response)</strong>: 1位，标志查询或响应。当QR&#x3D;0时，表示这是一个查询报文；当QR&#x3D;1时，表示这是一个响应报文。</li>
+<li><strong>Opcode (Operation Code)</strong>: 4位，标志DNS操作的类型。一些常见的值包括：<ol>
+<li>0: 标准查询</li>
+<li>1: 逆向查询</li>
+<li>2: 服务器状态请求</li>
+<li>4: 更新</li>
+</ol>
+</li>
+<li><strong>AA (Authoritative Answer)</strong>: 1位，用于指示响应是否来自权威DNS服务器。如果AA&#x3D;1，表示响应来自权威服务器，否则为0。</li>
+<li><strong>TC (Truncation)</strong>: 1位，指示报文是否被截断。如果TC&#x3D;1，表示报文太大而被截断。</li>
+<li><strong>RD (Recursion Desired)</strong>: 1位，若为0则表示迭代查询，1位递归查询</li>
+<li><strong>RA (Recursion Available)</strong>: 1位，表示DNS服务器是否支持递归查询。如果RA&#x3D;1，表示DNS服务器支持递归查询。</li>
+<li><strong>Z (Reserved)</strong>: 3位，为将来的使用保留，通常设置为0</li>
+<li><strong>RCODE (Response Code)</strong>: 4位，用于指示响应的状态。一些常见的响应代码包括：<ol>
+<li>0: 没有错误</li>
+<li>1: 格式错误</li>
+<li>2: 服务器故障</li>
+<li>3: 域名不存在</li>
+<li>4: 查询类型不支持</li>
+<li>5: 拒绝查询</li>
+</ol>
+</li>
+</ul>
+<h2 id="四、DNS的简略过程"><a href="#四、DNS的简略过程" class="headerlink" title="四、DNS的简略过程"></a>四、DNS的简略过程</h2><div class="highlight-container" data-rel="Shell"><figure class="iseeu highlight shell"><table><tr><td class="code"><pre><span class="line">发送一个查询包(query)</span><br><span class="line">接收一个回复包(response)</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="五、常见资源记录类型"><a href="#五、常见资源记录类型" class="headerlink" title="五、常见资源记录类型"></a>五、常见资源记录类型</h2><ul>
+<li><strong>A 记录（Address Record）：</strong> 用于将主机名映射到IPv4地址。</li>
+<li><strong>AAAA 记录（IPv6 Address Record）：</strong> 用于将主机名映射到IPv6地址。</li>
+<li><strong>CNAME 记录（Canonical Name Record）：</strong> 用于创建别名，将一个域名指向另一个域名。</li>
+<li><strong>TXT 记录（Text Record）：</strong> 用于存储文本信息，通常用于验证域名所有权和其他用途。</li>
+<li><strong>SOA 记录（Start of Authority Record）：</strong> 用于指定域名的权威DNS服务器和其他参数</li>
+<li><strong>NS 记录（Name Server Record）：</strong> 用于指定域名的权威DNS服务器。</li>
+</ul>
+<h2 id="六、抓包分析"><a href="#六、抓包分析" class="headerlink" title="六、抓包分析"></a>六、抓包分析</h2><p><b style="color:red">准备工作</b>【基于wireshark】</p>
+<ol>
+<li><p>在window系统打开控制台输入 <code>www.bloh.csdn.net</code></p>
+</li>
+<li><p>开启wirshark找到正在访问互联网的网卡，筛选DNS包，开始抓包</p>
+<ul>
+<li><p><strong>如何找到正在访问的网卡？</strong>首先打开网络和共享中心</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310171235456.png"
+                      alt="image-20231017123516411"
+                ></p>
+</li>
+<li><p>然后点击<b style="color:blue">连接</b>【此处是WLAN(SXXXNET)】，之后点击<b style="color:blue">详细信息</b></p>
+<center class="half">
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310171235141.png"
+                      width="550"
+                >
+    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310171240746.png"
+                      width="300"
+                >
+</center>
+</li>
+<li><p>然后就可以看到当前网卡详细的连接信息</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310171245786.png"
+                      alt="image-20231017124510749"
+                ></p>
+</li>
+</ul>
+</li>
+<li><p>继上述第二步发现自己网络连接的详细信息后看到wireshark页面，下面第一张图片的绿色区域选择DNS</p>
+<ul>
+<li><p>首先点击捕获并选择<strong>选项进行筛选</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310171247341.png"
+                      alt="image-20231017124725302"
+                ></p>
+</li>
+<li><p>找到对应的网络连接：点击开始即可</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310171951160.png"
+                      alt="image-20231017125334227"
+                ></p>
+</li>
+</ul>
+</li>
+<li><p>做好上述的工作之后cmd就可以ping <code> www.bloh.csdn.net</code>网址并捕获DNS包了，我们首先看到数据查询包（Query）</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310171951968.png"
+                      alt="image-20231017190849997"
+                ></p>
+<ul>
+<li>可以看到资源记录类型为<code>A</code>，说明是IPV4的映射，是一个<code>query</code>查询报文</li>
+<li>同时看到<code>port:53</code>说明运行端口在53，<code>RD=1</code>说明是递归查询</li>
+</ul>
+</li>
+<li><p>看完上述的查询报文【query】，现在我们来分析分析回应报文【response】</p>
+</li>
+</ol>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310171951337.png"
+                      alt="image-20231017192543669"
+                ></p>
+<h3 id="6-1、标志字段详细分析"><a href="#6-1、标志字段详细分析" class="headerlink" title="6.1、标志字段详细分析"></a>6.1、标志字段详细分析</h3><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310171951849.png"
+                      alt="image-20231017192956661"
+                ></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line">Flags: <span class="number">0x8180</span> Standard query response, No error</span><br><span class="line">    <span class="number">1.</span>.. .... .... .... = Response: Message is a response							#QR字段</span><br><span class="line">    <span class="number">.000</span> <span class="number">0.</span>.. .... .... = Opcode: Standard <span class="built_in">query</span> (<span class="number">0</span>)								#Opcode字段</span><br><span class="line">    .... <span class="number">.0</span>.. .... .... = Authoritative: Server is <span class="keyword">not</span> an authority <span class="keyword">for</span> domain		#AA字段</span><br><span class="line">    .... .<span class="number">.0</span>. .... .... = Truncated: Message is <span class="keyword">not</span> truncated						#TC字段</span><br><span class="line">    .... ..<span class="number">.1</span> .... .... = Recursion desired: Do query recursively					#RD字段</span><br><span class="line">    .... .... <span class="number">1.</span>.. .... = Recursion available: Server can <span class="keyword">do</span> recursive queries		#RA字段</span><br><span class="line">    .... .... <span class="number">.0</span>.. .... = Z: <span class="built_in">reserved</span> (<span class="number">0</span>)											#Z保留字段</span><br><span class="line">    .... .... .<span class="number">.0</span>. .... = Answer authenticated: Answer/authority portion was <span class="keyword">not</span> authenticated by the server</span><br><span class="line">    .... .... ..<span class="number">.0</span> .... = Non-authenticated data: Unacceptable</span><br><span class="line">    .... .... .... <span class="number">0000</span> = Reply code: No <span class="built_in">error</span> (<span class="number">0</span>)									#rCode字段</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="6-2、问题部分"><a href="#6-2、问题部分" class="headerlink" title="6.2、问题部分"></a>6.2、问题部分</h3><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310171951183.png"
+                      alt="image-20231017193726199"
+                ></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line">Queries											#问题部分</span><br><span class="line">    www.blog.csdn.net: type A, <span class="keyword">class</span> <span class="title class_">IN</span>			</span><br><span class="line">        Name: www.blog.csdn.net					#查询名字段：这里是请求域名</span><br><span class="line">        [Name Length: <span class="number">17</span>]</span><br><span class="line">        [Label Count: <span class="number">4</span>]</span><br><span class="line">        Type: <span class="built_in">A</span> (<span class="number">1</span>) (Host Address)				#查询类型字段，这里为A类型</span><br><span class="line">        Class: <span class="built_in">IN</span> (<span class="number">0x0001</span>)						#查询类字段，这里为互连网地址</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h3 id="6-3、答案部分"><a href="#6-3、答案部分" class="headerlink" title="6.3、答案部分"></a>6.3、答案部分</h3><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202310171951551.png"
+                      alt="image-20231017193945022"
+                ></p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line">Answers									#回答区域字段</span><br><span class="line">    www.blog.csdn.net: type CNAME, <span class="keyword">class</span> <span class="title class_">IN</span>, cname <span class="number">3b</span>7c892a.csdn.net.cname.yunduns.com</span><br><span class="line">        Name: www.blog.csdn.net			#域名西段，这里是请求的域名：www.blog.csdn.net</span><br><span class="line">        Type: <span class="built_in">CNAME</span> (<span class="number">5</span>) (Canonical NAME <span class="keyword">for</span> an alias)			#类型字段：CNAME</span><br><span class="line">        Class: <span class="built_in">IN</span> (<span class="number">0x0001</span>)										#查询类字段：IN</span><br><span class="line">        Time to live: <span class="number">600</span> (<span class="number">10</span> minutes)							#生产时间TTL</span><br><span class="line">        Data length: <span class="number">37</span>											#数据长度</span><br><span class="line">        CNAME: <span class="number">3b</span>7c892a.csdn.net.cname.yunduns.com				#资源数据，此处为域名的规范跳转</span><br><span class="line">    <span class="number">3b</span>7c892a.csdn.net.cname.yunduns.com: type A, <span class="keyword">class</span> <span class="title class_">IN</span>, addr <span class="number">220.185</span><span class="number">.184</span><span class="number">.6</span></span><br><span class="line">        Name: <span class="number">3b</span>7c892a.csdn.net.cname.yunduns.com</span><br><span class="line">        Type: <span class="built_in">A</span> (<span class="number">1</span>) (Host Address)</span><br><span class="line">        Class: <span class="built_in">IN</span> (<span class="number">0x0001</span>)</span><br><span class="line">        Time to live: <span class="number">600</span> (<span class="number">10</span> minutes)</span><br><span class="line">        Data length: <span class="number">4</span></span><br><span class="line">        Address: <span class="number">220.185</span><span class="number">.184</span><span class="number">.6</span>									#资源数据：此处为IP地址</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="七、两种查询机制的分析"><a href="#七、两种查询机制的分析" class="headerlink" title="七、两种查询机制的分析"></a>七、两种查询机制的分析</h2><p><strong>1. 递归查询：</strong></p>
+<ul>
+<li><strong>工作过程：</strong><ul>
+<li>客户端向本地DNS服务器发出DNS查询请求。</li>
+<li>本地DNS服务器首先查看自己的缓存，如果有相应记录，直接返回。如果没有相应记录，它会向根DNS服务器发送查询请求</li>
+<li>根DNS服务器返回一个指向顶级域名服务器的引导答案。</li>
+<li>本地DNS服务器再向顶级域名服务器查询，然后一级一级地递归查询，直到找到所需的域名解析记录。最终的解析结果返回给客户端。</li>
+</ul>
+</li>
+<li><strong>优点：</strong><ul>
+<li>客户端只需向本地DNS服务器发送请求。</li>
+<li>可以缓存解析结果，提高响应速度。</li>
+</ul>
+</li>
+<li><strong>缺点：</strong><ul>
+<li>增加了本地DNS服务器的负担，因为它必须执行多次迭代查询。</li>
+<li>可能会导致网络拥塞，因为本地DNS服务器需要多次向其他DNS服务器发出查询请求。</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. 迭代查询：</strong></p>
+<ul>
+<li><strong>工作过程：</strong><ul>
+<li>客户端向本地DNS服务器发出DNS查询请求。</li>
+<li>本地DNS服务器向根DNS服务器发送查询请求。</li>
+<li>根DNS服务器返回一个指向顶级域名服务器的引导答案，但不执行递归查询。</li>
+<li>本地DNS服务器再向顶级域名服务器查询，然后向下级域名服务器查询，直到找到所需的域名解析记录。</li>
+<li>本地DNS服务器将中间的查询结果返回给客户端，客户端自行执行下一步查询。</li>
+</ul>
+</li>
+<li><strong>优点：</strong><ul>
+<li>减轻了本地DNS服务器的负担，因为它不需要执行多次递归查询。</li>
+<li>减少了网络拥塞，因为每个DNS服务器只需执行一次查询并返回结果。</li>
+</ul>
+</li>
+<li><strong>缺点：</strong><ul>
+<li>对于客户端来说，需要更多的DNS查询步骤和处理。</li>
+</ul>
+</li>
+</ul>
+<p>当前的互联网环境更适合采用递归查询。避免客户端多次操作，减少理解DNS的1复杂性</p>
+]]></content>
+      <categories>
+        <category>计算机网络</category>
+      </categories>
+      <tags>
+        <tag>计算机网络</tag>
+      </tags>
+  </entry>
 </search>
