@@ -4227,25 +4227,7 @@
 <h3 id="7-8、批量添加文档"><a href="#7-8、批量添加文档" class="headerlink" title="7.8、批量添加文档"></a>7.8、批量添加文档</h3><ul>
 <li>代码示例</li>
 </ul>
-<pre><code class="java">public void addAllDoc() throws IOException &#123;
-    //将数据库中所有的数据查询出来
-    List&lt;Hotel&gt; hotels = hotelService.list();
-    // 1.创建request
-    BulkRequest request = new BulkRequest();
-    for (Hotel hotel : hotels) &#123;
-        //将数据库中的数据转为合适的文档格式
-        HotelDoc hotelDoc = new HotelDoc(hotel);
-        //创建新文档的Request对象
-        request.add(new IndexRequest(&quot;hotel&quot;)
-                .id(hotelDoc.getId().toString())
-                .source(JSON.toJSONString(hotelDoc),XContentType.JSON)
-        );
-    &#125;
-    //3. 发送请求
-    client.bulk(request,RequestOptions.DEFAULT);
-&#125;
-</code></pre>
-]]></content>
+<div class="highlight-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addAllDoc</span><span class="params">()</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">	<span class="comment">//将数据库中所有的数据查询出来</span></span><br><span class="line">	List&lt;Hotel&gt; hotels = hotelService.list();</span><br><span class="line">	<span class="comment">// 1.创建request</span></span><br><span class="line">	<span class="type">BulkRequest</span> <span class="variable">request</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BulkRequest</span>();</span><br><span class="line">	<span class="keyword">for</span> (Hotel hotel : hotels) &#123;</span><br><span class="line">		<span class="comment">//将数据库中的数据转为合适的文档格式</span></span><br><span class="line">		<span class="type">HotelDoc</span> <span class="variable">hotelDoc</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HotelDoc</span>(hotel);</span><br><span class="line">		<span class="comment">//创建新文档的Request对象</span></span><br><span class="line">		request.add(<span class="keyword">new</span> <span class="title class_">IndexRequest</span>(<span class="string">&quot;hotel&quot;</span>)</span><br><span class="line">				.id(hotelDoc.getId().toString())</span><br><span class="line">				.source(JSON.toJSONString(hotelDoc),XContentType.JSON)</span><br><span class="line">		);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//3. 发送请求</span></span><br><span class="line">	client.bulk(request,RequestOptions.DEFAULT);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>]]></content>
       <categories>
         <category>后端</category>
       </categories>
