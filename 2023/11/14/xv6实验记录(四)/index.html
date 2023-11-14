@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="Hexo Theme Redefine">
+    
+    <meta name="author" content="忘记中二的少年">
+    <!-- preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    
+    <!--- Seo Part-->
+    
+    <link rel="canonical" href="http://example.com/2023/11/14/xv6实验记录(四)/"/>
+    <meta name="robots" content="index,follow">
+    <meta name="googlebot" content="index,follow">
+    <meta name="revisit-after" content="1 days">
+    
+        <meta name="description" content="“2023年scnu操作系统实验(四)&quot;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2021-xv6实验记录(四)">
+<meta property="og:url" content="http://example.com/2023/11/14/xv6%E5%AE%9E%E9%AA%8C%E8%AE%B0%E5%BD%95(%E5%9B%9B)/index.html">
+<meta property="og:site_name" content="MyBlog">
+<meta property="og:description" content="“2023年scnu操作系统实验(四)&quot;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141258343.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259289.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259290.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259291.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259292.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259293.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259294.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259295.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259296.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259297.png">
+<meta property="og:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259299.png">
+<meta property="article:published_time" content="2023-11-14T04:44:00.000Z">
+<meta property="article:modified_time" content="2023-11-14T05:02:23.978Z">
+<meta property="article:author" content="忘记中二的少年">
+<meta property="article:tag" content="操作系统">
+<meta property="article:tag" content="xv6">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141258343.png">
+    
+    
+        <!-- Google tag (gtag.js) -->
+        <script src="https://www.googletagmanager.com/gtag/js?id="></script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', '');
+        </script>
+    
+    <!--- Icon Part-->
+    <link rel="icon" type="image/png" href="/images/avatar.png" sizes="192x192">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/avatar.png">
+    <meta name="theme-color" content="#f051d8">
+    <link rel="shortcut icon" href="/images/avatar.png">
+    <!--- Page Info-->
+    
+    <title>
+        
+            2021-xv6实验记录(四) -
+        
+        橙留香的blog
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    
+        
+<link rel="stylesheet" href="/assets/build/styles.css">
+
+    
+
+    
+<link rel="stylesheet" href="/fonts/fonts.css">
+
+    
+<link rel="stylesheet" href="/fonts/Satoshi/satoshi.css">
+
+    
+<link rel="stylesheet" href="/fonts/Chillax/chillax.css">
+
+    <!--- Font Part-->
+    
+    
+    
+    
+
+    <!--- Inject Part-->
+    
+    <script id="hexo-configurations">
+    window.config = {"hostname":"example.com","root":"/","language":"zh-CN","path":"search.xml"};
+    window.theme = {"articles":{"style":{"font_size":"16px","line_height":1.5,"image_border_radius":"14px","image_alignment":"center","image_caption":false,"link_icon":true},"word_count":{"enable":true,"count":true,"min2read":true},"author_label":{"enable":true,"auto":false,"list":[]},"code_block":{"copy":true,"style":"mac","font":{"enable":false,"family":null,"url":null}},"toc":{"enable":true,"max_depth":3,"number":false,"expand":true,"init_open":true},"copyright":true,"lazyload":true,"recommendation":{"enable":false,"title":"推荐阅读","limit":3,"mobile_limit":2,"placeholder":"/images/wallhaven-wqery6-light.webp","skip_dirs":[]}},"colors":{"primary":"#f051d8","secondary":null},"global":{"fonts":{"chinese":{"enable":false,"family":null,"url":null},"english":{"enable":false,"family":null,"url":null}},"content_max_width":"1000px","sidebar_width":"210px","hover":{"shadow":true,"scale":false},"scroll_progress":{"bar":true,"percentage":true},"website_counter":{"url":"https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js","enable":true,"site_pv":true,"site_uv":true,"post_pv":true},"single_page":true,"open_graph":true,"google_analytics":{"enable":true,"id":null}},"home_banner":{"enable":true,"style":"fixed","image":{"light":"/images/background-light.jpg","dark":"/images/background-dark.jpg"},"title":"欢迎来到我的个人空间","subtitle":{"text":["此处记录着我的学习轨迹","吾日三省吾身"],"hitokoto":{"enable":false,"api":"https://v1.hitokoto.cn"},"typing_speed":100,"backing_speed":80,"starting_delay":500,"backing_delay":1500,"loop":true,"smart_backspace":true},"text_color":{"light":"#fff","dark":"#750fd4"},"text_style":{"title_size":"4rem","subtitle_size":"1.7rem","line_height":1.3},"custom_font":{"enable":false,"family":null,"url":null},"social_links":{"enable":false,"links":{"github":null,"instagram":null,"zhihu":null,"twitter":null,"email":null},"qrs":{"weixin":null}}},"plugins":{"feed":{"enable":false},"aplayer":{"enable":true,"type":"fixed","audios":[{"name":"小胡同","artist":"郑润泽","url":"https://music.163.com/song/media/outer/url?id=1926623288.mp3","cover":"https://w.wallhaven.cc/full/gp/wallhaven-gpdozd.jpg"},{"name":"怪就怪天气","artist":"OneOne / xxxmiracle / Zy","url":"https://music.163.com/song/media/outer/url?id=2069713612.mp3","cover":"https://w.wallhaven.cc/full/1p/wallhaven-1p2yev.jpg"},{"name":"瞬","artist":"郑润泽","url":"https://music.163.com/song/media/outer/url?id=2063864551.mp3","cover":"https://w.wallhaven.cc/full/l8/wallhaven-l8ddyq.jpg"}]},"mermaid":{"enable":false,"version":"9.3.0"}},"version":"2.5.0","navbar":{"auto_hide":false,"color":{"left":"#f78736","right":"#367df7","transparency":35},"links":{"Home":{"path":"/","icon":"fa-regular fa-house"},"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"CSDN":{"path":"https://blog.csdn.net/weixin_64340669","icon":"fa-regular fa-chart-bar"},"About":{"icon":"fa-regular fa-user","submenus":{"Me":"/about","Github":"https://github.com/HandsomeXianc","Blog":"https://iui.su/1878/","Friends":"https://ohevan.com"}}},"search":{"enable":true,"preload":true}},"page_templates":{"friends_column":2,"tags_style":"blur"},"home":{"sidebar":{"enable":true,"position":"left","first_item":"menu","announcement":"<b style=\"background-image:linear-gradient(to right top,#ff09e2,#ff0092,#ff5a4c,#ff9800,#d6c300,#b3d61a,#82e743,#00f671,#00f797,#00f7b7,#00f6d1,#06f3e4); -webkit-background-clip:text; color:transparent;\"> 然后给自己定个小目标:先写10年代码,之后再写20年吧</b>","links":{"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"Tags":{"path":"/tags","icon":"fa-regular fa-tags"},"Categories":{"path":"/categories","icon":"fa-regular fa-folder"}}},"article_date_format":"auto","categories":{"enable":true,"limit":3},"tags":{"enable":true,"limit":3}},"footerStart":"2023/10/1 12:00:00"};
+    window.lang_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 个月前","year":"%s 年前"};
+    window.data = {"masonry":false};
+  </script>
+    
+    <!--- Fontawesome Part-->
+    
+<link rel="stylesheet" href="/fontawesome/fontawesome.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/brands.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/solid.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/regular.min.css">
+
+    
+    
+    
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+        <span class="scroll-progress-bar"></span>
+    
+
+    
+        <span class="pjax-progress-bar"></span>
+        <span class="swup-progress-icon">
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+        </span>
+    
+</div>
+
+
+<main class="page-container" id="swup">
+
+    
+
+    <div class="main-content-container">
+
+
+        <div class="main-content-header">
+            <header class="navbar-container">
+    
+    <div class="navbar-content">
+        <div class="left">
+            
+                <a class="logo-image" href="/">
+                    <img src="/images/avatar.png">
+                </a>
+            
+            <a class="logo-title" href="/">
+                
+                橙留香的blog
+                
+            </a>
+        </div>
+
+        <div class="right">
+            <!-- PC -->
+            <div class="desktop">
+                <ul class="navbar-list">
+                    
+                        
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class="" 
+                                    href="/"  >
+                                    
+                                        
+                                            <i class="fa-regular fa-house"></i>
+                                        
+                                        首页
+                                    
+                                </a>
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class="" 
+                                    href="/archives"  >
+                                    
+                                        
+                                            <i class="fa-regular fa-archive"></i>
+                                        
+                                        归档
+                                    
+                                </a>
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class="" 
+                                    target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_64340669"  >
+                                    
+                                        
+                                            <i class="fa-regular fa-chart-bar"></i>
+                                        
+                                        CSDN
+                                    
+                                </a>
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class="has-dropdown" 
+                                    href="#" onClick="return false;">
+                                    
+                                        
+                                            <i class="fa-regular fa-user"></i>
+                                        
+                                        关于&nbsp;<i class="fa-solid fa-chevron-down"></i>
+                                    
+                                </a>
+                                <!-- Submenu -->
+                                
+                                    <ul class="sub-menu">
+                                    
+                                        <li>
+                                        <a href="/about">ME
+                                        </a>
+                                        </li>
+                                    
+                                        <li>
+                                        <a target="_blank" rel="noopener" href="https://github.com/HandsomeXianc">GITHUB
+                                        </a>
+                                        </li>
+                                    
+                                        <li>
+                                        <a target="_blank" rel="noopener" href="https://iui.su/1878/">BLOG
+                                        </a>
+                                        </li>
+                                    
+                                        <li>
+                                        <a target="_blank" rel="noopener" href="https://ohevan.com">友情链接
+                                        </a>
+                                        </li>
+                                    
+                                    </ul>
+                                
+                            </li>
+                    
+                    
+                        <li class="navbar-item search search-popup-trigger">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <!-- Mobile -->
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fa-solid fa-magnifying-glass"></i></div>
+                
+                <div class="icon-item navbar-bar">
+                    <div class="navbar-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile drawer -->
+    <div class="navbar-drawer w-full absolute top-0 left-0 bg-background-color">
+        <ul class="drawer-navbar-list flex flex-col justify-start items-center">
+            
+                
+                    <li class="drawer-navbar-item text-base my-1.5 flex justify-center items-center">
+                        <a class="rounded-3xl py-1.5 px-5 hover:border hover:!text-primary active:!text-primary group " 
+                        href="/"  >
+                             
+                                
+                                    <i class="fa-regular fa-house"></i>
+                                
+                                首页
+                            
+                        </a>
+                    </li>
+                    <!-- Submenu -->
+                    
+            
+                
+                    <li class="drawer-navbar-item text-base my-1.5 flex justify-center items-center">
+                        <a class="rounded-3xl py-1.5 px-5 hover:border hover:!text-primary active:!text-primary group " 
+                        href="/archives"  >
+                             
+                                
+                                    <i class="fa-regular fa-archive"></i>
+                                
+                                归档
+                            
+                        </a>
+                    </li>
+                    <!-- Submenu -->
+                    
+            
+                
+                    <li class="drawer-navbar-item text-base my-1.5 flex justify-center items-center">
+                        <a class="rounded-3xl py-1.5 px-5 hover:border hover:!text-primary active:!text-primary group " 
+                        target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_64340669"  >
+                             
+                                
+                                    <i class="fa-regular fa-chart-bar"></i>
+                                
+                                CSDN
+                            
+                        </a>
+                    </li>
+                    <!-- Submenu -->
+                    
+            
+                
+                    <li class="drawer-navbar-item text-base my-1.5 flex justify-center items-center">
+                        <a class="rounded-3xl py-1.5 px-5 hover:border hover:!text-primary active:!text-primary group has-dropdown" 
+                        href="#" onClick="return false;">
+                            
+                                
+                                    <i class="fa-regular fa-user"></i>
+                                
+                                关于&nbsp;<i class="group-hover:rotate-180 transition-transform fa-solid fa-chevron-down"></i>
+                            
+                        </a>
+                    </li>
+                    <!-- Submenu -->
+                              
+                        
+                            <li class="drawer-navbar-item text-base flex justify-center items-center hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                <a class="py-0.5" href="/about">ME</a>
+                            </li>
+                        
+                            <li class="drawer-navbar-item text-base flex justify-center items-center hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                <a class="py-0.5" target="_blank" rel="noopener" href="https://github.com/HandsomeXianc">GITHUB</a>
+                            </li>
+                        
+                            <li class="drawer-navbar-item text-base flex justify-center items-center hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                <a class="py-0.5" target="_blank" rel="noopener" href="https://iui.su/1878/">BLOG</a>
+                            </li>
+                        
+                            <li class="drawer-navbar-item text-base flex justify-center items-center hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                <a class="py-0.5" target="_blank" rel="noopener" href="https://ohevan.com">友情链接</a>
+                            </li>
+                        
+                    
+            
+
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="main-content-body">
+
+            
+
+            <div class="main-content">
+
+                
+                    <div class="post-page-container">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            
+                
+                
+                <img src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259090.jpg" alt="2021-xv6实验记录(四)" class="max-w-none"/>
+                
+                <h1 class="article-title-cover">2021-xv6实验记录(四)</h1>
+            
+            </div>
+            
+                    
+        
+        
+            <div class="article-header flex flex-row gap-2 items-center">
+                <div class="avatar w-[46px] h-[46px] flex-shrink-0 rounded-medium border border-border-color p-[1px]">
+                    <img src="/images/avatar.png">
+                </div>
+                <div class="info flex flex-col justify-between">
+                    <div class="author flex items-center">
+                        <span class="name text-default-text-color text-lg font-semibold">忘记中二的少年</span>
+                        
+                            <span class="author-label ml-1.5 text-xs px-2 py-0.5 rounded-small text-third-text-color border border-shadow-color-1">Lv3</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fa-regular fa-pen-fancy"></i>&nbsp;
+        <span class="desktop">2023-11-14 12:44</span>
+        <span class="mobile">2023-11-14 12:44</span>
+        <span class="hover-info">创建</span>
+    </span>
+    
+        <span class="article-date article-meta-item">
+            <i class="fa-regular fa-wrench"></i>&nbsp;
+            <span class="desktop">2023-11-14 13:02:23</span>
+            <span class="mobile">2023-11-14 13:02:23</span>
+            <span class="hover-info">更新</span>
+        </span>
+    
+
+    
+        <span class="article-categories article-meta-item">
+            <i class="fa-regular fa-folders"></i>&nbsp;
+            <ul>
+                
+                
+                    
+                        
+                        <li>
+                            <a href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>&nbsp;
+                        </li>
+                    
+                    
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fa-regular fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        | <a href="/tags/xv6/">xv6</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fa-regular fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        
+
+
+        <div class="article-content markdown-body">
+            <blockquote>
+<p>本次实验，将进行<strong>两个任务</strong></p>
+<ol>
+<li>在 xv6 文件系统的代码里添加对<code>大文件</code>的支持  </li>
+<li>实现“符号链接”。</li>
+</ol>
+<p>在进行实验前，适当地参考“官方参考书”的第 8 个章节——File System  </p>
+<p>官方实验指南：<a class="link"   target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.828/2022/labs/fs.html" >https://pdos.csail.mit.edu/6.828/2022/labs/fs.html <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>  </p>
+<p>官方参考书：<a class="link"   target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.828/2022/xv6/book-riscv-rev3.pdf" >https://pdos.csail.mit.edu/6.828/2022/xv6/book-riscv-rev3.pdf <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>  </p>
+</blockquote>
+<h2 id="老规矩：实验前先切换分支"><a href="#老规矩：实验前先切换分支" class="headerlink" title="老规矩：实验前先切换分支"></a>老规矩：实验前先切换分支</h2><div class="highlight-container" data-rel="Shell"><figure class="iseeu highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git fetch</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">使用上述fetch的时候系统告诉你要缓存或者提交？那你不会commit？</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">git commit -m<span class="string">&quot;实验三缓存&quot;</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git checkout fs</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">make clean</span></span><br></pre></td></tr></table></figure></div>
+
+<h2 id="任务一：【Large-files】"><a href="#任务一：【Large-files】" class="headerlink" title="任务一：【Large files】"></a>任务一：【Large files】</h2><h3 id="实验描述"><a href="#实验描述" class="headerlink" title="实验描述"></a>实验描述</h3><p>xv6 文件系统的一个“文件”在存储设备（一般为外存）上的逻辑结构图  </p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141258343.png"
+                      alt="image-20231113153800593"
+                ></p>
+<p>在XV6底层实现中，文件是由 <code>struct dinode</code>来描述的，其代码结构如下</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">dinode</span> &#123;</span><br><span class="line">  <span class="type">short</span> type;           <span class="comment">// 文件类型</span></span><br><span class="line">  <span class="type">short</span> major;          <span class="comment">// 主设备号(当文件类型是设备的时候)</span></span><br><span class="line">  <span class="type">short</span> minor;          <span class="comment">// 从设备号(当文件类型是设备的时候)</span></span><br><span class="line">  <span class="type">short</span> nlink;          <span class="comment">// 表示有多少个目录指向该索引节点</span></span><br><span class="line">  uint size;            <span class="comment">// 文件大小(字节)</span></span><br><span class="line">  uint addrs[NDIRECT + <span class="number">1</span>];   <span class="comment">// 数据块地址</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></div>
+
+<p>根据图中的解释可以清晰的了解到一个文件索引的大小<code>268KB</code></p>
+<p>了解上述基本知识以后，可以尝试在xv6的终端敲入以下命令</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259289.png"
+                      alt="image-20231113153852899"
+                ></p>
+<div class="highlight-container" data-rel="Shell"><figure class="iseeu highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">bigfile				<span class="comment"># 敲入的命令是这条，下面是测试结果</span></span></span><br><span class="line">..</span><br><span class="line">wrote 268 blocks</span><br><span class="line">bigfile: file is too small</span><br><span class="line"><span class="meta prompt_">$</span></span><br></pre></td></tr></table></figure></div>
+
+<p>其中，bigfile 是一个用户层的测试程序，它尝试在分配 268 个块之后再分配 65803 个块，很明显，这个数值超过了 xv6 文件系统的现有限制，因此，抛出<b style="color:red">file is too small</b>的错误。  </p>
+<ul>
+<li><strong>本次实验的第一个任务已经浮出水面，就是要让 xv6 文件系统支持大文件的创建，以让上述用户层的测试程序能够正常运行。</strong></li>
+</ul>
+<h3 id="实验思路"><a href="#实验思路" class="headerlink" title="实验思路"></a>实验思路</h3><p>268KB的存储块可以装个啥？装个锤。因此尝试一下在不修改<code>底层dinode结构体大小的情况下</code>，</p>
+<ol>
+<li>修改一个之前包含了直接数据块地址的成员变量【就是上述十二个数据块直接地址变量中的一个】，让其指向一个二级间接块</li>
+<li><b style="color:red">二级间接块</b>同样有<code>256</code>个条目，但是每个条目指向的是一个<b style="color:blue">一级间接块</b></li>
+<li><b style="color:red">一级间接块</b>又包含256个条目，每个条目指向一个<b style="color:blue">直接数据块</b></li>
+</ol>
+<p><strong>根据我在脑海中生成的样子：</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259290.png"
+                      alt="image-20231113153644623"
+                ></p>
+<h4>一些提示</h4>
+
+<ol>
+<li><code>kernel/fs.c</code>中的bmap()函数是关键点：主要实现将用户传入的相对的逻辑块号（针对文件的偏移）转为一个绝对的物理块号（针对该设备上的偏移，而一个设备可以包含多个文件）；目前bmap仅支持直接块和一级间接块的寻址，你需要添加对二级间接块的寻址</li>
+<li>可以修改一个原本用于“存放直接块地址”的成员变量，让其用于存放二级间接块地址（不能变化 dinode 结构体的大小）  </li>
+<li><code>NDIRECT</code> 表示 dinode 里直接块地址的数目，而 <code>NINDIRECT</code> 表示的是 dinode 结构体里间接块地址的数目（都在 kernel&#x2F;fs.h 里定义），所以针对它们的宏定义，可能需要得到相应的修改。修改了 NDIRECT 的值，请重新生成 xv6虚拟机的镜像文件——fs.img，生成的方法是在 xv6 的源码根目录下敲——make clean，它在清理一些临时的编译文件同时，会在主机系统里强制生成最新的fs.img（这个镜像文件里包含着整个 xv6 虚拟机的文件系统）  </li>
+<li>还有一个名为 <code>MAXFILE</code> 的宏定义，表示当前文件系统所支持的数据块数目，因需要支持大文件所以也需要修改。</li>
+<li>dinode 是索引节点用于存放在外存上（disk）的结构，其实它在内存中也存在一个特定的版本——名为 inode 结构体（定义在<code>kernel/risc.h</code>），所以，当你为了支持大文件或者二级间接块修改了 dinode 之后，也请修改 inode 的结构体的相应的成员变量</li>
+<li>除了分配块的 <code>bmap()</code>函数，释放块的函数<code>itrunc()</code>也需要修改<code>kernel/fs.c</code>，以支持释放或回收后面加入的二级间接块【可以参考 <code>itrunc</code> 是怎么处理一级间接块的】</li>
+</ol>
+<h3 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h3><p>因为需要将一个直接索引变成二级间接索引，因此根据【<strong>提示 2 和 提示 3</strong> 】对宏定义进行修改，打开<code>kernel/fs.h</code>文件</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> NDIRECT 11 <span class="comment">// 减少一个直接索引，增加一个二级间接索引</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NINDIRECT (BSIZE / sizeof(uint))</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NDINDIRECT NINDIRECT * NINDIRECT <span class="comment">// 二级间接索引提供的块</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MAXFILE (NDIRECT + NINDIRECT + NBI_INDIRECT)<span class="comment">//总数据块的数量</span></span></span><br></pre></td></tr></table></figure></div>
+
+<p>修改 <code>struct dinode</code> 和 <code>struct inode</code>。【<strong>提示 5</strong> 】</p>
+<p>打开<code>kernel/fs.h</code>文件修改<strong>宏定义</strong>以及<code>dinode</code></p>
+<p>因为修改了<code>dinode</code>所以还要修改<code>inode</code>，打开文件<code>kernel/file.h</code></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259291.png"
+                      alt="image-20231113154833044"
+                ></p>
+<p>修改<code>kernel/fs.c</code>文件中的 bmap 函数【<strong>提示 1</strong>】然后修改<code>itrunc</code>函数【<strong>提示 6</strong>】</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259292.png"
+                      alt="image-20231113154555188"
+                ></p>
+<h3 id="结果验证"><a href="#结果验证" class="headerlink" title="结果验证"></a>结果验证</h3><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259293.png"
+                      alt="image-20231113153438723"
+                ></p>
+<h2 id="任务二：【Symbolic-links】"><a href="#任务二：【Symbolic-links】" class="headerlink" title="任务二：【Symbolic links】"></a>任务二：【Symbolic links】</h2><h3 id="实验描述-1"><a href="#实验描述-1" class="headerlink" title="实验描述"></a>实验描述</h3><ul>
+<li>第二个任务是为 xv6 的文件增加“符号链接”功能  </li>
+<li>增加一个名为<code>symlink(char *target, char *path)</code>的系统调用，以实现创建符号链接的功能。<code>target </code>指的是被创建符号链接的文件路径（包括文件名），而<code>path </code>指的是该符号链接创建后存放的路径名（包括符号链接本身文件名）</li>
+</ul>
+<h3 id="实验思路-1"><a href="#实验思路-1" class="headerlink" title="实验思路"></a>实验思路</h3><ol>
+<li>创建新系统调用的步骤，为 symlink 提供一个接口&#x2F;入口，内部 实 现 可 以 暂 时 为 空 （ 需 要 修 改 <strong>user&#x2F;usys.pl、user&#x2F;user.h 、kernel&#x2F;sysfile.c</strong> 等文件  </li>
+<li>在 kernel&#x2F;stat.h 中，创建一个名为（T_SYMLINK）文件类型，去代表 <code>symlink()</code>所创建的符号链接类型  （xv6 原本支持的文件类型有三种，分别是常规文件、目录文件和设备文件，现在有了第四种）</li>
+<li>在 kernel&#x2F;fcntl.h 中，加入一个标志位——O_NOFOLLOW，用于 open()在打开符号链接时，以表明打开的对象为符号链接本身，而不是该符号链接所指向的目标文件（没有该标志位的话，系统将无法区分上述两种情况，因为 open 函数的内部处理需要返回一个指向 inode 的指针，那么这个指针到底是应该指向符号链接文件本身，还是其所指向的对象文件？  </li>
+<li>可能存在一个嵌套或者递归的情况，你用 open 打开的符号链接，其指向的又是另外一个符号链接……我们最多允许 10次递归，超过就报错</li>
+</ol>
+<h3 id="实验过程-1"><a href="#实验过程-1" class="headerlink" title="实验过程"></a>实验过程</h3><ul>
+<li>注册系统调用<code>symlink</code>【忘记怎么注册？查看实验二】</li>
+</ul>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259294.png"
+                      alt="image-20231113162939169"
+                ></p>
+<ul>
+<li>在文件<code>kernel/sysfile.c</code>文件中实现sys_symlink函数</li>
+</ul>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259295.png"
+                      alt="image-20231113161311951"
+                ></p>
+<ul>
+<li>修改<code>sys_open</code>函数</li>
+</ul>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259296.png"
+                      alt="image-20231113161535075"
+                ></p>
+<h3 id="结果验证-1"><a href="#结果验证-1" class="headerlink" title="结果验证"></a>结果验证</h3><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259297.png"
+                      alt="image-20231113163247065"
+                ></p>
+<h2 id="Make-Grade测试"><a href="#Make-Grade测试" class="headerlink" title="Make Grade测试"></a>Make Grade测试</h2><ul>
+<li>需要创建<code>time.txt</code>文件</li>
+</ul>
+<div class="highlight-container" data-rel="Shell"><figure class="iseeu highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">touch time.txt</span><br><span class="line">vim time.txt  </span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li>测试时间因机器的性能不同而有所偏差，大部分情况存在因为虚拟机性能不够导致运行时间过长因此报错</li>
+</ul>
+<p>解决方法：打开根目录下的<code>grade-lab-fs</code>文件修改【timeout】的值</p>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259299.png"
+                      alt="image-20231114113527078" style="zoom:80%;" 
+                >
+
+        </div>
+
+        
+            <div class="post-copyright-info">
+                <div class="article-copyright-info-container">
+    <ul>
+        <li><strong>标题:</strong> 2021-xv6实验记录(四)</li>
+        <li><strong>作者:</strong> 忘记中二的少年</li>
+        <li><strong>创建于
+                :</strong> 2023-11-14 12:44:00</li>
+        
+            <li>
+                <strong>更新于
+                    :</strong> 2023-11-14 13:02:23
+            </li>
+        
+        <li>
+            <strong>链接:</strong> https://github.com/HandsomeXianc/HandsomeXianc.github.io/2023/11/14/xv6实验记录(四)/
+        </li>
+        <li>
+            <strong>
+                版权声明:
+            </strong>
+            
+            本文章采用 <a class="license" target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0</a> 进行许可。
+            
+
+        </li>
+    </ul>
+</div>
+
+            </div>
+        
+
+        
+            <ul class="post-tags-box">
+                
+                    <li class="tag-item">
+                        <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>&nbsp;
+                    </li>
+                
+                    <li class="tag-item">
+                        <a href="/tags/xv6/">#xv6</a>&nbsp;
+                    </li>
+                
+            </ul>
+        
+
+        
+
+        
+            <div class="article-nav">
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                        rel="next"
+                        href="/2023/10/25/ES/"
+                        >
+                            <span class="title flex justify-center items-center">
+                                <span class="post-nav-title-item">elasticsearch</span>
+                                <span class="post-nav-item">下一篇</span>
+                            </span>
+                            <span class="right arrow-icon flex justify-center items-center">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+
+        
+    </div>
+
+    
+        <div class="toc-content-container">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <div class="toc-title">此页目录</div>
+        <div class="page-title">2021-xv6实验记录(四)</div>
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%80%81%E8%A7%84%E7%9F%A9%EF%BC%9A%E5%AE%9E%E9%AA%8C%E5%89%8D%E5%85%88%E5%88%87%E6%8D%A2%E5%88%86%E6%94%AF"><span class="nav-text">老规矩：实验前先切换分支</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%BB%E5%8A%A1%E4%B8%80%EF%BC%9A%E3%80%90Large-files%E3%80%91"><span class="nav-text">任务一：【Large files】</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E6%8F%8F%E8%BF%B0"><span class="nav-text">实验描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E6%80%9D%E8%B7%AF"><span class="nav-text">实验思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E8%BF%87%E7%A8%8B"><span class="nav-text">实验过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%9C%E9%AA%8C%E8%AF%81"><span class="nav-text">结果验证</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%BB%E5%8A%A1%E4%BA%8C%EF%BC%9A%E3%80%90Symbolic-links%E3%80%91"><span class="nav-text">任务二：【Symbolic links】</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E6%8F%8F%E8%BF%B0-1"><span class="nav-text">实验描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E6%80%9D%E8%B7%AF-1"><span class="nav-text">实验思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E8%BF%87%E7%A8%8B-1"><span class="nav-text">实验过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%9C%E9%AA%8C%E8%AF%81-1"><span class="nav-text">结果验证</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Make-Grade%E6%B5%8B%E8%AF%95"><span class="nav-text">Make Grade测试</span></a></li></ol>
+
+    </div>
+</div>
+        </div>
+    
+</div>
+
+
+
+                
+
+            </div>
+
+            
+
+        </div>
+
+        <div class="main-content-footer">
+            <footer class="footer mt-5 py-5 h-auto text-base text-third-text-color relative border-t-2 border-t-border-color">
+    <div class="info-container py-3 text-center">
+        
+            <div class="customize-info my-1"><b style=" background-image:linear-gradient(to right bottom,#ff09e2,#aa80ff,#00afff,#00ccff,#00dfff,#00daff,#00d4ff,#00cfff,#00b0ff,#008cff,#0061ff,#2006f3); -webkit-background-clip:text; color:transparent; font-size:20px;">大鹏一日同风起 扶摇直上九万里</b></div>
+        
+        <div class="text-center">
+            &copy;
+            
+              <span>2023</span>
+              -
+            
+            2023&nbsp;&nbsp;<i class="fa-solid fa-heart fa-beat" style="--fa-animation-duration: 0.5s; color: #f54545"></i>&nbsp;&nbsp;<a href="/">忘记中二的少年</a>
+        </div>
+        
+            <script data-swup-reload-script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="relative text-center lg:absolute lg:right-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-right">
+                
+                    <span id="busuanzi_container_site_uv" class="lg:!block">
+                        <span class="text-sm">访问人数</span>
+                        <span id="busuanzi_value_site_uv"></span>
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv" class="lg:!block">
+                        <span class="text-sm">总访问量</span>
+                        <span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="relative text-center lg:absolute lg:left-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-left">
+            <span class="lg:block text-sm">由 <?xml version="1.0" encoding="utf-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg class="relative top-[2px] inline-block align-baseline" version="1.1" id="圖層_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="1rem" height="1rem" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve"><path fill="#0E83CD" d="M256.4,25.8l-200,115.5L56,371.5l199.6,114.7l200-115.5l0.4-230.2L256.4,25.8z M349,354.6l-18.4,10.7l-18.6-11V275H200v79.6l-18.4,10.7l-18.6-11v-197l18.5-10.6l18.5,10.8V237h112v-79.6l18.5-10.6l18.5,10.8V354.6z"/></svg><a target="_blank" class="text-base" href="https://hexo.io">爱</a> 驱动</span>
+            <span class="text-sm lg:block">魔改theme&nbsp;<a class="text-base" target="_blank" href="https://github.com/EvanNotFound/hexo-theme-redefine">Redefine v2.5.0</a></span>
+        </div>
+        
+        
+            <div>
+                博客已运行 <span class="odometer" id="runtime_days" ></span> 天 <span class="odometer" id="runtime_hours"></span> 小时 <span class="odometer" id="runtime_minutes"></span> 分钟 <span class="odometer" id="runtime_seconds"></span> 秒
+            </div>
+        
+        
+            <script data-swup-reload-script>
+                try {
+                    function odometer_init() {
+                    const elements = document.querySelectorAll('.odometer');
+                    elements.forEach(el => {
+                        new Odometer({
+                            el,
+                            format: '( ddd).dd',
+                            duration: 200
+                        });
+                    });
+                    }
+                    odometer_init();
+                } catch (error) {}
+            </script>
+        
+        
+        
+    </div>  
+</footer>
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="article-tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="right-bottom-tools page-aside-toggle">
+                <i class="fa-regular fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-side-tools-container">
+        <div class="side-tools-container">
+    <ul class="hidden-tools-list">
+        <li class="right-bottom-tools tool-font-adjust-plus flex justify-center items-center">
+            <i class="fa-regular fa-magnifying-glass-plus"></i>
+        </li>
+
+        <li class="right-bottom-tools tool-font-adjust-minus flex justify-center items-center">
+            <i class="fa-regular fa-magnifying-glass-minus"></i>
+        </li>
+
+        <li class="right-bottom-tools tool-dark-light-toggle flex justify-center items-center">
+            <i class="fa-regular fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="right-bottom-tools tool-scroll-to-bottom flex justify-center items-center">
+            <i class="fa-regular fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="visible-tools-list">
+        <li class="right-bottom-tools toggle-tools-list flex justify-center items-center">
+            <i class="fa-regular fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="right-bottom-tools tool-scroll-to-top flex justify-center items-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+        
+    </ul>
+</div>
+
+    </div>
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fa-solid fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="搜索..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa-solid fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa-solid fa-spinner fa-spin-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+    
+<script src="/js/libs/Swup.min.js"></script>
+
+<script src="/js/libs/SwupSlideTheme.min.js"></script>
+
+<script src="/js/libs/SwupScriptsPlugin.min.js"></script>
+
+<script src="/js/libs/SwupProgressPlugin.min.js"></script>
+
+<script src="/js/libs/SwupScrollPlugin.min.js"></script>
+
+<script src="/js/libs/SwupPreloadPlugin.min.js"></script>
+
+<script>
+    const swup = new Swup({
+        plugins: [
+            new SwupScriptsPlugin({
+                optin: true,
+            }),
+            new SwupProgressPlugin(),
+            new SwupScrollPlugin({
+                offset: 80,
+            }),
+            new SwupSlideTheme({
+                mainElement: ".main-content-body",
+            }),
+            new SwupPreloadPlugin(),
+        ],
+        containers: ["#swup"],
+    });
+</script>
+
+
+
+
+
+
+
+<script src="/js/tools/imageViewer.js" type="module"></script>
+
+<script src="/js/utils.js" type="module"></script>
+
+<script src="/js/main.js" type="module"></script>
+
+<script src="/js/layouts/navbarShrink.js" type="module"></script>
+
+<script src="/js/tools/scrollTopBottom.js" type="module"></script>
+
+<script src="/js/tools/lightDarkSwitch.js" type="module"></script>
+
+<script src="/js/layouts/categoryList.js" type="module"></script>
+
+
+
+    
+<script src="/js/tools/localSearch.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/tools/codeBlock.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/layouts/lazyload.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/tools/runtime.js"></script>
+
+    
+<script src="/js/libs/odometer.min.js"></script>
+
+    
+<link rel="stylesheet" href="/assets/odometer-theme-minimal.css">
+
+
+
+
+  
+<script src="/js/libs/Typed.min.js"></script>
+
+  
+<script src="/js/plugins/typed.js" type="module"></script>
+
+
+
+
+
+
+
+<div class="post-scripts" data-swup-reload-script>
+    
+        
+<script src="/js/libs/anime.min.js"></script>
+
+        
+<script src="/js/tools/tocToggle.js" type="module"></script>
+
+<script src="/js/layouts/toc.js" type="module"></script>
+
+<script src="/js/plugins/tabs.js" type="module"></script>
+
+    
+</div>
+
+
+    <div id="aplayer"></div>
+
+<script src="/js/libs/APlayer.min.js"></script>
+
+
+<script src="/js/plugins/aplayer.js"></script>
+
+
+</body>
+</html>

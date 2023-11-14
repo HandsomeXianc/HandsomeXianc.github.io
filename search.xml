@@ -4236,4 +4236,158 @@
         <tag>elasticsearch</tag>
       </tags>
   </entry>
+  <entry>
+    <title>2021-xv6实验记录(四)</title>
+    <url>/2023/11/14/xv6%E5%AE%9E%E9%AA%8C%E8%AE%B0%E5%BD%95(%E5%9B%9B)/</url>
+    <content><![CDATA[<blockquote>
+<p>本次实验，将进行<strong>两个任务</strong></p>
+<ol>
+<li>在 xv6 文件系统的代码里添加对<code>大文件</code>的支持  </li>
+<li>实现“符号链接”。</li>
+</ol>
+<p>在进行实验前，适当地参考“官方参考书”的第 8 个章节——File System  </p>
+<p>官方实验指南：<a class="link"   href="https://pdos.csail.mit.edu/6.828/2022/labs/fs.html" >https://pdos.csail.mit.edu/6.828/2022/labs/fs.html <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>  </p>
+<p>官方参考书：<a class="link"   href="https://pdos.csail.mit.edu/6.828/2022/xv6/book-riscv-rev3.pdf" >https://pdos.csail.mit.edu/6.828/2022/xv6/book-riscv-rev3.pdf <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>  </p>
+</blockquote>
+<h2 id="老规矩：实验前先切换分支"><a href="#老规矩：实验前先切换分支" class="headerlink" title="老规矩：实验前先切换分支"></a>老规矩：实验前先切换分支</h2><div class="highlight-container" data-rel="Shell"><figure class="iseeu highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git fetch</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">使用上述fetch的时候系统告诉你要缓存或者提交？那你不会commit？</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">git commit -m<span class="string">&quot;实验三缓存&quot;</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git checkout fs</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">make clean</span></span><br></pre></td></tr></table></figure></div>
+
+<h2 id="任务一：【Large-files】"><a href="#任务一：【Large-files】" class="headerlink" title="任务一：【Large files】"></a>任务一：【Large files】</h2><h3 id="实验描述"><a href="#实验描述" class="headerlink" title="实验描述"></a>实验描述</h3><p>xv6 文件系统的一个“文件”在存储设备（一般为外存）上的逻辑结构图  </p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141258343.png"
+                      alt="image-20231113153800593"
+                ></p>
+<p>在XV6底层实现中，文件是由 <code>struct dinode</code>来描述的，其代码结构如下</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">dinode</span> &#123;</span><br><span class="line">  <span class="type">short</span> type;           <span class="comment">// 文件类型</span></span><br><span class="line">  <span class="type">short</span> major;          <span class="comment">// 主设备号(当文件类型是设备的时候)</span></span><br><span class="line">  <span class="type">short</span> minor;          <span class="comment">// 从设备号(当文件类型是设备的时候)</span></span><br><span class="line">  <span class="type">short</span> nlink;          <span class="comment">// 表示有多少个目录指向该索引节点</span></span><br><span class="line">  uint size;            <span class="comment">// 文件大小(字节)</span></span><br><span class="line">  uint addrs[NDIRECT + <span class="number">1</span>];   <span class="comment">// 数据块地址</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></div>
+
+<p>根据图中的解释可以清晰的了解到一个文件索引的大小<code>268KB</code></p>
+<p>了解上述基本知识以后，可以尝试在xv6的终端敲入以下命令</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259289.png"
+                      alt="image-20231113153852899"
+                ></p>
+<div class="highlight-container" data-rel="Shell"><figure class="iseeu highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">bigfile				<span class="comment"># 敲入的命令是这条，下面是测试结果</span></span></span><br><span class="line">..</span><br><span class="line">wrote 268 blocks</span><br><span class="line">bigfile: file is too small</span><br><span class="line"><span class="meta prompt_">$</span></span><br></pre></td></tr></table></figure></div>
+
+<p>其中，bigfile 是一个用户层的测试程序，它尝试在分配 268 个块之后再分配 65803 个块，很明显，这个数值超过了 xv6 文件系统的现有限制，因此，抛出<b style="color:red">file is too small</b>的错误。  </p>
+<ul>
+<li><strong>本次实验的第一个任务已经浮出水面，就是要让 xv6 文件系统支持大文件的创建，以让上述用户层的测试程序能够正常运行。</strong></li>
+</ul>
+<h3 id="实验思路"><a href="#实验思路" class="headerlink" title="实验思路"></a>实验思路</h3><p>268KB的存储块可以装个啥？装个锤。因此尝试一下在不修改<code>底层dinode结构体大小的情况下</code>，</p>
+<ol>
+<li>修改一个之前包含了直接数据块地址的成员变量【就是上述十二个数据块直接地址变量中的一个】，让其指向一个二级间接块</li>
+<li><b style="color:red">二级间接块</b>同样有<code>256</code>个条目，但是每个条目指向的是一个<b style="color:blue">一级间接块</b></li>
+<li><b style="color:red">一级间接块</b>又包含256个条目，每个条目指向一个<b style="color:blue">直接数据块</b></li>
+</ol>
+<p><strong>根据我在脑海中生成的样子：</strong></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259290.png"
+                      alt="image-20231113153644623"
+                ></p>
+<h4>一些提示</h4>
+
+<ol>
+<li><code>kernel/fs.c</code>中的bmap()函数是关键点：主要实现将用户传入的相对的逻辑块号（针对文件的偏移）转为一个绝对的物理块号（针对该设备上的偏移，而一个设备可以包含多个文件）；目前bmap仅支持直接块和一级间接块的寻址，你需要添加对二级间接块的寻址</li>
+<li>可以修改一个原本用于“存放直接块地址”的成员变量，让其用于存放二级间接块地址（不能变化 dinode 结构体的大小）  </li>
+<li><code>NDIRECT</code> 表示 dinode 里直接块地址的数目，而 <code>NINDIRECT</code> 表示的是 dinode 结构体里间接块地址的数目（都在 kernel&#x2F;fs.h 里定义），所以针对它们的宏定义，可能需要得到相应的修改。修改了 NDIRECT 的值，请重新生成 xv6虚拟机的镜像文件——fs.img，生成的方法是在 xv6 的源码根目录下敲——make clean，它在清理一些临时的编译文件同时，会在主机系统里强制生成最新的fs.img（这个镜像文件里包含着整个 xv6 虚拟机的文件系统）  </li>
+<li>还有一个名为 <code>MAXFILE</code> 的宏定义，表示当前文件系统所支持的数据块数目，因需要支持大文件所以也需要修改。</li>
+<li>dinode 是索引节点用于存放在外存上（disk）的结构，其实它在内存中也存在一个特定的版本——名为 inode 结构体（定义在<code>kernel/risc.h</code>），所以，当你为了支持大文件或者二级间接块修改了 dinode 之后，也请修改 inode 的结构体的相应的成员变量</li>
+<li>除了分配块的 <code>bmap()</code>函数，释放块的函数<code>itrunc()</code>也需要修改<code>kernel/fs.c</code>，以支持释放或回收后面加入的二级间接块【可以参考 <code>itrunc</code> 是怎么处理一级间接块的】</li>
+</ol>
+<h3 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h3><p>因为需要将一个直接索引变成二级间接索引，因此根据【<strong>提示 2 和 提示 3</strong> 】对宏定义进行修改，打开<code>kernel/fs.h</code>文件</p>
+<div class="highlight-container" data-rel="C++"><figure class="iseeu highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> NDIRECT 11 <span class="comment">// 减少一个直接索引，增加一个二级间接索引</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NINDIRECT (BSIZE / sizeof(uint))</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NDINDIRECT NINDIRECT * NINDIRECT <span class="comment">// 二级间接索引提供的块</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MAXFILE (NDIRECT + NINDIRECT + NBI_INDIRECT)<span class="comment">//总数据块的数量</span></span></span><br></pre></td></tr></table></figure></div>
+
+<p>修改 <code>struct dinode</code> 和 <code>struct inode</code>。【<strong>提示 5</strong> 】</p>
+<p>打开<code>kernel/fs.h</code>文件修改<strong>宏定义</strong>以及<code>dinode</code></p>
+<p>因为修改了<code>dinode</code>所以还要修改<code>inode</code>，打开文件<code>kernel/file.h</code></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259291.png"
+                      alt="image-20231113154833044"
+                ></p>
+<p>修改<code>kernel/fs.c</code>文件中的 bmap 函数【<strong>提示 1</strong>】然后修改<code>itrunc</code>函数【<strong>提示 6</strong>】</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259292.png"
+                      alt="image-20231113154555188"
+                ></p>
+<h3 id="结果验证"><a href="#结果验证" class="headerlink" title="结果验证"></a>结果验证</h3><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259293.png"
+                      alt="image-20231113153438723"
+                ></p>
+<h2 id="任务二：【Symbolic-links】"><a href="#任务二：【Symbolic-links】" class="headerlink" title="任务二：【Symbolic links】"></a>任务二：【Symbolic links】</h2><h3 id="实验描述-1"><a href="#实验描述-1" class="headerlink" title="实验描述"></a>实验描述</h3><ul>
+<li>第二个任务是为 xv6 的文件增加“符号链接”功能  </li>
+<li>增加一个名为<code>symlink(char *target, char *path)</code>的系统调用，以实现创建符号链接的功能。<code>target </code>指的是被创建符号链接的文件路径（包括文件名），而<code>path </code>指的是该符号链接创建后存放的路径名（包括符号链接本身文件名）</li>
+</ul>
+<h3 id="实验思路-1"><a href="#实验思路-1" class="headerlink" title="实验思路"></a>实验思路</h3><ol>
+<li>创建新系统调用的步骤，为 symlink 提供一个接口&#x2F;入口，内部 实 现 可 以 暂 时 为 空 （ 需 要 修 改 <strong>user&#x2F;usys.pl、user&#x2F;user.h 、kernel&#x2F;sysfile.c</strong> 等文件  </li>
+<li>在 kernel&#x2F;stat.h 中，创建一个名为（T_SYMLINK）文件类型，去代表 <code>symlink()</code>所创建的符号链接类型  （xv6 原本支持的文件类型有三种，分别是常规文件、目录文件和设备文件，现在有了第四种）</li>
+<li>在 kernel&#x2F;fcntl.h 中，加入一个标志位——O_NOFOLLOW，用于 open()在打开符号链接时，以表明打开的对象为符号链接本身，而不是该符号链接所指向的目标文件（没有该标志位的话，系统将无法区分上述两种情况，因为 open 函数的内部处理需要返回一个指向 inode 的指针，那么这个指针到底是应该指向符号链接文件本身，还是其所指向的对象文件？  </li>
+<li>可能存在一个嵌套或者递归的情况，你用 open 打开的符号链接，其指向的又是另外一个符号链接……我们最多允许 10次递归，超过就报错</li>
+</ol>
+<h3 id="实验过程-1"><a href="#实验过程-1" class="headerlink" title="实验过程"></a>实验过程</h3><ul>
+<li>注册系统调用<code>symlink</code>【忘记怎么注册？查看实验二】</li>
+</ul>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259294.png"
+                      alt="image-20231113162939169"
+                ></p>
+<ul>
+<li>在文件<code>kernel/sysfile.c</code>文件中实现sys_symlink函数</li>
+</ul>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259295.png"
+                      alt="image-20231113161311951"
+                ></p>
+<ul>
+<li>修改<code>sys_open</code>函数</li>
+</ul>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259296.png"
+                      alt="image-20231113161535075"
+                ></p>
+<h3 id="结果验证-1"><a href="#结果验证-1" class="headerlink" title="结果验证"></a>结果验证</h3><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259297.png"
+                      alt="image-20231113163247065"
+                ></p>
+<h2 id="Make-Grade测试"><a href="#Make-Grade测试" class="headerlink" title="Make Grade测试"></a>Make Grade测试</h2><ul>
+<li>需要创建<code>time.txt</code>文件</li>
+</ul>
+<div class="highlight-container" data-rel="Shell"><figure class="iseeu highlight shell"><table><tr><td class="code"><pre><span class="line">touch time.txt</span><br><span class="line">vim time.txt  </span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li>测试时间因机器的性能不同而有所偏差，大部分情况存在因为虚拟机性能不够导致运行时间过长因此报错</li>
+</ul>
+<p>解决方法：打开根目录下的<code>grade-lab-fs</code>文件修改【timeout】的值</p>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://web-mybatis.oss-cn-beijing.aliyuncs.com/typora_picture/202311141259299.png"
+                      alt="image-20231114113527078" style="zoom:80%;" 
+                >
+]]></content>
+      <categories>
+        <category>操作系统</category>
+      </categories>
+      <tags>
+        <tag>操作系统</tag>
+        <tag>xv6</tag>
+      </tags>
+  </entry>
 </search>
